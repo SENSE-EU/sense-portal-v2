@@ -41,6 +41,7 @@ function getSearchQuery(
   sortDirection?: string,
   serviceType?: string | string[],
   accessType?: string | string[],
+  supportedBlockchain?: string | string[],
   filterSet?: string | string[],
   assetState?: string | string[],
   nodeUriIndex?: string | string[]
@@ -151,6 +152,21 @@ function getSearchQuery(
     }
   }
 
+  const selectedBlockchainIds = (
+    Array.isArray(supportedBlockchain)
+      ? supportedBlockchain
+      : supportedBlockchain
+      ? [supportedBlockchain]
+      : []
+  )
+    .map((chainId) => Number(chainId))
+    .filter((chainId) => Number.isFinite(chainId))
+
+  const effectiveChainIds =
+    selectedBlockchainIds.length > 0
+      ? chainIds.filter((chainId) => selectedBlockchainIds.includes(chainId))
+      : chainIds
+
   const filtersList = getInitialFilters(
     { accessType, serviceType, filterSet, nodeUriIndex },
     ['accessType', 'serviceType', 'filterSet', 'nodeUriIndex']
@@ -161,7 +177,7 @@ function getSearchQuery(
     Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 1
 
   const baseQueryParams = {
-    chainIds,
+    chainIds: effectiveChainIds,
     nestedQuery,
     esPaginationOptions: {
       from: normalizedPage - 1,
@@ -187,6 +203,7 @@ export async function getResults(
     sortOrder?: string
     serviceType?: string | string[]
     accessType?: string | string[]
+    supportedBlockchain?: string | string[]
     filterSet?: string[]
     assetState?: string | string[]
     nodeUriIndex?: string | string[]
@@ -204,6 +221,7 @@ export async function getResults(
     sortOrder,
     serviceType,
     accessType,
+    supportedBlockchain,
     filterSet,
     assetState,
     nodeUriIndex
@@ -220,6 +238,7 @@ export async function getResults(
     sortOrder,
     serviceType,
     accessType,
+    supportedBlockchain,
     filterSet,
     assetState,
     nodeUriIndex

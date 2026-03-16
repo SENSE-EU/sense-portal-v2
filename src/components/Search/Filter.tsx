@@ -16,6 +16,12 @@ import Accordion from '@components/@shared/Accordion'
 import customFilters from '../../../filters.config.cjs'
 import { State } from 'src/@types/ddo/State'
 import { nodeUriIndex } from '../../../app.config.cjs'
+import networkdata from '../../../content/networks-metadata.json'
+import {
+  getNetworkDataById,
+  getNetworkDisplayName
+} from '@hooks/useNetworkMetadata'
+import { useMarketMetadata } from '@context/MarketMetadata'
 
 const cx = classNames.bind(styles)
 
@@ -77,6 +83,7 @@ export default function Filter({
 }): ReactElement {
   const { filters, setFilters, ignorePurgatory, setIgnorePurgatory } =
     useFilter()
+  const { validatedSupportedChains } = useMarketMetadata()
 
   const router = useRouter()
 
@@ -171,6 +178,23 @@ export default function Filter({
         { label: 'Unlisted', value: State.Unlisted }
       ]
     },
+    ...(validatedSupportedChains.length > 1
+      ? [
+          {
+            id: 'supportedBlockchain',
+            label: 'Blockchain',
+            type: 'filterList',
+            options: validatedSupportedChains.map((chainId: number) => {
+              const network = getNetworkDataById(networkdata, chainId)
+
+              return {
+                label: getNetworkDisplayName(network),
+                value: String(chainId)
+              }
+            })
+          }
+        ]
+      : []),
     ...(showTime
       ? [
           {
