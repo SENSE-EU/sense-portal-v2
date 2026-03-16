@@ -47,7 +47,6 @@ function getVpPolicies(parent: unknown): VpPolicyLike[] {
   )
 }
 
-// S3 file validation schema
 const s3FileSchema = Yup.object().shape({
   type: Yup.string().oneOf(['s3']).required(),
   url: Yup.string().required(),
@@ -63,13 +62,11 @@ const s3FileSchema = Yup.object().shape({
   })
 })
 
-// Regular URL file validation schema
 const urlFileSchema = Yup.object().shape({
   url: testLinks(),
   valid: Yup.boolean().required().oneOf([true], 'File must be valid.')
 })
 
-// Combined file validation schema that handles both URL and S3
 const fileSchema = Yup.mixed().test(
   'file-type',
   'Invalid file type',
