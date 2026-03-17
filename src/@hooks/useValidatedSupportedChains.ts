@@ -3,7 +3,6 @@ import { LoggerInstance } from '@oceanprotocol/lib'
 import { Contract, getAddress, JsonRpcProvider } from 'ethers'
 import { getAllowedErc20Map } from '@utils/runtimeConfig'
 import { getOceanConfig } from '@utils/ocean'
-import appConfig from '../../app.config.cjs'
 
 const ENTERPRISE_FEE_COLLECTOR_ABI = [
   'function isTokenAllowed(address) view returns (bool)'
@@ -86,10 +85,7 @@ async function isTokenApprovedOnChain(
 }
 
 export async function fetchValidatedSupportedChains(): Promise<number[]> {
-  const supportedChainIds = new Set(appConfig.chainIdsSupported)
-  const configuredChains = getConfiguredAllowedChainTokens().filter(
-    ({ chainId }) => supportedChainIds.has(chainId)
-  )
+  const configuredChains = getConfiguredAllowedChainTokens()
   if (!configuredChains.length) return []
 
   const chainResults = await Promise.all(

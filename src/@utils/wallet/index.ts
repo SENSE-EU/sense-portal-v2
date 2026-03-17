@@ -14,8 +14,7 @@ import {
 } from 'ethers'
 import { getOceanConfig } from '../ocean'
 import { getSupportedChains } from './chains'
-import { chainIdsSupported } from '../../../app.config.cjs'
-import { getRuntimeConfig } from '../runtimeConfig'
+import { getAllowedErc20ChainIds, getRuntimeConfig } from '../runtimeConfig'
 
 export async function getDummySigner(chainId: number): Promise<Wallet> {
   const config = getOceanConfig(chainId)
@@ -33,7 +32,7 @@ export async function getDummySigner(chainId: number): Promise<Wallet> {
    WAGMI CHAINS — FIXED AS A TUPLE
 ------------------------------------------ */
 function getWagmiChains(): readonly [Chain, ...Chain[]] {
-  const baseChains: Chain[] = [...getSupportedChains(chainIdsSupported)]
+  const baseChains: Chain[] = [...getSupportedChains(getAllowedErc20ChainIds())]
   const runtimeConfig = getRuntimeConfig()
 
   if (runtimeConfig.NEXT_PUBLIC_MARKET_DEVELOPMENT === 'true') {

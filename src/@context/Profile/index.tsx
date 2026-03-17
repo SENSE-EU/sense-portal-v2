@@ -24,7 +24,6 @@ import { useChainId } from 'wagmi'
 import { getOceanConfig } from '@utils/ocean'
 import { getTokenInfo } from '@utils/wallet'
 import { useEthersSigner } from '@hooks/useEthersSigner'
-import { getAccessDetails } from '@utils/accessDetailsAndPricing'
 import { useCancelToken } from '@hooks/useCancelToken'
 import { getComputeEnvironments } from '@utils/provider'
 
@@ -52,8 +51,6 @@ interface ProfileProviderValue {
 }
 
 const ProfileContext = createContext({} as ProfileProviderValue)
-
-const refreshInterval = 10000 // 10 sec.
 
 function ProfileProvider({
   accountId,
@@ -139,7 +136,6 @@ function ProfileProvider({
   const [downloads, setDownloads] = useState<DownloadedAsset[]>()
   const [downloadsTotal, setDownloadsTotal] = useState(0)
   const [isDownloadsLoading, setIsDownloadsLoading] = useState<boolean>()
-  const [downloadsInterval, setDownloadsInterval] = useState<NodeJS.Timeout>()
   const [currentPage, setCurrentPage] = useState(1)
 
   const fetchDownloads = useCallback(
@@ -184,20 +180,10 @@ function ProfileProvider({
 
   useEffect(() => {
     const cancelToken = axios.CancelToken.source()
-    fetchDownloads(cancelToken.token, currentPage)
-
-    return () => cancelToken.cancel('Request cancelled.')
-  }, [currentPage, fetchDownloads])
-
-  useEffect(() => {
-    const cancelTokenSource = axios.CancelToken.source()
-
-    async function getDownloadAssets() {
-      if (!appConfig?.metadataCacheUri) return
-
+    async function updateDownloads() {
       try {
         setIsDownloadsLoading(true)
-        await fetchDownloads(cancelTokenSource.token)
+        await fetchDownloads(cancelToken.token, currentPage)
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : String(err)
         LoggerInstance.log(errorMessage)
@@ -205,19 +191,11 @@ function ProfileProvider({
         setIsDownloadsLoading(false)
       }
     }
-    getDownloadAssets()
 
-    if (downloadsInterval) return
-    const interval = setInterval(async () => {
-      await fetchDownloads(cancelTokenSource.token)
-    }, refreshInterval)
-    setDownloadsInterval(interval)
+    updateDownloads()
 
-    return () => {
-      cancelTokenSource.cancel()
-      clearInterval(downloadsInterval)
-    }
-  }, [fetchDownloads, appConfig.metadataCacheUri, downloadsInterval])
+    return () => cancelToken.cancel('Request cancelled.')
+  }, [currentPage, fetchDownloads])
 
   //
   // SALES NUMBER
@@ -232,64 +210,12 @@ function ProfileProvider({
     }
     async function getUserSalesNumber() {
       try {
-        const { totalOrders, revenueByToken, results } =
-          await getUserSalesAndRevenue(accountId, chainIds)
-        setSales(totalOrders)
-
-        const enrichedResults = await Promise.all(
-          results.map(async (item) => {
-            try {
-              const accessDetails = await getAccessDetails(
-                item.credentialSubject.chainId,
-                item.credentialSubject.services[0],
-                accountId,
-                newCancelToken()
-              )
-              return {
-                ...item,
-                accessDetails: [accessDetails]
-              }
-            } catch (err) {
-              LoggerInstance.warn(
-                `[Profile] Failed to fetch access details for ${item.id}`,
-                err.message
-              )
-              return { ...item, accessDetails: [] }
-            }
-          })
+        const { totalOrders, revenueByToken } = await getUserSalesAndRevenue(
+          accountId,
+          chainIds
         )
-
-        const revenueByTokenFromAccess: { [symbol: string]: number } = {}
-        enrichedResults.forEach((asset) => {
-          const orders = asset?.indexedMetadata?.stats?.[0]?.orders || 0
-          const priceEntry = (
-            asset.indexedMetadata?.stats?.[0] as {
-              prices?: Array<{ price?: number | string }>
-            }
-          )?.prices?.[0]
-          const price = priceEntry?.price ? Number(priceEntry.price) : 0
-
-          const firstAccessDetail = asset.accessDetails?.[0]
-          const baseTokenSymbol =
-            firstAccessDetail?.baseToken?.symbol || undefined
-
-          if (!baseTokenSymbol) return
-
-          const revenueValue = orders * price
-          if (revenueValue > 0) {
-            if (!revenueByTokenFromAccess[baseTokenSymbol]) {
-              revenueByTokenFromAccess[baseTokenSymbol] = 0
-            }
-            revenueByTokenFromAccess[baseTokenSymbol] += revenueValue
-          }
-        })
-
-        const finalRevenueMap =
-          Object.keys(revenueByTokenFromAccess).length > 0
-            ? revenueByTokenFromAccess
-            : revenueByToken
-
-        setRevenue(finalRevenueMap)
+        setSales(totalOrders)
+        setRevenue(revenueByToken)
       } catch (error) {
         const errorMessage =
           error instanceof Error ? error.message : String(error)

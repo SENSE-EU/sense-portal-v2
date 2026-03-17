@@ -47,14 +47,25 @@ function MarketMetadataProvider({
       // Safety check: Don't run if we don't have a signer yet
       if (!signer) return
 
-      const opcData = await getOpcData(appConfig.chainIdsSupported)
+      const opcData = await getOpcData(validatedSupportedChains)
       setOpcFees(opcData)
     }
 
-    if (!opcFees && signer && enterpriseFeeCollector) {
+    if (
+      !opcFees &&
+      signer &&
+      enterpriseFeeCollector &&
+      validatedSupportedChains.length > 0
+    ) {
       fetchData()
     }
-  }, [signer, getOpcData, enterpriseFeeCollector])
+  }, [
+    signer,
+    getOpcData,
+    enterpriseFeeCollector,
+    opcFees,
+    validatedSupportedChains
+  ])
 
   // ---------------------------
   // Get OPC fee for given token

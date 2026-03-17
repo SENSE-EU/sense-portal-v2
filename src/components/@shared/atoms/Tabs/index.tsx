@@ -29,10 +29,12 @@ export default function Tabs({
   variant = 'default',
   isEditPage = false
 }: TabsProps): ReactElement {
+  const currentSelectedIndex = selectedIndex ?? 0
+
   return (
     <ReactTabs
       className={`${className || ''}`}
-      selectedIndex={selectedIndex}
+      selectedIndex={currentSelectedIndex}
       onSelect={onIndexSelected}
     >
       <div className={variant === 'accent' ? styles.accentTabListWrapper : ''}>
@@ -62,7 +64,7 @@ export default function Tabs({
                     className={styles.radioInput}
                     name={item.title}
                     type="radio"
-                    checked={index === selectedIndex}
+                    checked={index === currentSelectedIndex}
                     options={[item.title]}
                     readOnly
                     variant={variant}
@@ -87,7 +89,7 @@ export default function Tabs({
               isEditPage ? styles.editTabPanel : ''
             }`}
           >
-            {item.content}
+            {index === currentSelectedIndex ? item.content : null}
           </TabPanel>
         ))}
       </div>

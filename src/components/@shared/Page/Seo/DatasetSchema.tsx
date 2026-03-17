@@ -8,11 +8,11 @@ import removeMarkdown from 'remove-markdown'
 const DatasetSchema = (): object => {
   const { asset, isInPurgatory } = useAsset()
   const { networksList } = useNetworkMetadata()
-  const { appConfig } = useMarketMetadata()
+  const { validatedSupportedChains } = useMarketMetadata()
 
   const networksMain = filterNetworksByType(
     'mainnet',
-    appConfig.chainIdsSupported,
+    validatedSupportedChains,
     networksList
   )
 

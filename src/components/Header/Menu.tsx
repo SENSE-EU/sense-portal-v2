@@ -50,7 +50,7 @@ export function MenuLink({ name, link, className }: MenuItem) {
 }
 
 export default function Menu(): ReactElement {
-  const { appConfig } = useMarketMetadata()
+  const { validatedSupportedChains } = useMarketMetadata()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   const router = useRouter()
@@ -106,7 +106,7 @@ export default function Menu(): ReactElement {
 
         <div className={styles.actions}>
           {/* <SearchButton /> */}
-          {appConfig.chainIdsSupported.length > 1 && <Networks />}
+          {validatedSupportedChains.length > 1 && <Networks />}
           <UserPreferences />
           <Wallet />
           {/* Desktop view - show SSiWallet and buttons normally */}

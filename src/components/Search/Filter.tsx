@@ -84,6 +84,9 @@ export default function Filter({
   const { filters, setFilters, ignorePurgatory, setIgnorePurgatory } =
     useFilter()
   const { validatedSupportedChains } = useMarketMetadata()
+  const supportedBlockchainValues = validatedSupportedChains.map((chainId) =>
+    String(chainId)
+  )
 
   const router = useRouter()
 
@@ -114,6 +117,12 @@ export default function Filter({
       } else {
         updatedFilters[filterId] = [value]
       }
+    } else if (filterId === 'supportedBlockchain') {
+      const nextValues = filters[filterId].includes(value)
+        ? filters[filterId].filter((entry) => entry !== value)
+        : [...filters[filterId], value]
+
+      updatedFilters[filterId] = nextValues.length === 0 ? [] : nextValues
     } else {
       updatedFilters = filters[filterId].includes(value)
         ? {

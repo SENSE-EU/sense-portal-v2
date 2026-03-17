@@ -6,11 +6,9 @@ import {
   useEffect,
   useMemo,
   useRef,
-  useState,
-  startTransition
+  useState
 } from 'react'
-import { getPublishedAssets, getUserSalesAndRevenue } from '@utils/aquarius'
-import { useUserPreferences } from '@context/UserPreferences'
+import { getPublishedAssets } from '@utils/aquarius'
 import styles from './HistoryData.module.css'
 import { useCancelToken } from '@hooks/useCancelToken'
 import Filter from '@components/Search/Filter'
@@ -132,10 +130,8 @@ export default function HistoryData({
 }: {
   accountId: string
 }): ReactElement {
-  const { appConfig } = useMarketMetadata()
-  const { chainIds } = useUserPreferences()
-  const { approvedBaseTokens } = useMarketMetadata()
-  const { ownAccount } = useProfile()
+  const { approvedBaseTokens, validatedSupportedChains } = useMarketMetadata()
+  const { ownAccount, sales, revenue } = useProfile()
   const { filters, ignorePurgatory } = useFilter()
   const { networksList } = useNetworkMetadata()
 
@@ -203,63 +199,28 @@ export default function HistoryData({
     [networksList]
   )
   const activeChainIds = useMemo(
-    () =>
-      (chainIds && chainIds.length > 0
-        ? chainIds
-        : appConfig?.chainIdsSupported) || [],
-    [chainIds, appConfig?.chainIdsSupported]
+    () => validatedSupportedChains || [],
+    [validatedSupportedChains]
+  )
+  const activeChainIdsKey = useMemo(
+    () => JSON.stringify(activeChainIds || []),
+    [activeChainIds]
   )
   const filtersKey = useMemo(() => JSON.stringify(filters || {}), [filters])
   const [queryResult, setQueryResult] = useState<PagedAssets>()
   const [isTableLoading, setIsTableLoading] = useState(false)
   const [page, setPage] = useState<number>(0)
-  const [revenueTotal, setRevenueTotal] = useState(0)
-  const [revenueByToken, setRevenueByToken] = useState<Record<string, number>>(
-    {}
-  )
-  const [sales, setSales] = useState(0)
   const [accessDetailsCache, setAccessDetailsCache] = useState<
     Record<string, AccessDetails>
   >({})
-  const [allAssets, setAllAssets] = useState<AssetExtended[]>([])
   const latestRequestRef = useRef(0)
+  const accessDetailsCacheRef = useRef<Record<string, AccessDetails>>({})
 
   const newCancelToken = useCancelToken()
 
   useEffect(() => {
-    if (!accountId || activeChainIds.length === 0) return
-
-    const source = axios.CancelToken.source()
-
-    async function fetchSalesAndRevenue() {
-      try {
-        const { totalOrders, totalRevenue, revenueByToken, results } =
-          await getUserSalesAndRevenue(
-            accountId,
-            activeChainIds,
-            filters,
-            source.token
-          )
-
-        setSales(totalOrders)
-        setAllAssets((results as AssetExtended[]) || [])
-        setRevenueTotal(totalRevenue)
-        setRevenueByToken(
-          filterAndSeedRevenue(revenueByToken || {}, approvedBaseTokens)
-        )
-      } catch (error) {
-        LoggerInstance.error(
-          'Failed to fetch user sales/revenue',
-          error.message
-        )
-      }
-    }
-
-    fetchSalesAndRevenue()
-    return () => {
-      source.cancel('history-sales-cancelled')
-    }
-  }, [accountId, activeChainIds, filtersKey, approvedBaseTokens])
+    accessDetailsCacheRef.current = accessDetailsCache
+  }, [accessDetailsCache])
 
   const getPublished = useCallback(
     async (
@@ -287,7 +248,7 @@ export default function HistoryData({
           enrichedResults = await Promise.all(
             result.results.map(async (item) => {
               try {
-                const cached = accessDetailsCache[item.id]
+                const cached = accessDetailsCacheRef.current[item.id]
                 const accessDetails =
                   cached ||
                   (await getAccessDetails(
@@ -320,33 +281,6 @@ export default function HistoryData({
         }
         if (requestId !== latestRequestRef.current) return
 
-        const enrichedAllAssets: AssetExtended[] = allAssets.map((asset) => {
-          const cached = accessDetailsCache[asset.id]
-          const currentPageEnriched = enrichedResults.find(
-            (a) => a.id === asset.id
-          )
-
-          if (currentPageEnriched?.accessDetails?.[0]) {
-            return currentPageEnriched
-          } else if (cached) {
-            return {
-              ...asset,
-              accessDetails: [cached]
-            } as AssetExtended
-          }
-          return asset
-        })
-
-        const computedRevenue = buildRevenueByToken(enrichedAllAssets)
-        const computedTotal = Object.values(computedRevenue).reduce(
-          (acc, val) => acc + Number(val || 0),
-          0
-        )
-
-        const hasEnrichedData = enrichedAllAssets.some(
-          (asset) => asset.accessDetails?.[0]
-        )
-
         setQueryResult(
           result
             ? {
@@ -357,29 +291,6 @@ export default function HistoryData({
               }
             : result
         )
-
-        if (Object.keys(computedRevenue).length > 0) {
-          startTransition(() => {
-            setRevenueByToken((prev) => {
-              if (hasEnrichedData) {
-                return filterAndSeedRevenue(computedRevenue, approvedBaseTokens)
-              }
-              return prev && Object.keys(prev).length > 0
-                ? prev
-                : filterAndSeedRevenue(computedRevenue, approvedBaseTokens)
-            })
-            setRevenueTotal((prev) => {
-              if (hasEnrichedData && computedTotal > 0) {
-                return computedTotal
-              }
-              return prev && prev > 0
-                ? prev
-                : computedTotal > 0
-                ? computedTotal
-                : 0
-            })
-          })
-        }
       } catch (error) {
         const errorMessage =
           error instanceof Error ? error.message : String(error)
@@ -391,12 +302,10 @@ export default function HistoryData({
       }
     },
     [
-      activeChainIds,
+      activeChainIdsKey,
       ignorePurgatory,
       newCancelToken,
       ownAccount,
-      accessDetailsCache,
-      allAssets,
       approvedBaseTokens
     ]
   )
@@ -410,7 +319,7 @@ export default function HistoryData({
     const source = axios.CancelToken.source()
     getPublished(accountId, page, filters, source.token)
     return () => source.cancel('history-published-cancelled')
-  }, [accountId, ownAccount, page, getPublished, filtersKey])
+  }, [accountId, ownAccount, page, getPublished, filtersKey, activeChainIdsKey])
 
   return accountId ? (
     <div className={styles.containerHistory}>
@@ -426,7 +335,11 @@ export default function HistoryData({
             data={queryResult?.results || []}
             paginationPerPage={9}
             isLoading={isTableLoading}
-            emptyMessage={chainIds.length === 0 ? 'No network selected' : null}
+            emptyMessage={
+              validatedSupportedChains.length === 0
+                ? 'No network selected'
+                : null
+            }
             exportEnabled={Boolean(queryResult?.results?.length)}
             onPageChange={(newPage) => {
               setPage(newPage)
@@ -434,8 +347,14 @@ export default function HistoryData({
             showPagination={Boolean(queryResult?.results?.length)}
             page={queryResult?.page > 0 ? queryResult?.page - 1 : 1}
             totalPages={queryResult?.totalPages}
-            revenueByToken={revenueByToken}
-            revenueTotal={revenueTotal}
+            revenueByToken={filterAndSeedRevenue(
+              revenue || {},
+              approvedBaseTokens
+            )}
+            revenueTotal={Object.values(revenue || {}).reduce(
+              (acc, value) => acc + Number(value || 0),
+              0
+            )}
             sales={sales}
             items={queryResult?.totalResults || 0}
             allResults={queryResult?.results || []}
