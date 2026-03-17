@@ -432,7 +432,8 @@ export const getNewServiceInitialValues = (
 
 export const getServiceInitialValues = (
   service: Service,
-  accessDetails: AccessDetails
+  accessDetails: AccessDetails,
+  detectedFileType?: string
 ): ServiceEditForm => {
   const computeSettings = getComputeSettingsInitialValues(
     service.compute || defaultServiceComputeOptions
@@ -454,6 +455,42 @@ export const getServiceInitialValues = (
     }
   }
 
+  let processedFiles = []
+  if (detectedFileType === 's3') {
+    processedFiles = [
+      {
+        type: 's3',
+        url: '',
+        s3Access: {
+          endpoint: '',
+          region: 'us-east-1',
+          bucket: '',
+          objectKey: '',
+          accessKeyId: '',
+          secretAccessKey: '',
+          forcePathStyle: false
+        },
+        valid: true
+      }
+    ]
+  } else if (detectedFileType === 'ftp') {
+    processedFiles = [
+      {
+        type: 'ftp',
+        url: '',
+        valid: true
+      }
+    ]
+  } else {
+    processedFiles = [
+      {
+        type: 'url',
+        url: '',
+        valid: true
+      }
+    ]
+  }
+
   return {
     name: service.name,
     description: service.description?.['@value'],
@@ -470,10 +507,7 @@ export const getServiceInitialValues = (
       valid: true,
       custom: false
     },
-    files:
-      Array.isArray(service.files) && service.files.length > 0
-        ? service.files.map((f: FileInfo) => ({ ...f, valid: true }))
-        : [{ url: '', type: 'hidden', valid: true } as FileInfo],
+    files: processedFiles,
     links: linksFormValue,
     state: assetStateToString(service.state),
     timeout: secondsToString(service.timeout),

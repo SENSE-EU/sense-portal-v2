@@ -66,6 +66,16 @@ const urlFileSchema = Yup.object().shape({
   url: testLinks(),
   valid: Yup.boolean().required().oneOf([true], 'File must be valid.')
 })
+const ftpFileSchema = Yup.object().shape({
+  type: Yup.string().oneOf(['ftp']).required(),
+  url: Yup.string()
+    .required('FTP URL is required')
+    .test('ftp-protocol', 'URL must start with ftp:// or ftps://', (value) => {
+      if (!value) return false
+      return value.startsWith('ftp://') || value.startsWith('ftps://')
+    }),
+  valid: Yup.boolean().required().oneOf([true], 'File must be valid.')
+})
 
 const fileSchema = Yup.mixed().test(
   'file-type',
@@ -75,6 +85,9 @@ const fileSchema = Yup.mixed().test(
 
     if (isS3File(value)) {
       return s3FileSchema.isValidSync(value)
+    }
+    if (value.type === 'ftp') {
+      return ftpFileSchema.isValidSync(value)
     }
     return urlFileSchema.isValidSync(value)
   }

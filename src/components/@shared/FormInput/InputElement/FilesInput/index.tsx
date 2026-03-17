@@ -317,9 +317,32 @@ export default function FilesInput(props: FilesInputProps): ReactElement {
 
   function handleClose() {
     helpers.setTouched(false)
-    helpers.setValue([
-      { url: '', type: storageType === 'hidden' ? 'ipfs' : storageType }
-    ])
+
+    if (storageType === 's3') {
+      helpers.setValue([
+        {
+          type: 's3',
+          s3Access: {
+            endpoint: '',
+            region: '',
+            bucket: '',
+            objectKey: '',
+            accessKeyId: '',
+            secretAccessKey: '',
+            forcePathStyle: false
+          },
+          url: '',
+          valid: false
+        }
+      ])
+    } else {
+      helpers.setValue([
+        { url: '', type: storageType === 'hidden' ? 'ipfs' : storageType }
+      ])
+    }
+    setTimeout(() => {
+      setDisabledButton(true)
+    }, 0)
   }
 
   useEffect(() => {
@@ -336,14 +359,19 @@ export default function FilesInput(props: FilesInputProps): ReactElement {
     }
 
     if (storageType === 's3') {
-      setDisabledButton(
-        !providerUrl ||
-          !endpoint ||
-          !bucket ||
-          !objectKey ||
-          !accessKeyId ||
-          !secretAccessKey
-      )
+      const hasAllRequiredFields =
+        !!providerUrl &&
+        !!endpoint &&
+        !!bucket &&
+        !!objectKey &&
+        !!accessKeyId &&
+        !!secretAccessKey
+
+      if (isValidated) {
+        setDisabledButton(true)
+      } else {
+        setDisabledButton(!hasAllRequiredFields)
+      }
       return
     }
     if (storageType === 'ftp') {
@@ -369,7 +397,8 @@ export default function FilesInput(props: FilesInputProps): ReactElement {
     bucket,
     objectKey,
     accessKeyId,
-    secretAccessKey
+    secretAccessKey,
+    isValidated
   ])
 
   return (
