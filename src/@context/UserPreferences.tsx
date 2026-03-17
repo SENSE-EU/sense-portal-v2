@@ -56,7 +56,8 @@ function UserPreferencesProvider({
 }: {
   children: ReactNode
 }): ReactElement {
-  const { appConfig } = useMarketMetadata()
+  const { appConfig, validatedSupportedChains, isValidatingSupportedChains } =
+    useMarketMetadata()
   const localStorage = getLocalStorage()
   // Set default values from localStorage
   const [debug, setDebug] = useState<boolean>(localStorage?.debug || false)
@@ -65,8 +66,8 @@ function UserPreferencesProvider({
   )
   const [locale, setLocale] = useState<string>()
   const [bookmarks, setBookmarks] = useState(localStorage?.bookmarks || [])
-  const [chainIds, setChainIds] = useState(
-    localStorage?.chainIds || appConfig.chainIds
+  const [chainIds, setChainIds] = useState<number[]>(
+    localStorage?.chainIds || []
   )
   const { defaultPrivacyPolicySlug, showOnboardingModuleByDefault } = appConfig
   const [showOnboardingModule, setShowOnboardingModule] = useState<boolean>(
@@ -155,6 +156,31 @@ function UserPreferencesProvider({
     const newChainIds = chainIds.filter((id) => id !== 3 && id !== 4)
     setChainIds(newChainIds)
   }, [chainIds])
+
+  useEffect(() => {
+    if (isValidatingSupportedChains) return
+
+    setChainIds((currentChainIds) => {
+      const validCurrentChainIds = currentChainIds.filter((chainId) =>
+        validatedSupportedChains.includes(chainId)
+      )
+
+      if (validCurrentChainIds.length > 0) {
+        return validCurrentChainIds
+      }
+
+      if (
+        currentChainIds.length === validatedSupportedChains.length &&
+        currentChainIds.every(
+          (chainId, index) => chainId === validatedSupportedChains[index]
+        )
+      ) {
+        return currentChainIds
+      }
+
+      return validatedSupportedChains
+    })
+  }, [isValidatingSupportedChains, validatedSupportedChains])
 
   return (
     <UserPreferencesContext.Provider

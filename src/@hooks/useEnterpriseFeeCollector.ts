@@ -7,7 +7,7 @@ import { getTokenInfo } from '@utils/wallet'
 import { Fees } from 'src/@types/feeCollector/FeeCollector.type'
 import { OpcFee } from '@context/MarketMetadata/_types'
 import { useEthersSigner } from './useEthersSigner'
-import appConfig from '../../app.config.cjs'
+import { getAllowedErc20ChainIds } from '@utils/runtimeConfig'
 
 function isNetworkChangedError(error: any): boolean {
   if (!error) return false
@@ -18,7 +18,7 @@ function isNetworkChangedError(error: any): boolean {
 function useEnterpriseFeeCollector() {
   const chainId = useChainId()
   const signer = useEthersSigner()
-  const isSupportedChain = appConfig.chainIdsSupported.includes(chainId)
+  const isSupportedChain = getAllowedErc20ChainIds().includes(chainId)
   const [enterpriseFeeCollector, setEnterpriseFeeCollector] = useState<
     EnterpriseFeeCollectorContract | undefined
   >(undefined)

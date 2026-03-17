@@ -24,13 +24,6 @@ module.exports = {
     process.env.NEXT_PUBLIC_NODE_URI ||
     'https://eth-sepolia-testnet.api.pocket.network',
 
-  // List of chainIds which metadata cache queries will return by default.
-  // This preselects the Chains user preferences.
-  chainIds: [1, 10, 11155111, 11155420],
-
-  // List of all supported chainIds. Used to populate the Chains user preferences list.
-  chainIdsSupported: [1, 10, 11155111, 11155420],
-
   customProviderUrl:
     getEnv('NEXT_PUBLIC_PROVIDER_URL') || process.env.NEXT_PUBLIC_PROVIDER_URL,
 

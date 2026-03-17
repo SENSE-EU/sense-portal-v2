@@ -68,6 +68,8 @@ const tabsIndexList = {
   computeJobs: 2
 }
 
+const computeJobsTabIndex = tabsIndexList.computeJobs
+
 export default function HistoryPage({
   accountIdentifier
 }: {
@@ -121,18 +123,10 @@ export default function HistoryPage({
   )
 
   useEffect(() => {
+    if (tabIndex !== computeJobsTabIndex) return
+
     fetchJobs('init')
-
-    // init periodic refresh for jobs
-    const balanceInterval = setInterval(
-      () => fetchJobs('repeat'),
-      refreshInterval
-    )
-
-    return () => {
-      clearInterval(balanceInterval)
-    }
-  }, [accountId, refetchJobs])
+  }, [accountId, refetchJobs, tabIndex, fetchJobs])
 
   const getDefaultIndex = useCallback((): number => {
     const url = new URL(location.href)

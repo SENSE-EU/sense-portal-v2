@@ -33,7 +33,7 @@ export async function connectToWallet(
   try {
     const network = await owner.provider.getNetwork()
     const signerChainId = Number(network.chainId)
-    const allowedChainIds = getAllowedErc20ChainIds(appConfig.chainIdsSupported)
+    const allowedChainIds = getAllowedErc20ChainIds()
     if (!allowedChainIds.includes(signerChainId)) {
       throw new Error(
         `SSI connection is disabled on chain ${signerChainId}. Switch to an allowed network first.`

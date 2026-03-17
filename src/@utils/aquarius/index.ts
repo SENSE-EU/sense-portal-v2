@@ -74,6 +74,9 @@ export function parseFilters(
   }
   if (filtersList) {
     const filterTerms = Object.keys(filtersList)?.map((key) => {
+      if (!filterQueryPath[key]) {
+        return undefined
+      }
       if (key === 'filterSet') {
         const tags = filtersList[key].reduce(
           (acc, set) => [...acc, ...filterSets[set]],
@@ -99,6 +102,14 @@ export function parseFilters(
     return filterTerms.filter((term) => term !== undefined)
   }
   return []
+}
+
+function getSupportedBlockchainChainIds(filtersList?: Filters): number[] {
+  const selectedBlockchainIds = filtersList?.supportedBlockchain || []
+
+  return selectedBlockchainIds
+    .map((chainId) => Number(chainId))
+    .filter((chainId) => Number.isFinite(chainId))
 }
 
 export function getWhitelistShould(): FilterTerm[] {
@@ -604,6 +615,13 @@ export async function getPublishedAssets(
   page?: number
 ): Promise<PagedAssets> {
   if (!accountId) return
+  const selectedBlockchainChainIds = getSupportedBlockchainChainIds(filtersList)
+  const effectiveChainIds =
+    selectedBlockchainChainIds.length > 0
+      ? chainIds.filter((chainId) =>
+          selectedBlockchainChainIds.includes(chainId)
+        )
+      : chainIds
   const filters: FilterTerm[] = []
   filters.push(
     getFilterTerm('indexedMetadata.nft.owner', accountId.toLowerCase())
@@ -612,7 +630,7 @@ export async function getPublishedAssets(
     parseFilters(filtersList, filterSets).forEach((term) => filters.push(term))
   }
   const baseQueryParams = {
-    chainIds,
+    chainIds: effectiveChainIds,
     filters,
     sortOptions: {
       sortBy: SortTermOptions.Created,

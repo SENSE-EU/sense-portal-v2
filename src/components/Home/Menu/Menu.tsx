@@ -9,7 +9,7 @@ import UserPreferences from '../../Header/UserPreferences'
 import { SsiWallet } from './SsiWallet'
 
 export default function Menu(): ReactElement {
-  const { appConfig } = useMarketMetadata()
+  const { validatedSupportedChains } = useMarketMetadata()
 
   return (
     <nav className={styles.menu}>
@@ -18,7 +18,7 @@ export default function Menu(): ReactElement {
       </Link>
       <div className={styles.demoText}>Demonstration MarketPlace</div>
       <div className={styles.actions}>
-        {appConfig.chainIdsSupported.length > 1 && <Networks />}
+        {validatedSupportedChains.length > 1 && <Networks />}
         <UserPreferences />
         <Wallet />
         <SsiWallet />

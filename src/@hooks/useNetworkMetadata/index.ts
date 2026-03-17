@@ -7,13 +7,12 @@ import {
   getNetworkType,
   NetworkType
 } from './utils'
-import { useMarketMetadata } from '@context/MarketMetadata'
 import { useChainId } from 'wagmi'
+import { getAllowedErc20ChainIds } from '@utils/runtimeConfig'
 
 export default function useNetworkMetadata(
   chainIdOverride?: number
 ): UseNetworkMetadata {
-  const { appConfig } = useMarketMetadata()
   const wagmiChainId = useChainId()
   const chainId = chainIdOverride ?? wagmiChainId
 
@@ -38,7 +37,7 @@ export default function useNetworkMetadata(
     setNetworkDisplayName(networkDisplayName)
 
     // Check if network is supported by Ocean Protocol
-    if (appConfig.chainIdsSupported.includes(chainId)) {
+    if (getAllowedErc20ChainIds().includes(chainId)) {
       setIsSupportedOceanNetwork(true)
     } else {
       setIsSupportedOceanNetwork(false)
@@ -46,7 +45,7 @@ export default function useNetworkMetadata(
 
     // Check if network is testnet
     setIsTestnet(getNetworkType(networkData) !== NetworkType.Mainnet)
-  }, [chainId, networksList, appConfig.chainIdsSupported])
+  }, [chainId, networksList])
 
   return {
     networksList,

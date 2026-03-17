@@ -2,7 +2,6 @@ import { LoggerInstance } from '@oceanprotocol/lib'
 import { ReactElement, useEffect, useState } from 'react'
 import AssetList from '@shared/AssetList'
 import { getPublishedAssets } from '@utils/aquarius'
-import { useUserPreferences } from '@context/UserPreferences'
 import styles from './PublishedList.module.css'
 import { useCancelToken } from '@hooks/useCancelToken'
 import Filter from '@components/Search/Filter'
@@ -17,14 +16,15 @@ export default function PublishedList({
 }: {
   accountId: string
 }): ReactElement {
-  const { appConfig } = useMarketMetadata()
-  const { chainIds } = useUserPreferences()
+  const { validatedSupportedChains } = useMarketMetadata()
   const { ownAccount } = useProfile()
   const { filters, ignorePurgatory } = useFilter()
   const [queryResult, setQueryResult] = useState<PagedAssets>()
   const [isLoading, setIsLoading] = useState(true)
   const [page, setPage] = useState<number>(1)
   const newCancelToken = useCancelToken()
+  const filtersKey = JSON.stringify(filters || {})
+  const supportedChainsKey = JSON.stringify(validatedSupportedChains || [])
 
   const getPublished = useDebouncedCallback(
     async (
@@ -61,11 +61,11 @@ export default function PublishedList({
   }, [page, queryResult])
 
   useEffect(() => {
-    if (!accountId) return
+    if (!accountId || validatedSupportedChains.length === 0) return
 
     getPublished(
       accountId,
-      chainIds,
+      validatedSupportedChains,
       page,
       filters,
       ignorePurgatory,
@@ -75,11 +75,10 @@ export default function PublishedList({
     accountId,
     ownAccount,
     page,
-    appConfig?.metadataCacheUri,
-    chainIds,
+    supportedChainsKey,
     newCancelToken,
     getPublished,
-    filters,
+    filtersKey,
     ignorePurgatory
   ])
 
