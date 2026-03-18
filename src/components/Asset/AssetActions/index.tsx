@@ -11,7 +11,7 @@ import Download from './Download'
 import { FileInfo, LoggerInstance, Datatoken } from '@oceanprotocol/lib'
 import { compareAsBN } from '@utils/numbers'
 import { useAsset } from '@context/Asset'
-import { getFileDidInfo, getFileInfo } from '@utils/provider'
+import { getFileDidInfo, getFileInfo, StorageType } from '@utils/provider'
 import { getOceanConfig } from '@utils/ocean'
 import { useCancelToken } from '@hooks/useCancelToken'
 import { useIsMounted } from '@hooks/useIsMounted'
@@ -124,8 +124,9 @@ export default function AssetActions({
         formikState?.values?.services[serviceIndex].providerUrl.url ||
         service.serviceEndpoint
 
-      const storageType = formikState?.values?.services
-        ? formikState?.values?.services[serviceIndex].files[0].type
+      const storageType: StorageType | null = formikState?.values?.services
+        ? (formikState?.values?.services[serviceIndex].files[0]
+            .type as StorageType)
         : null
 
       // TODO: replace 'any' with correct typing

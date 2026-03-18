@@ -304,7 +304,11 @@ export default function EditService({
   return (
     <Formik
       enableReinitialize
-      initialValues={getServiceInitialValues(service, accessDetails)}
+      initialValues={getServiceInitialValues(
+        service,
+        accessDetails,
+        detectedFileType
+      )}
       validationSchema={
         accessDetails.type === 'free'
           ? newServiceValidationSchema

@@ -16,6 +16,7 @@ import { supportedLanguages } from '../languageType'
 import ContainerForm from '@components/@shared/atoms/ContainerForm'
 import SSIPoliciesSection from './SSIPoliciesSection'
 import AccessRulesSection from '@components/Publish/AccessPolicies/AccessRulesSection'
+import SectionContainer from '@components/@shared/SectionContainer/SectionContainer'
 
 export default function FormEditService({
   data,
@@ -183,24 +184,27 @@ export default function FormEditService({
           name="providerUrl"
           disabled={true}
         />
-
-        <Field
-          {...getFieldContent('files', content.services.fields)}
-          component={Input}
-          name="files"
-          activeFileType={existingFileType}
-          existingFilePlaceholder={
-            existingFileType
-              ? '[Encrypted file - URL not available for editing]'
-              : undefined
-          }
-          showExistingFileNotice={showExistingFileNotice}
-        />
-        <Field
-          {...getFieldContent('links', content.services.fields)}
-          component={Input}
-          name="links"
-        />
+        <SectionContainer title="File" border padding="16px">
+          <Field
+            {...getFieldContent('files', content.services.fields)}
+            component={Input}
+            name="files"
+            activeFileType={existingFileType}
+            existingFilePlaceholder={
+              existingFileType
+                ? '[Encrypted file - URL not available for editing]'
+                : undefined
+            }
+            showExistingFileNotice={showExistingFileNotice}
+          />
+        </SectionContainer>
+        <SectionContainer title="Sample File" border padding="16px">
+          <Field
+            {...getFieldContent('links', content.services.fields)}
+            component={Input}
+            name="links"
+          />
+        </SectionContainer>
         <Field
           {...getFieldContent('timeout', data)}
           component={Input}

@@ -15,6 +15,7 @@ import ContainerForm from '@shared/atoms/ContainerForm'
 import AccessRulesSection from '@components/Publish/AccessPolicies/AccessRulesSection'
 import SSIPoliciesSection from './SSIPoliciesSection'
 import { useMarketMetadata } from '@context/MarketMetadata'
+import SectionContainer from '@components/@shared/SectionContainer/SectionContainer'
 
 export default function FormAddService({
   data,
@@ -189,17 +190,20 @@ export default function FormAddService({
           name="providerUrl"
           disabled={true}
         />
-
-        <Field
-          {...getFieldContent('files', content.services.fields)}
-          component={Input}
-          name="files"
-        />
-        <Field
-          {...getFieldContent('links', content.services.fields)}
-          component={Input}
-          name="links"
-        />
+        <SectionContainer border padding="16px">
+          <Field
+            {...getFieldContent('files', content.services.fields)}
+            component={Input}
+            name="files"
+          />
+        </SectionContainer>
+        <SectionContainer border padding="16px">
+          <Field
+            {...getFieldContent('links', content.services.fields)}
+            component={Input}
+            name="links"
+          />
+        </SectionContainer>
 
         <Field
           {...getFieldContent('timeout', data)}

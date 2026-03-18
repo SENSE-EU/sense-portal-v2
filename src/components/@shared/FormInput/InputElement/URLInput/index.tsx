@@ -9,6 +9,7 @@ import InputGroup from '@shared/FormInput/InputGroup'
 import InputElement from '@shared/FormInput/InputElement'
 import isUrl from 'is-url-superb'
 import { isCID } from '@utils/ipfs'
+import { StorageType } from '@utils/provider'
 
 export interface URLInputProps {
   submitText: string
@@ -19,7 +20,7 @@ export interface URLInputProps {
   inputAdornment?: ReactNode
   inputDropdown?: ReactNode
   checkUrl?: boolean
-  storageType?: string
+  storageType?: StorageType | null
   hideButton?: boolean
   hideError?: boolean
   placeholder?: string

@@ -181,16 +181,21 @@ export default function ServicesFields(): ReactElement {
 
         {/* Card 2: File Upload Card */}
         <SectionContainer border padding="16px">
+          {' '}
           <Field
             {...getFieldContent('files', content.services.fields)}
             component={Input}
             name="services[0].files"
           />
+        </SectionContainer>
+        <SectionContainer border padding="16px">
           <Field
             {...getFieldContent('links', content.services.fields)}
             component={Input}
             name="services[0].links"
           />
+        </SectionContainer>
+        <SectionContainer border padding="16px">
           <Field
             {...getFieldContent('timeout', content.services.fields)}
             component={Input}

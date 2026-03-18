@@ -4,13 +4,14 @@ import styles from './index.module.css'
 import InputGroup from '@shared/FormInput/InputGroup'
 import InputElement from '@shared/FormInput/InputElement'
 import Download2Icon from '@images/download2.svg'
+import { StorageType } from '@utils/provider'
 
 export interface MethodInputProps {
   handleButtonClick(method: string): void
   isLoading: boolean
   name: string
   checkUrl?: boolean
-  storageType?: string
+  storageType?: StorageType | null
   hideButton?: boolean
   disabled?: boolean
 }

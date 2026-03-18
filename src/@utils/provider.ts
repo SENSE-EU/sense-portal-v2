@@ -1,14 +1,16 @@
 import {
-  Arweave,
+  ArweaveFileObject,
   ComputeAlgorithm,
   ComputeEnvironment,
   FileInfo,
-  Ipfs,
+  IpfsFileObject,
   LoggerInstance,
   ProviderInstance,
-  UrlFile,
+  UrlFileObject,
   UserCustomParameters,
-  getErrorMessage
+  getErrorMessage,
+  S3FileObject,
+  FtpFileObject
 } from '@oceanprotocol/lib'
 // if customProviderUrl is set, we need to call provider using this custom endpoint
 import { customProviderUrl } from '../../app.config.cjs'
@@ -23,6 +25,19 @@ import {
   PolicyServerInitiateActionData,
   PolicyServerInitiateComputeActionData
 } from 'src/@types/PolicyServer'
+
+export type KnownStorageType =
+  | 's3'
+  | 'ipfs'
+  | 'arweave'
+  | 'url'
+  | 'ftp'
+  | 'smartcontract'
+  | 'graphql'
+  | 'hidden'
+  | 'ftp'
+
+export type StorageType = KnownStorageType | (string & unknown)
 
 export async function initializeProviderForComputeMulti(
   datasets:
@@ -119,7 +134,6 @@ export async function initializeProviderForComputeMulti(
   )
 }
 
-// TODO: Why do we have these one line functions ?!?!?!
 export async function getEncryptedFiles(
   files: any,
   chainId: number,
@@ -127,9 +141,16 @@ export async function getEncryptedFiles(
   signer: Signer
 ): Promise<string> {
   try {
-    // https://github.com/oceanprotocol/provider/blob/v4main/API.md#encrypt-endpoint
+    const filesForEncryption = {
+      ...files,
+      files: files.files.map((file: any) => {
+        const cleanFile = { ...file }
+        if (!cleanFile.type) cleanFile.type = 'url'
+        return cleanFile
+      })
+    }
     const response = await ProviderInstance.encrypt(
-      files,
+      filesForEncryption,
       chainId,
       providerUrl,
       signer
@@ -137,8 +158,16 @@ export async function getEncryptedFiles(
     return response
   } catch (error) {
     const message = getErrorMessage(error.message)
+    console.error('[getEncryptedFiles] Error:', {
+      error,
+      message,
+      files: JSON.stringify(files),
+      providerUrl,
+      chainId
+    })
     LoggerInstance.error('[Provider Encrypt] Error:', message)
     toast.error(message)
+    throw error
   }
 }
 
@@ -167,27 +196,27 @@ export async function getFileDidInfo(
 export async function getFileInfo(
   file: string,
   providerUrl: string,
-  storageType: string,
+  storageType: StorageType,
   query?: string,
   headers?: KeyValuePair[],
   abi?: string,
   chainId?: number,
   method?: string,
+  s3Config?: S3FileObject,
   withChecksum = false
 ): Promise<FileInfo[]> {
-  let response
-  const headersProvider = {}
-  if (headers?.length > 0) {
-    headers.map((el) => {
+  let response: FileInfo[] = []
+  const headersProvider: { [key: string]: string } = {}
+  if (headers?.length) {
+    headers.forEach((el) => {
       headersProvider[el.key] = el.value
-      return el
     })
   }
 
   switch (storageType) {
     case 'ipfs': {
-      const fileIPFS: Ipfs = {
-        type: storageType,
+      const fileIPFS: IpfsFileObject = {
+        type: 'ipfs',
         hash: file
       }
       try {
@@ -196,7 +225,7 @@ export async function getFileInfo(
           providerUrl,
           withChecksum
         )
-      } catch (error) {
+      } catch (error: any) {
         const message = getErrorMessage(error.message)
         LoggerInstance.error('[Provider Get File info] Error:', message)
         toast.error(message)
@@ -204,8 +233,8 @@ export async function getFileInfo(
       break
     }
     case 'arweave': {
-      const fileArweave: Arweave = {
-        type: storageType,
+      const fileArweave: ArweaveFileObject = {
+        type: 'arweave',
         transactionId: file
       }
       try {
@@ -214,7 +243,44 @@ export async function getFileInfo(
           providerUrl,
           withChecksum
         )
-      } catch (error) {
+      } catch (error: any) {
+        const message = getErrorMessage(error.message)
+        LoggerInstance.error('[Provider Get File info] Error:', message)
+        toast.error(message)
+      }
+      break
+    }
+    case 's3': {
+      try {
+        if (!s3Config) {
+          throw new Error('S3 configuration is required for S3 file validation')
+        }
+        response = await ProviderInstance.getFileInfo(
+          s3Config,
+          providerUrl,
+          withChecksum
+        )
+      } catch (error: any) {
+        const message = getErrorMessage(error.message)
+        LoggerInstance.error('[S3 File Validation] Error:', message)
+        toast.error(message)
+        throw error
+      }
+      break
+    }
+    case 'ftp': {
+      console.log('Getting FTP file info for:', file)
+      const fileFtp: FtpFileObject = {
+        type: 'ftp',
+        url: file
+      }
+      try {
+        response = await ProviderInstance.getFileInfo(
+          fileFtp,
+          providerUrl,
+          withChecksum
+        )
+      } catch (error: any) {
         const message = getErrorMessage(error.message)
         LoggerInstance.error('[Provider Get File info] Error:', message)
         toast.error(message)
@@ -222,20 +288,19 @@ export async function getFileInfo(
       break
     }
     default: {
-      const fileUrl: UrlFile = {
-        type: 'url',
-        index: 0,
+      const fileUrl: UrlFileObject = {
+        type: storageType === 'url' ? 'url' : storageType,
         url: file,
         headers: headersProvider,
-        method
-      }
+        method: method || 'get'
+      } as UrlFileObject
       try {
         response = await ProviderInstance.getFileInfo(
           fileUrl,
           providerUrl,
           withChecksum
         )
-      } catch (error) {
+      } catch (error: any) {
         const message = getErrorMessage(error.message)
         LoggerInstance.error('[Provider Get File info] Error:', message)
         toast.error(message)
