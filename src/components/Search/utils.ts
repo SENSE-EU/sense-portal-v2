@@ -30,6 +30,26 @@ export function updateQueryStringParameter(
   }
 }
 
+export function buildSearchPageUrl(
+  pathname: string,
+  search: string,
+  page: number
+): string {
+  const parsed = queryString.parse(search, {
+    arrayFormat: 'separator',
+    arrayFormatSeparator: ','
+  })
+
+  parsed.page = String(page)
+
+  const query = queryString.stringify(parsed, {
+    arrayFormat: 'separator',
+    arrayFormatSeparator: ','
+  })
+
+  return query ? `${pathname}?${query}` : pathname
+}
+
 function getSearchQuery(
   chainIds: number[],
   text?: string,

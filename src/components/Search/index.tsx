@@ -3,7 +3,7 @@ import AssetList from '@shared/AssetList'
 import queryString from 'query-string'
 import Filter from './Filter'
 import Sort from './sort'
-import { getResults, updateQueryStringParameter } from './utils'
+import { buildSearchPageUrl, getResults } from './utils'
 import { useCancelToken } from '@hooks/useCancelToken'
 import styles from './index.module.css'
 import { useRouter } from 'next/router'
@@ -37,17 +37,7 @@ export default function SearchPage({
 
   const updatePage = useCallback(
     (page: number) => {
-      const { pathname, query } = router
-      const newUrl = updateQueryStringParameter(
-        pathname +
-          '?' +
-          JSON.stringify(query)
-            .replace(/"|{|}/g, '')
-            .replace(/:/g, '=')
-            .replace(/,/g, '&'),
-        'page',
-        `${page}`
-      )
+      const newUrl = buildSearchPageUrl(router.pathname, location.search, page)
       return router.push(newUrl)
     },
     [router]
