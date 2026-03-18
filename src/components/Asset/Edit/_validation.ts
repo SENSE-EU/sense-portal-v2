@@ -5,6 +5,7 @@ import { MAX_DECIMALS } from '@utils/constants'
 import { getMaxDecimalsValidation } from '@utils/numbers'
 import { getOriginalValue, testLinks } from '@utils/yup'
 import { validationConsumerParameters } from '@shared/FormInput/InputElement/ConsumerParameters/_validation'
+import { isS3File } from 'src/@types/S3File'
 
 const validationRequestCredentials = {
   format: Yup.string().required('Required'),
@@ -232,6 +233,16 @@ export const metadataValidationSchema = Yup.object().shape({
     .nullable()
 })
 
+const noWhitespaceTest = (fieldName: string) =>
+  Yup.string().test(
+    'no-whitespace',
+    `${fieldName} cannot have leading or trailing spaces`,
+    (value) => {
+      if (!value) return true
+      return value === value.trim()
+    }
+  )
+
 export const serviceValidationSchema = Yup.object().shape({
   name: Yup.string()
     .min(4, (param) => `Name must be at least ${param.min} characters`)
@@ -260,14 +271,80 @@ export const serviceValidationSchema = Yup.object().shape({
       Yup.object().shape({
         url: Yup.string().nullable(),
         type: Yup.string().nullable(),
-        valid: Yup.boolean().nullable()
+        valid: Yup.boolean().nullable(),
+        s3Access: Yup.object().when('type', {
+          is: 's3',
+          then: Yup.object().shape({
+            endpoint: noWhitespaceTest('Endpoint')
+              .nullable()
+              .test(
+                'endpoint-trim',
+                'Endpoint cannot have leading or trailing spaces',
+                (value) => {
+                  if (!value) return true
+                  return value === value.trim()
+                }
+              ),
+            region: Yup.string()
+              .nullable()
+              .test(
+                'region-trim',
+                'Region cannot have leading or trailing spaces',
+                (value) => {
+                  if (!value) return true
+                  return value === value.trim()
+                }
+              ),
+            bucket: noWhitespaceTest('Bucket name')
+              .nullable()
+              .test(
+                'bucket-trim',
+                'Bucket name cannot have leading or trailing spaces',
+                (value) => {
+                  if (!value) return true
+                  return value === value.trim()
+                }
+              ),
+            objectKey: noWhitespaceTest('Object key')
+              .nullable()
+              .test(
+                'objectKey-trim',
+                'Object key cannot have leading or trailing spaces',
+                (value) => {
+                  if (!value) return true
+                  return value === value.trim()
+                }
+              ),
+            accessKeyId: noWhitespaceTest('Access Key ID')
+              .nullable()
+              .test(
+                'accessKeyId-trim',
+                'Access Key ID cannot have leading or trailing spaces',
+                (value) => {
+                  if (!value) return true
+                  return value === value.trim()
+                }
+              ),
+            secretAccessKey: noWhitespaceTest('Secret Access Key')
+              .nullable()
+              .test(
+                'secretAccessKey-trim',
+                'Secret Access Key cannot have leading or trailing spaces',
+                (value) => {
+                  if (!value) return true
+                  return value === value.trim()
+                }
+              ),
+            forcePathStyle: Yup.boolean().nullable()
+          })
+        })
       })
     )
     .test('files-validation', 'Please provide a valid file', function (files) {
-      const fileList = files || []
+      const fileList = (files || []) as any[]
       const hasEncryptedFile = fileList.some(
-        (file: any) =>
-          file?.type === 'hidden' && (!file?.url || file.url.trim() === '')
+        (file) =>
+          file?.type === 'hidden' && (!file?.url || file.url?.trim() === '')
       )
 
       if (hasEncryptedFile) {
@@ -276,8 +353,62 @@ export const serviceValidationSchema = Yup.object().shape({
       if (fileList.length === 0) {
         return this.createError({ message: 'At least one file is required' })
       }
+
+      for (let i = 0; i < fileList.length; i++) {
+        const file = fileList[i]
+
+        if (isS3File(file) && file.s3Access) {
+          const {
+            endpoint,
+            region,
+            bucket,
+            objectKey,
+            accessKeyId,
+            secretAccessKey
+          } = file.s3Access
+
+          if (endpoint && endpoint !== endpoint.trim()) {
+            return this.createError({
+              message: 'Endpoint cannot have leading or trailing spaces',
+              path: `${this.path}[${i}].s3Access.endpoint`
+            })
+          }
+          if (region && region !== region.trim()) {
+            return this.createError({
+              message: 'Region cannot have leading or trailing spaces',
+              path: `${this.path}[${i}].s3Access.region`
+            })
+          }
+          if (bucket && bucket !== bucket.trim()) {
+            return this.createError({
+              message: 'Bucket name cannot have leading or trailing spaces',
+              path: `${this.path}[${i}].s3Access.bucket`
+            })
+          }
+          if (objectKey && objectKey !== objectKey.trim()) {
+            return this.createError({
+              message: 'Object key cannot have leading or trailing spaces',
+              path: `${this.path}[${i}].s3Access.objectKey`
+            })
+          }
+          if (accessKeyId && accessKeyId !== accessKeyId.trim()) {
+            return this.createError({
+              message: 'Access Key ID cannot have leading or trailing spaces',
+              path: `${this.path}[${i}].s3Access.accessKeyId`
+            })
+          }
+          if (secretAccessKey && secretAccessKey !== secretAccessKey.trim()) {
+            return this.createError({
+              message:
+                'Secret Access Key cannot have leading or trailing spaces',
+              path: `${this.path}[${i}].s3Access.secretAccessKey`
+            })
+          }
+        }
+      }
+
       const hasValidFile = fileList.some(
-        (file: any) => file?.url?.trim() && file.valid !== false
+        (file) => file?.url?.trim() && file.valid !== false
       )
       return (
         hasValidFile ||

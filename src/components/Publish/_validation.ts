@@ -47,17 +47,33 @@ function getVpPolicies(parent: unknown): VpPolicyLike[] {
   )
 }
 
+const noWhitespaceTest = (fieldName: string) =>
+  Yup.string().test(
+    'no-whitespace',
+    `${fieldName} cannot have leading or trailing spaces`,
+    (value) => {
+      if (!value) return true
+      return value === value.trim()
+    }
+  )
+
 const s3FileSchema = Yup.object().shape({
   type: Yup.string().oneOf(['s3']).required(),
   url: Yup.string().required(),
   valid: Yup.boolean().required().oneOf([true], 'File must be valid.'),
   s3Access: Yup.object().shape({
-    endpoint: Yup.string().required('Endpoint is required'),
-    region: Yup.string().optional(),
-    bucket: Yup.string().required('Bucket name is required'),
-    objectKey: Yup.string().required('Object key is required'),
-    accessKeyId: Yup.string().required('Access Key ID is required'),
-    secretAccessKey: Yup.string().required('Secret Access Key is required'),
+    endpoint: noWhitespaceTest('Endpoint').required('Endpoint is required'),
+    region: noWhitespaceTest('Region').optional(),
+    bucket: noWhitespaceTest('Bucket name').required('Bucket name is required'),
+    objectKey: noWhitespaceTest('Object key').required(
+      'Object key is required'
+    ),
+    accessKeyId: noWhitespaceTest('Access Key ID').required(
+      'Access Key ID is required'
+    ),
+    secretAccessKey: noWhitespaceTest('Secret Access Key').required(
+      'Secret Access Key is required'
+    ),
     forcePathStyle: Yup.boolean().optional()
   })
 })

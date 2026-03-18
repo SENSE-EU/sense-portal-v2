@@ -260,7 +260,7 @@
                 "title": "Region",
                 "label": "Region",
                 "placeholder": "e.g. us-east-1 (optional)",
-                "help": "Region (e.g., us-east-1). Optional; defaults to us-east-1 if omitted.",
+                "help": "Region (e.g., us-east-1). Optional; defaults to us-east-1 if omitted. Ensure the input value contains no spaces, as some S3 providers cannot process them.",
                 "type": "text",
                 "required": false
               },
@@ -269,7 +269,7 @@
                 "title": "Bucket",
                 "label": "Bucket Name",
                 "placeholder": "e.g. my-bucket",
-                "help": "S3 bucket name where the file is stored",
+                "help": "S3 bucket name where the file is stored. Ensure the input value contains no spaces, as some S3 providers cannot process them",
                 "type": "text",
                 "required": true
               },
@@ -278,7 +278,7 @@
                 "title": "Object Key",
                 "label": "Object Key/Path",
                 "placeholder": "e.g. path/to/file.zip",
-                "help": "Object key (path within the bucket)",
+                "help": "Object key (path within the bucket). Ensure the input value contains no spaces, as some S3 providers cannot process them",
                 "type": "text",
                 "required": true
               },
