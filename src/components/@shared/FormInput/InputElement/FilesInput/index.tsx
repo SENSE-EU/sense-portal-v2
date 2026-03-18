@@ -88,6 +88,47 @@ export default function FilesInput(props: FilesInputProps): ReactElement {
       setIsLoading(true)
       onValidationLoadingChange?.(true)
 
+      if (storageType === 's3') {
+        const trimmedEndpoint = endpoint.trim()
+        const trimmedRegion = region.trim()
+        const trimmedBucket = bucket.trim()
+        const trimmedObjectKey = objectKey.trim()
+        const trimmedAccessKeyId = accessKeyId.trim()
+        const trimmedSecretAccessKey = secretAccessKey.trim()
+
+        const hasWhitespace =
+          endpoint !== trimmedEndpoint ||
+          region !== trimmedRegion ||
+          bucket !== trimmedBucket ||
+          objectKey !== trimmedObjectKey ||
+          accessKeyId !== trimmedAccessKeyId ||
+          secretAccessKey !== trimmedSecretAccessKey
+
+        if (hasWhitespace) {
+          const updatedS3Access = {
+            ...s3Access,
+            endpoint: trimmedEndpoint,
+            region: trimmedRegion,
+            bucket: trimmedBucket,
+            objectKey: trimmedObjectKey,
+            accessKeyId: trimmedAccessKeyId,
+            secretAccessKey: trimmedSecretAccessKey,
+            forcePathStyle
+          }
+
+          const updatedValue = {
+            ...field.value[0],
+            s3Access: updatedS3Access
+          }
+
+          await helpers.setValue([updatedValue])
+
+          throw new Error(
+            'Please remove leading and trailing spaces from all fields'
+          )
+        }
+      }
+
       if (storageType === 'ftp') {
         const isValidFtp = url.startsWith('ftp://') || url.startsWith('ftps://')
         if (!isValidFtp) {
@@ -361,11 +402,11 @@ export default function FilesInput(props: FilesInputProps): ReactElement {
     if (storageType === 's3') {
       const hasAllRequiredFields =
         !!providerUrl &&
-        !!endpoint &&
-        !!bucket &&
-        !!objectKey &&
-        !!accessKeyId &&
-        !!secretAccessKey
+        !!endpoint.trim() &&
+        !!bucket.trim() &&
+        !!objectKey.trim() &&
+        !!accessKeyId.trim() &&
+        !!secretAccessKey.trim()
 
       if (isValidated) {
         setDisabledButton(true)
@@ -465,6 +506,14 @@ export default function FilesInput(props: FilesInputProps): ReactElement {
                                   name={fieldName}
                                   value={fieldValue}
                                   disabled={isValidated}
+                                  onBlur={(
+                                    e: React.FocusEvent<HTMLInputElement>
+                                  ) => {
+                                    const trimmed = e.target.value.trim()
+                                    if (trimmed !== e.target.value) {
+                                      form.setFieldValue(fieldName, trimmed)
+                                    }
+                                  }}
                                 />
                               )}
                             </Field>
