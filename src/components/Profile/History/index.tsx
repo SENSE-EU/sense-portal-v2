@@ -1,4 +1,4 @@
-import { ReactElement, useCallback, useEffect, useState } from 'react'
+import { ReactElement, useCallback, useEffect, useRef, useState } from 'react'
 import Tabs from '@shared/atoms/Tabs'
 import PublishedList from './PublishedList'
 import Downloads from './Downloads'
@@ -10,14 +10,11 @@ import { useCancelToken } from '@hooks/useCancelToken'
 import { LoggerInstance } from '@oceanprotocol/lib'
 import { useAccount } from 'wagmi'
 import HistoryData from './HistoryData'
-import { getUserOrders } from '@utils/aquarius'
 
 interface HistoryTab {
   title: string
   content: JSX.Element
 }
-
-const refreshInterval = 10000 // 10 sec.
 
 function getTabs(
   accountId: string,
@@ -83,43 +80,34 @@ export default function HistoryPage({
   const [isLoadingJobs, setIsLoadingJobs] = useState(false)
   const [jobs, setJobs] = useState<ComputeJobMetaData[]>([])
   const [tabIndex, setTabIndex] = useState<number>()
+  const isFetchingJobsRef = useRef(false)
 
   const fetchJobs = useCallback(
     async (type: string) => {
       if (!chainIds || chainIds.length === 0 || !accountId) {
         return
       }
+      if (isFetchingJobsRef.current) {
+        return
+      }
 
       try {
-        type === 'init' && setIsLoadingJobs(true)
-        let currentPage = 1
-        let totalPages = 1
-
-        const dtList: string[] = []
-
-        // Fetch all pages of user orders
-        while (currentPage <= totalPages) {
-          const orders = await getUserOrders(
-            accountId,
-            newCancelToken(),
-            currentPage
-          )
-          orders?.results?.forEach((order) => {
-            if (order.datatokenAddress) dtList.push(order.datatokenAddress)
-          })
-          // eslint-disable-next-line prefer-destructuring
-          totalPages = orders?.totalPages || 0
-          currentPage++
+        isFetchingJobsRef.current = true
+        if (type === 'init') {
+          setIsLoadingJobs(true)
         }
+
         const computeJobs = await getAllComputeJobs(accountId, newCancelToken())
         setJobs(computeJobs?.computeJobs)
         setIsLoadingJobs(!computeJobs.isLoaded)
       } catch (error) {
         LoggerInstance.error(error.message)
         setIsLoadingJobs(false)
+      } finally {
+        isFetchingJobsRef.current = false
       }
     },
-    [accountId, chainIds, isLoadingJobs, newCancelToken]
+    [accountId, chainIds, newCancelToken]
   )
 
   useEffect(() => {
