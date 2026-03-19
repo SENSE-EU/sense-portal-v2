@@ -408,6 +408,229 @@ body .inputSmall {
   flex-shrink: 0;
 }
 
+.outputStorageSection {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.outputStorageHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.outputToggleLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.outputToggle {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--clr-amber);
+}
+
+.outputToggleText {
+  font-size: 16px;
+  line-height: 18px;
+  font-weight: var(--text-weight-bold);
+  color: var(--clr-slate-70);
+}
+
+.outputTooltipContent {
+  max-width: 280px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.outputStorageCard {
+  width: 100%;
+  border: 1px solid var(--border-navy-soft);
+  border-radius: 24px;
+  background: var(--brand-white);
+  box-shadow: var(--shadow-md);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.outputStorageTabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.outputStorageTab {
+  border: 1px solid var(--border-navy-soft);
+  background: var(--brand-white);
+  color: var(--clr-slate-70);
+  border-radius: 999px;
+  padding: 10px 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.outputStorageTabActive {
+  border-color: var(--clr-navy);
+  color: var(--clr-navy);
+  background: var(--blue-80);
+}
+
+.outputStorageTabIcon {
+  width: 18px;
+  height: 18px;
+}
+
+.outputStorageForm {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.outputGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.outputField {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.outputLabel {
+  font-size: 14px;
+  line-height: 16px;
+  font-weight: var(--text-weight-bold);
+  color: var(--clr-slate-70);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.outputInput,
+.outputSelect {
+  border: 1px solid var(--border-navy-soft);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+  background: var(--brand-white);
+  padding: 12px 16px;
+  font-size: 14px;
+  line-height: 16px;
+  color: var(--text-ink);
+  width: 100%;
+}
+
+.outputInput:focus,
+.outputSelect:focus {
+  outline: none;
+  border-color: var(--clr-navy);
+}
+
+.outputCheckboxLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  line-height: 16px;
+  color: var(--clr-slate-70);
+}
+
+.outputCheckbox {
+  accent-color: var(--clr-amber);
+}
+
+.outputStorageHint {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--clr-slate-70);
+}
+
+.outputStorageError {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--red-500);
+}
+
+.encryptionKeySection {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.encryptionKeyActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.encryptionActionButton {
+  border: 1px solid var(--border-navy-soft);
+  border-radius: 999px;
+  background: var(--brand-white);
+  color: var(--clr-navy);
+  box-shadow: var(--shadow-sm);
+  font-size: 13px;
+  line-height: 1;
+  font-weight: var(--text-weight-bold);
+}
+
+.encryptionActionButton {
+  display: inline-flex;
+  align-items: center;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.encryptionActionButton:hover,
+.encryptionActionButton:focus-visible {
+  border-color: var(--clr-navy);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.encryptionActionButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+  transform: none;
+  box-shadow: var(--shadow-sm);
+}
+
+.encryptionStatus,
+.encryptionStatusError,
+.encryptionKeyHint {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.encryptionStatus {
+  color: var(--clr-navy);
+}
+
+.encryptionStatusError {
+  color: var(--red-500);
+}
+
+.encryptionKeyHint {
+  color: var(--clr-slate-70);
+}
+
 /* Paid section specific styling */
 .resourceSection:nth-child(3) .resourceControls {
   width: 758px;
@@ -811,6 +1034,10 @@ body .inputSmall {
     padding: 8px 12px;
   }
 
+  .outputGrid {
+    grid-template-columns: 1fr;
+  }
+
   .actions {
     flex-direction: row;
     flex-wrap: wrap;
@@ -902,6 +1129,27 @@ body .inputSmall {
 
   .inputLarge {
     width: 100%;
+  }
+
+  .outputStorageCard {
+    padding: 20px 16px;
+  }
+
+  .outputStorageTabs {
+    gap: 8px;
+  }
+
+  .outputStorageTab {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .encryptionKeyActions {
+    align-items: stretch;
+  }
+
+  .encryptionActionButton {
+    justify-content: center;
   }
 
   .actions {

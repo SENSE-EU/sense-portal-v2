@@ -1,5 +1,6 @@
 import { ReactElement } from 'react'
 import { UserCustomParameters } from '@oceanprotocol/lib'
+import { KeyValuePair } from '@shared/FormInput/InputElement/KeyValueInput'
 
 export type ComputeFlow = 'dataset' | 'algorithm'
 
@@ -117,6 +118,24 @@ export interface FormComputeData {
   actualPaymentAmount?: string
   jobPrice: string
   baseToken?: string | null
+  outputStorageEnabled?: boolean
+  outputStorage?: {
+    type?: 'url' | 's3' | 'ftp'
+    useEncryption?: boolean
+    encryptionKey?: string
+    url?: string
+    method?: string
+    headers?: KeyValuePair[]
+    s3Access?: {
+      endpoint?: string
+      region?: string
+      bucket?: string
+      objectKey?: string
+      accessKeyId?: string
+      secretAccessKey?: string
+      forcePathStyle?: boolean
+    }
+  } | null
 }
 
 export interface StepContent {

@@ -59,6 +59,10 @@ import { resetCredentialCache } from './hooks/resetCredentialCache'
 import { useMarketMetadata } from '@context/MarketMetadata'
 import appConfig from 'app.config.cjs'
 import { ComputeRerunConfig } from '@utils/computeRerun'
+import {
+  createComputeOutput,
+  getOutputStorageValidationMessage
+} from './outputStorage'
 
 type ParamValue = string | number | boolean | undefined
 
@@ -809,6 +813,11 @@ export default function ComputeWizardController({
         throw new Error('Missing compute initialization data.')
       }
 
+      const { output, encryptionKey } = createComputeOutput(
+        formikValues?.outputStorageEnabled,
+        formikValues?.outputStorage
+      )
+
       await submitComputeJob({
         datasetResponses,
         algorithmAsset: actualAlgorithmAsset,
@@ -827,7 +836,10 @@ export default function ComputeWizardController({
         datasetOrderPriceAndFees,
         paymentTokenAddress:
           baseTokenAddress ?? accessDetails?.baseToken?.address,
-        computeServiceEndpoint: service.serviceEndpoint
+        computeServiceEndpoint: service.serviceEndpoint,
+        computeOutput: output,
+        computeOutputEncryptionKey: encryptionKey,
+        computeOutputStorage: formikValues?.outputStorage
         // oceanTokenAddress --- IGNORE ---
       })
 
@@ -884,6 +896,15 @@ export default function ComputeWizardController({
         !values.acceptPublishingLicense
       ) {
         toast.error('Please complete all required fields.')
+        return
+      }
+
+      const outputStorageError = getOutputStorageValidationMessage(
+        values.outputStorageEnabled,
+        values.outputStorage
+      )
+      if (outputStorageError) {
+        toast.error(outputStorageError)
         return
       }
 
@@ -1054,6 +1075,7 @@ export default function ComputeWizardController({
 
         const hasUserParamsStep = Boolean(values.isUserParameters)
         const computeStep = hasUserParamsStep ? 5 : 4
+        const storageStep = computeStep + 2
         const hasMissingRequiredDefaults =
           Array.isArray(values.userUpdatedParameters) &&
           values.userUpdatedParameters.some((entry) =>
@@ -1068,6 +1090,10 @@ export default function ComputeWizardController({
                   param.value === '')
             )
           )
+        const outputStorageError = getOutputStorageValidationMessage(
+          values.outputStorageEnabled,
+          values.outputStorage
+        )
 
         const isContinueDisabled = isAlgorithmFlow
           ? (values.user.stepCurrent === 1 &&
@@ -1075,11 +1101,15 @@ export default function ComputeWizardController({
             (values.user.stepCurrent === 2 &&
               !(values.serviceSelected || values.withoutDataset)) ||
             (values.user.stepCurrent === computeStep && !values.computeEnv) ||
-            (values.user.stepCurrent === 4 && hasMissingRequiredDefaults)
+            (values.user.stepCurrent === 4 && hasMissingRequiredDefaults) ||
+            (values.user.stepCurrent === storageStep &&
+              Boolean(outputStorageError))
           : (values.user.stepCurrent === 1 && !values.algorithm) ||
             (values.user.stepCurrent === computeStep && !values.computeEnv) ||
             (values.user.stepCurrent === 2 && !values.serviceSelected) ||
-            (values.user.stepCurrent === 4 && hasMissingRequiredDefaults)
+            (values.user.stepCurrent === 4 && hasMissingRequiredDefaults) ||
+            (values.user.stepCurrent === storageStep &&
+              Boolean(outputStorageError))
 
         const selectedAlgoAssetForDisplay = isAlgorithmFlow
           ? asset

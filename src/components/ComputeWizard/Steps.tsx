@@ -301,6 +301,24 @@ export default function Steps({
             setBaseTokenAddress={setBaseTokenAddress}
           />
         ) : (
+          <ConfigureEnvironment
+            allResourceValues={allResourceValues}
+            setAllResourceValues={setAllResourceValues}
+            baseTokenAddress={baseTokenAddress}
+            setBaseTokenAddress={setBaseTokenAddress}
+            stepMode="storage"
+          />
+        )
+      case 7:
+        return hasUserParamsStep ? (
+          <ConfigureEnvironment
+            allResourceValues={allResourceValues}
+            setAllResourceValues={setAllResourceValues}
+            baseTokenAddress={baseTokenAddress}
+            setBaseTokenAddress={setBaseTokenAddress}
+            stepMode="storage"
+          />
+        ) : (
           <Review
             flow="dataset"
             asset={asset}
@@ -346,7 +364,7 @@ export default function Steps({
             setIsBalanceSufficient={setIsBalanceSufficient}
           />
         )
-      case 7:
+      case 8:
         return hasUserParamsStep ? (
           <Review
             flow="dataset"
@@ -445,6 +463,24 @@ export default function Steps({
               setBaseTokenAddress={setBaseTokenAddress}
             />
           ) : (
+            <ConfigureEnvironment
+              allResourceValues={allResourceValues}
+              setAllResourceValues={setAllResourceValues}
+              baseTokenAddress={baseTokenAddress}
+              setBaseTokenAddress={setBaseTokenAddress}
+              stepMode="storage"
+            />
+          )
+        case 5:
+          return hasUserParamsStep ? (
+            <ConfigureEnvironment
+              allResourceValues={allResourceValues}
+              setAllResourceValues={setAllResourceValues}
+              baseTokenAddress={baseTokenAddress}
+              setBaseTokenAddress={setBaseTokenAddress}
+              stepMode="storage"
+            />
+          ) : (
             <Review
               flow="algorithm"
               asset={asset}
@@ -494,7 +530,7 @@ export default function Steps({
               setIsBalanceSufficient={setIsBalanceSufficient}
             />
           )
-        case 5:
+        case 6:
           return hasUserParamsStep ? (
             <Review
               flow="algorithm"
@@ -599,6 +635,24 @@ export default function Steps({
             setBaseTokenAddress={setBaseTokenAddress}
           />
         ) : (
+          <ConfigureEnvironment
+            allResourceValues={allResourceValues}
+            setAllResourceValues={setAllResourceValues}
+            baseTokenAddress={baseTokenAddress}
+            setBaseTokenAddress={setBaseTokenAddress}
+            stepMode="storage"
+          />
+        )
+      case 7:
+        return hasUserParamsStep ? (
+          <ConfigureEnvironment
+            allResourceValues={allResourceValues}
+            setAllResourceValues={setAllResourceValues}
+            baseTokenAddress={baseTokenAddress}
+            setBaseTokenAddress={setBaseTokenAddress}
+            stepMode="storage"
+          />
+        ) : (
           <Review
             flow="algorithm"
             asset={asset}
@@ -633,7 +687,7 @@ export default function Steps({
             tokenInfo={tokenInfo}
           />
         )
-      case 7:
+      case 8:
         return hasUserParamsStep ? (
           <Review
             flow="algorithm"
