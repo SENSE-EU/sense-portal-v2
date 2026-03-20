@@ -48,5 +48,23 @@ export const initialValues: FormComputeData = {
   totalPrice: '0',
   escrowFunds: '0',
   jobPrice: '0',
-  baseToken: null
+  baseToken: null,
+  outputStorageEnabled: false,
+  outputStorage: {
+    type: 'url',
+    useEncryption: false,
+    encryptionKey: '',
+    url: '',
+    method: 'get',
+    headers: [],
+    s3Access: {
+      endpoint: '',
+      region: '',
+      bucket: '',
+      objectKey: '',
+      accessKeyId: '',
+      secretAccessKey: '',
+      forcePathStyle: false
+    }
+  }
 }

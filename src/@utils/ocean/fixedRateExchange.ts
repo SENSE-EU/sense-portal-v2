@@ -30,7 +30,6 @@ export async function getFixedBuyPrice(
   if (accessDetails.type === 'free') {
     return zeroPriceAndFees
   }
-  console.log('config', config.fixedRateExchangeAddress)
   const fixed = new FixedRateExchange(
     config.fixedRateExchangeAddress,
     signer,

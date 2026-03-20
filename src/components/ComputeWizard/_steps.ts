@@ -32,6 +32,7 @@ export function getDatasetSteps(
     steps.push(
       createStep(stepCounter++, 'Select C2D Environment'),
       createStep(stepCounter++, 'C2D Environment Configuration'),
+      createStep(stepCounter++, 'Job Results Storage'),
       createStep(stepCounter, 'Review')
     )
 
@@ -48,13 +49,15 @@ export function getDatasetSteps(
       createStep(4, 'User Parameters'),
       createStep(5, 'Select C2D Environment'),
       createStep(6, 'C2D Environment Configuration'),
-      createStep(7, 'Review')
+      createStep(7, 'Job Results Storage'),
+      createStep(8, 'Review')
     )
   } else {
     steps.push(
       createStep(4, 'Select C2D Environment'),
       createStep(5, 'C2D Environment Configuration'),
-      createStep(6, 'Review')
+      createStep(6, 'Job Results Storage'),
+      createStep(7, 'Review')
     )
   }
 

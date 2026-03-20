@@ -269,7 +269,6 @@ export async function getFileInfo(
       break
     }
     case 'ftp': {
-      console.log('Getting FTP file info for:', file)
       const fileFtp: FtpFileObject = {
         type: 'ftp',
         url: file

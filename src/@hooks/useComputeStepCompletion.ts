@@ -1,6 +1,7 @@
 import { useFormikContext } from 'formik'
 import { FormComputeData } from '@components/ComputeWizard/_types'
 import { getDatasetSteps } from '@components/ComputeWizard/_steps'
+import { getOutputStorageValidationMessage } from '@components/ComputeWizard/outputStorage'
 
 export function useComputeStepCompletion(isAlgorithmFlow?: boolean) {
   const { values } = useFormikContext<FormComputeData>()
@@ -9,6 +10,7 @@ export function useComputeStepCompletion(isAlgorithmFlow?: boolean) {
   const steps = getDatasetSteps(hasUserParamsStep, withoutDataset)
   const totalSteps = steps.length
   function getSuccessClass(step: number): boolean {
+    const stepTitle = steps.find((item) => item.step === step)?.title
     const environmentSelected = Boolean(values.computeEnv)
     const configSet =
       Number(values.cpu) > 0 &&
@@ -16,64 +18,45 @@ export function useComputeStepCompletion(isAlgorithmFlow?: boolean) {
       Number(values.disk) > 0 &&
       Number(values.gpu) >= 0 &&
       Number(values.jobDuration) > 0
+    const outputStorageConfigured = !getOutputStorageValidationMessage(
+      values.outputStorageEnabled,
+      values.outputStorage
+    )
     const agreementsChecked = Boolean(
       values.termsAndConditions && values.acceptPublishingLicense
     )
+    const explicitStepComplete = Boolean(
+      (values as any)[`step${step}Completed`]
+    )
 
-    if (isAlgorithmFlow) {
-      switch (step) {
-        case 1:
-          return Boolean(
-            values.step1Completed || (values.datasets?.length ?? 0)
-          )
-        case 2:
-          return Boolean(values.step2Completed)
-        case 3:
-          return Boolean(values.step3Completed)
-        case 4:
-          return Boolean(values.step4Completed)
-        case 5:
-          return Boolean(values.step5Completed)
-        case 6:
-          return Boolean(values.step6Completed)
-        case 7:
-          return hasUserParamsStep ? Boolean(values.step7Completed) : false
-        default:
-          return false
-      }
-    }
-
-    switch (step) {
-      case 1:
+    switch (stepTitle) {
+      case 'Select Datasets':
+        return Boolean(values.step1Completed || (values.datasets?.length ?? 0))
+      case 'Select Algorithm':
         return Boolean(values.step1Completed || values.algorithm)
-      case 2:
+      case 'Select Services':
         return Boolean(
-          values.step2Completed || (values.algorithmServices?.length ?? 0) > 0
+          explicitStepComplete ||
+            values.serviceSelected ||
+            (values.algorithmServices?.length ?? 0) > 0
         )
-      case 3:
-        return Boolean(values.step3Completed)
-      case 4:
-        return hasUserParamsStep
-          ? Boolean(values.step4Completed)
-          : Boolean(values.step4Completed || environmentSelected)
-      case 5:
-        return hasUserParamsStep
-          ? Boolean(values.step5Completed || environmentSelected)
-          : Boolean(values.step5Completed || configSet)
-      case 6:
-        return hasUserParamsStep
-          ? Boolean(values.step6Completed || configSet)
-          : Boolean(
-              values.step6Completed ||
-                (environmentSelected && configSet && agreementsChecked)
-            )
-      case 7:
-        return hasUserParamsStep
-          ? Boolean(
-              values.step7Completed ||
-                (environmentSelected && configSet && agreementsChecked)
-            )
-          : false
+      case 'Preview Selected Datasets & Services':
+      case 'User Parameters':
+        return explicitStepComplete
+      case 'Select C2D Environment':
+        return Boolean(explicitStepComplete || environmentSelected)
+      case 'C2D Environment Configuration':
+        return Boolean(explicitStepComplete || configSet)
+      case 'Job Results Storage':
+        return Boolean(explicitStepComplete || outputStorageConfigured)
+      case 'Review':
+        return Boolean(
+          explicitStepComplete ||
+            (environmentSelected &&
+              configSet &&
+              outputStorageConfigured &&
+              agreementsChecked)
+        )
       default:
         return false
     }

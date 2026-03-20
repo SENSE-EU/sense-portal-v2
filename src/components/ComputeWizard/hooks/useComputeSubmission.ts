@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react'
 import {
   ComputeAlgorithm,
+  ComputeOutput,
   ProviderInstance,
   ComputeEnvironment,
   ProviderComputeInitializeResults,
@@ -15,6 +16,8 @@ import { Service } from 'src/@types/ddo/Service'
 import { ResourceType } from 'src/@types/ResourceType'
 import { Signer } from 'ethers'
 import { getOrderPriceAndFees } from '@utils/accessDetailsAndPricing'
+import { FormComputeData } from '../_types'
+import { storeComputeOutputEncryptionKey } from '../outputStorage'
 
 type DatasetResponse = {
   asset: AssetExtended
@@ -49,6 +52,9 @@ type StartJobParams = {
   paymentTokenAddress?: string
   // oceanTokenAddress?: string
   computeServiceEndpoint?: string
+  computeOutput?: ComputeOutput
+  computeOutputEncryptionKey?: string
+  computeOutputStorage?: FormComputeData['outputStorage']
 }
 
 async function setAlgoPrice(
@@ -123,7 +129,10 @@ export function useComputeSubmission() {
       datasetOrderPriceAndFees,
       paymentTokenAddress,
       // oceanTokenAddress,
-      computeServiceEndpoint
+      computeServiceEndpoint,
+      computeOutput,
+      computeOutputEncryptionKey,
+      computeOutputStorage
     }: StartJobParams) => {
       try {
         setIsOrdering(true)
@@ -263,6 +272,7 @@ export function useComputeSubmission() {
 
         let response
         if (selectedResources.mode === 'paid') {
+          console.log('computeOutput:', computeOutput)
           response = await ProviderInstance.computeStart(
             providerEndpoint,
             signer,
@@ -276,7 +286,7 @@ export function useComputeSubmission() {
               algorithmAsset.credentialSubject.chainId,
             null,
             null,
-            null,
+            computeOutput,
             policiesServer as any
           )
         } else {
@@ -285,6 +295,7 @@ export function useComputeSubmission() {
             serviceId: algorithmService.id,
             meta: algorithmAsset.credentialSubject?.metadata?.algorithm as any
           }
+          console.log('computeOutput:', computeOutput)
           response = await ProviderInstance.freeComputeStart(
             providerEndpoint,
             signer,
@@ -297,7 +308,7 @@ export function useComputeSubmission() {
             resourceRequests,
             null,
             null,
-            null,
+            computeOutput,
             policiesServer as any
           )
         }
@@ -308,6 +319,14 @@ export function useComputeSubmission() {
           )
 
         setSuccessJobId(response?.jobId || response?.id || 'N/A')
+        const responseJobId = response?.jobId || response?.id
+        if (responseJobId && computeOutputEncryptionKey) {
+          storeComputeOutputEncryptionKey(
+            responseJobId,
+            computeOutputEncryptionKey,
+            computeOutputStorage
+          )
+        }
         setShowSuccess(true)
       } catch (error) {
         if (
