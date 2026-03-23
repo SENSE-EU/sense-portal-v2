@@ -15,8 +15,7 @@ export default function Navigation({ flow }: NavigationProps): ReactElement {
   const { values, setFieldValue }: FormikContextType<FormComputeData> =
     useFormikContext()
   const isAlgorithmFlow = flow === 'algorithm'
-  const { getSuccessClass, getLastCompletedStep } =
-    useComputeStepCompletion(isAlgorithmFlow)
+  const { getSuccessClass, getLastCompletedStep } = useComputeStepCompletion()
   const currentStep = values.user.stepCurrent
   const hasUserParamsStep = Boolean(values?.isUserParameters)
   const withoutDataset = Boolean(values?.withoutDataset)

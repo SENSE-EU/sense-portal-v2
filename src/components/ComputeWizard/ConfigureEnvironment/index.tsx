@@ -782,7 +782,7 @@ export default function ConfigureEnvironment({
             <p className={styles.outputStorageHint}>
               The compute job results will remain on the node storage. Select
               the remote storage option if you want to export encrypted results
-              to your own destination.
+              also to your own destination.
             </p>
           </div>
         )}

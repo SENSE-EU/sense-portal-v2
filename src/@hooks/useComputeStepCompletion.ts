@@ -3,7 +3,9 @@ import { FormComputeData } from '@components/ComputeWizard/_types'
 import { getDatasetSteps } from '@components/ComputeWizard/_steps'
 import { getOutputStorageValidationMessage } from '@components/ComputeWizard/outputStorage'
 
-export function useComputeStepCompletion(isAlgorithmFlow?: boolean) {
+type StepCompletedKey = Extract<keyof FormComputeData, `step${number}Completed`>
+
+export function useComputeStepCompletion() {
   const { values } = useFormikContext<FormComputeData>()
   const hasUserParamsStep = Boolean(values.isUserParameters)
   const withoutDataset = Boolean(values.withoutDataset)
@@ -25,9 +27,8 @@ export function useComputeStepCompletion(isAlgorithmFlow?: boolean) {
     const agreementsChecked = Boolean(
       values.termsAndConditions && values.acceptPublishingLicense
     )
-    const explicitStepComplete = Boolean(
-      (values as any)[`step${step}Completed`]
-    )
+    const stepKey = `step${step}Completed` as StepCompletedKey
+    const explicitStepComplete = Boolean(values[stepKey])
 
     switch (stepTitle) {
       case 'Select Datasets':
@@ -48,7 +49,7 @@ export function useComputeStepCompletion(isAlgorithmFlow?: boolean) {
       case 'C2D Environment Configuration':
         return Boolean(explicitStepComplete || configSet)
       case 'Job Results Storage':
-        return Boolean(explicitStepComplete || outputStorageConfigured)
+        return explicitStepComplete
       case 'Review':
         return Boolean(
           explicitStepComplete ||
