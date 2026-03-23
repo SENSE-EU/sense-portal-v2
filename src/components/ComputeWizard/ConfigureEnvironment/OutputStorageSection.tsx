@@ -6,10 +6,7 @@ import IconUrl from '@images/url.svg'
 import IconS3Storage from '@images/s3_storage.svg'
 import IconFtp from '@images/ftp.svg'
 import { FormComputeData } from '../_types'
-import {
-  generateComputeOutputEncryptionKey,
-  getOutputStorageValidationMessage
-} from '../outputStorage'
+import { generateComputeOutputEncryptionKey } from '../outputStorage'
 import styles from './index.module.css'
 
 const outputStorageTabs = [
@@ -172,10 +169,6 @@ export default function OutputStorageSection({
   setFieldValue: SetFieldValue
 }): ReactElement {
   const storageType = (values.outputStorage?.type || 'url') as OutputStorageType
-  const outputStorageError = getOutputStorageValidationMessage(
-    values.outputStorageEnabled,
-    values.outputStorage
-  )
   const [copyFeedback, setCopyFeedback] = useState<'idle' | 'copied' | 'error'>(
     'idle'
   )
@@ -233,151 +226,130 @@ export default function OutputStorageSection({
 
   return (
     <div className={styles.outputStorageSection}>
-      <div className={styles.outputStorageHeader}>
-        <StorageCheckbox
-          checked={Boolean(values.outputStorageEnabled)}
-          label="Enable output storage"
-          help="Store compute results in a remote destination."
-          onChange={(checked) => setFieldValue('outputStorageEnabled', checked)}
-        />
-      </div>
-
-      {values.outputStorageEnabled && (
-        <div className={styles.outputStorageCard}>
-          <div className={styles.outputStorageTabs}>
-            {outputStorageTabs.map((tab) => (
-              <StorageTypeTab
-                key={tab.type}
-                isActive={storageType === tab.type}
-                label={tab.label}
-                icon={tab.icon}
-                onClick={() => setFieldValue('outputStorage.type', tab.type)}
-              />
-            ))}
-          </div>
-
-          <div className={styles.outputStorageForm}>
-            {storageType === 'url' && (
-              <StorageInputField
-                name="outputStorage.url"
-                label="Destination URL"
-                type="url"
-                value={values.outputStorage?.url || ''}
-                placeholder="https://storage.example.com/results/"
-                onChange={(e) => updateOutputStorage('url', e.target.value)}
-              />
-            )}
-
-            {storageType === 's3' && (
-              <div className={styles.outputGrid}>
-                {s3FieldConfigs.map((fieldConfig) => (
-                  <StorageInputField
-                    key={fieldConfig.key}
-                    {...fieldConfig}
-                    name={`outputStorage.s3Access.${fieldConfig.key}`}
-                    value={getS3FieldValue(fieldConfig.key)}
-                    onChange={(e) =>
-                      updateS3Storage(fieldConfig.key, e.target.value)
-                    }
-                  />
-                ))}
-
-                <div className={styles.outputGridFullWidth}>
-                  <StorageCheckbox
-                    checked={Boolean(
-                      values.outputStorage?.s3Access?.forcePathStyle
-                    )}
-                    label="Use path-style addressing"
-                    help="If true, use path-style addressing (e.g., endpoint/bucket/key). Required for some S3-compatible services (e.g., MinIO). Default false (virtual-host style, standard for AWS S3)."
-                    onChange={(checked) =>
-                      updateS3Storage('forcePathStyle', checked)
-                    }
-                  />
-                </div>
-              </div>
-            )}
-
-            {storageType === 'ftp' && (
-              <StorageInputField
-                name="outputStorage.url"
-                label="FTP/FTPS URL"
-                type="url"
-                value={values.outputStorage?.url || ''}
-                placeholder="ftps://user:password@host/path"
-                onChange={(e) => updateOutputStorage('url', e.target.value)}
-              />
-            )}
-
-            <StorageCheckbox
-              checked={Boolean(values.outputStorage?.useEncryption)}
-              label="Encrypt the exported job results"
-              onChange={handleEncryptionToggle}
+      <div className={styles.outputStorageCard}>
+        <div className={styles.outputStorageTabs}>
+          {outputStorageTabs.map((tab) => (
+            <StorageTypeTab
+              key={tab.type}
+              isActive={storageType === tab.type}
+              label={tab.label}
+              icon={tab.icon}
+              onClick={() => setFieldValue('outputStorage.type', tab.type)}
             />
+          ))}
+        </div>
 
-            {values.outputStorage?.useEncryption && (
-              <div className={styles.encryptionKeySection}>
+        <div className={styles.outputStorageForm}>
+          {storageType === 'url' && (
+            <StorageInputField
+              name="outputStorage.url"
+              label="Destination URL"
+              type="url"
+              value={values.outputStorage?.url || ''}
+              placeholder="https://storage.example.com/results/"
+              onChange={(e) => updateOutputStorage('url', e.target.value)}
+            />
+          )}
+
+          {storageType === 's3' && (
+            <div className={styles.outputGrid}>
+              {s3FieldConfigs.map((fieldConfig) => (
                 <StorageInputField
-                  name="outputStorage.encryptionKey"
-                  label="Encryption Key"
-                  value={values.outputStorage?.encryptionKey || ''}
-                  placeholder="64 hex characters"
-                  onChange={(e) => handleEncryptionKeyChange(e.target.value)}
+                  key={fieldConfig.key}
+                  {...fieldConfig}
+                  name={`outputStorage.s3Access.${fieldConfig.key}`}
+                  value={getS3FieldValue(fieldConfig.key)}
+                  onChange={(e) =>
+                    updateS3Storage(fieldConfig.key, e.target.value)
+                  }
                 />
+              ))}
 
-                <div className={styles.encryptionKeyActions}>
-                  <button
-                    type="button"
-                    className={styles.encryptionActionButton}
-                    onClick={() =>
-                      updateOutputStorage(
-                        'encryptionKey',
-                        generateComputeOutputEncryptionKey()
-                      )
-                    }
-                  >
-                    Generate
-                  </button>
-                  <button
-                    type="button"
-                    className={styles.encryptionActionButton}
-                    onClick={handleCopyEncryptionKey}
-                    disabled={!values.outputStorage?.encryptionKey?.trim()}
-                  >
-                    Copy
-                  </button>
-                  {copyFeedback === 'copied' && (
-                    <span className={styles.encryptionStatus}>Copied.</span>
+              <div className={styles.outputGridFullWidth}>
+                <StorageCheckbox
+                  checked={Boolean(
+                    values.outputStorage?.s3Access?.forcePathStyle
                   )}
-                  {copyFeedback === 'error' && (
-                    <span className={styles.encryptionStatusError}>
-                      Copy failed. Copy it manually.
-                    </span>
-                  )}
-                </div>
-
-                <FormHelp className={styles.encryptionKeyHint}>
-                  Provide a 32-byte key encoded as 64 hexadecimal characters.
-                </FormHelp>
-                <FormHelp className={styles.encryptionKeyHint}>
-                  Copy this key and store it safely. You will need the same
-                  32-byte key to decrypt the exported result later.
-                </FormHelp>
+                  label="Use path-style addressing"
+                  help="If true, use path-style addressing (e.g., endpoint/bucket/key). Required for some S3-compatible services (e.g., MinIO). Default false (virtual-host style, standard for AWS S3)."
+                  onChange={(checked) =>
+                    updateS3Storage('forcePathStyle', checked)
+                  }
+                />
               </div>
-            )}
-          </div>
+            </div>
+          )}
 
-          <FormHelp className={styles.outputStorageHint}>
-            The compute provider writes the result to the selected destination.
-            For S3 destinations, the name can be a plain name, a folder path, or
-            a folder/name path. Enable encryption if you want the compute output
-            to include `ComputeOutput.encryption`.
-          </FormHelp>
+          {storageType === 'ftp' && (
+            <StorageInputField
+              name="outputStorage.url"
+              label="FTP/FTPS URL"
+              type="url"
+              value={values.outputStorage?.url || ''}
+              placeholder="ftps://user:password@host/path"
+              onChange={(e) => updateOutputStorage('url', e.target.value)}
+            />
+          )}
 
-          {outputStorageError && (
-            <p className={styles.outputStorageError}>{outputStorageError}</p>
+          <StorageCheckbox
+            checked={Boolean(values.outputStorage?.useEncryption)}
+            label="Encrypt the exported job results"
+            help="Encrypt the exported job results before they are written to your remote destination."
+            onChange={handleEncryptionToggle}
+          />
+
+          {values.outputStorage?.useEncryption && (
+            <div className={styles.encryptionKeySection}>
+              <StorageInputField
+                name="outputStorage.encryptionKey"
+                label="Encryption Key"
+                value={values.outputStorage?.encryptionKey || ''}
+                placeholder="64 hex characters"
+                onChange={(e) => handleEncryptionKeyChange(e.target.value)}
+              />
+
+              <div className={styles.encryptionKeyActions}>
+                <button
+                  type="button"
+                  className={styles.encryptionActionButton}
+                  onClick={() =>
+                    updateOutputStorage(
+                      'encryptionKey',
+                      generateComputeOutputEncryptionKey()
+                    )
+                  }
+                >
+                  Generate
+                </button>
+                <button
+                  type="button"
+                  className={styles.encryptionActionButton}
+                  onClick={handleCopyEncryptionKey}
+                  disabled={!values.outputStorage?.encryptionKey?.trim()}
+                >
+                  Copy
+                </button>
+                {copyFeedback === 'copied' && (
+                  <span className={styles.encryptionStatus}>Copied.</span>
+                )}
+                {copyFeedback === 'error' && (
+                  <span className={styles.encryptionStatusError}>
+                    Copy failed. Copy it manually.
+                  </span>
+                )}
+              </div>
+
+              <FormHelp className={styles.encryptionKeyHint}>
+                Provide a 32-byte key encoded as 64 hexadecimal characters.
+              </FormHelp>
+              <FormHelp className={styles.encryptionKeyHint}>
+                Copy this key and store it safely. You will need the same
+                32-byte key to decrypt the exported result later.
+              </FormHelp>
+            </div>
           )}
         </div>
-      )}
+      </div>
     </div>
   )
 }

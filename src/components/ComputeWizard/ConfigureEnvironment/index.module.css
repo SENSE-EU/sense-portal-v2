@@ -419,12 +419,6 @@ body .inputSmall {
   gap: 16px;
 }
 
-.outputStorageHeader {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
 .outputTooltipContent {
   max-width: 280px;
   font-size: 13px;
@@ -517,20 +511,6 @@ body .inputSmall {
 
 .outputGridFullWidth {
   grid-column: 1 / -1;
-}
-
-.outputStorageHint {
-  margin: 0;
-  font-size: 13px;
-  line-height: 1.5;
-  color: var(--clr-slate-70);
-}
-
-.outputStorageError {
-  margin: 0;
-  font-size: 13px;
-  line-height: 1.5;
-  color: var(--red-500);
 }
 
 .encryptionKeySection {
