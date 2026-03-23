@@ -3,7 +3,10 @@ export interface ResourceType {
   ram: number
   disk: number
   jobDuration: number
-  price: number
+  price: number | string
   mode: string
   gpu?: number
+  fullJobPrice?: string
+  actualPaymentAmount?: string
+  escrowCoveredAmount?: string
 }

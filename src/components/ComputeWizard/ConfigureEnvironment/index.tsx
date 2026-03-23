@@ -7,7 +7,7 @@ import {
   useRef
 } from 'react'
 import { Field, useFormikContext } from 'formik'
-import { Datatoken } from '@oceanprotocol/lib'
+import { ComputeEnvironment, Datatoken } from '@oceanprotocol/lib'
 import { ResourceType } from 'src/@types/ResourceType'
 import { useChainId } from 'wagmi'
 import StepTitle from '@shared/StepTitle'
@@ -28,6 +28,12 @@ interface ResourceValues {
   jobDuration: number
 }
 
+type ComputeEnvResource = NonNullable<ComputeEnvironment['resources']>[number]
+type ComputeEnvFee = NonNullable<ComputeEnvironment['fees']>[string][number]
+type ComputeEnvPrice = ComputeEnvFee['prices'][number]
+type ResourceValueKey = keyof ResourceValues
+type ResourceValueMap = Record<string, ResourceType>
+
 interface ResourceRowProps {
   resourceId: string
   label: string
@@ -40,11 +46,11 @@ interface ResourceRowProps {
     isFree: boolean
   ) => { minValue: number; maxValue: number; step?: number }
   updateResource: (
-    type: 'cpu' | 'ram' | 'disk' | 'gpu' | 'jobDuration',
+    type: ResourceValueKey,
     value: number | string,
     isFree: boolean
   ) => void
-  fee?: { prices?: { id: string; price: number }[] }
+  fee?: ComputeEnvFee
   tooltip?: string
 }
 
@@ -75,22 +81,23 @@ function SectionRadioOption({
   )
 }
 
-const hasGPUResource = (env: any): boolean => {
+const isGpuResourceId = (resourceId?: string): boolean =>
+  resourceId?.toLowerCase().includes('gpu') === true
+
+const isGpuResource = (resource?: ComputeEnvResource): boolean =>
+  resource?.type === 'gpu' || isGpuResourceId(resource?.id)
+
+const isGpuPrice = (price?: ComputeEnvPrice): boolean =>
+  isGpuResourceId(price?.id)
+
+const hasGPUResource = (env?: ComputeEnvironment | null): boolean => {
   if (!env) return false
 
-  if (
-    env.resources?.some(
-      (r: any) => r.type === 'gpu' || r.id?.toLowerCase().includes('gpu')
-    )
-  ) {
+  if (env.resources?.some(isGpuResource)) {
     return true
   }
 
-  if (
-    env.free?.resources?.some(
-      (r: any) => r.type === 'gpu' || r.id?.toLowerCase().includes('gpu')
-    )
-  ) {
+  if (env.free?.resources?.some(isGpuResource)) {
     return true
   }
 
@@ -98,11 +105,7 @@ const hasGPUResource = (env: any): boolean => {
     for (const chainId in env.fees) {
       const feeConfigs = env.fees[chainId]
       for (const feeConfig of feeConfigs) {
-        if (
-          feeConfig.prices?.some((p: any) =>
-            p.id?.toLowerCase().includes('gpu')
-          )
-        ) {
+        if (feeConfig.prices?.some(isGpuPrice)) {
           return true
         }
       }
@@ -274,8 +277,8 @@ export default function ConfigureEnvironment({
   setBaseTokenAddress,
   stepMode = 'resources'
 }: {
-  allResourceValues?: Record<string, ResourceType>
-  setAllResourceValues?: (values: Record<string, any>) => void
+  allResourceValues?: ResourceValueMap
+  setAllResourceValues?: React.Dispatch<React.SetStateAction<ResourceValueMap>>
   baseTokenAddress: string
   setBaseTokenAddress: React.Dispatch<React.SetStateAction<string>>
   stepMode?: 'resources' | 'storage'
@@ -297,7 +300,7 @@ export default function ConfigureEnvironment({
       if (!walletClient || !chainId) return address
 
       try {
-        const datatoken = new Datatoken(walletClient as any, chainId)
+        const datatoken = new Datatoken(walletClient, chainId)
         const sym = await datatoken.getSymbol(address)
         setSymbolMap((prev) => ({ ...prev, [address]: sym }))
         return sym
@@ -393,8 +396,6 @@ export default function ConfigureEnvironment({
       const envId = typeof env === 'string' ? env : env.id
       const modeKey = isFree ? 'free' : 'paid'
       const envResourceValues = allResourceValues?.[`${envId}_${modeKey}`]
-
-      const resourceSource = isFree ? env.free?.resources : env.resources
 
       return {
         cpu: isFree
@@ -608,7 +609,7 @@ export default function ConfigureEnvironment({
       }
     }
 
-    const resourceValues: any = {
+    const resourceValues: ResourceType = {
       cpu: currentValues.cpu,
       ram: currentValues.ram,
       disk: currentValues.disk,

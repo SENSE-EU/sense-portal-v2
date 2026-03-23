@@ -28,7 +28,7 @@ export default function ComputeEnvSelection({
   const fetchSymbol = async (address: string) => {
     if (symbolMap[address]) return symbolMap[address]
     if (!walletClient || !chainId) return '...'
-    const datatoken = new Datatoken(walletClient as any, chainId)
+    const datatoken = new Datatoken(walletClient, chainId)
     const sym = await datatoken.getSymbol(address)
     setSymbolMap((prev) => ({ ...prev, [address]: sym }))
     return sym
@@ -41,7 +41,7 @@ export default function ComputeEnvSelection({
   }, [computeEnvs])
 
   useEffect(() => {
-    const reset: { [envId: string]: any } = {}
+    const reset: { [envId: string]: ResourceType } = {}
     for (const env of computeEnvs ?? []) {
       const getDefault = (id: string) => {
         if (mode === 'free') return 0
@@ -59,7 +59,7 @@ export default function ComputeEnvSelection({
     }
     setResourceValues(reset)
     if (setAllResourceValues) setAllResourceValues(reset)
-  }, [mode, computeEnvs])
+  }, [mode, computeEnvs, setAllResourceValues])
 
   return (
     <div>
@@ -241,8 +241,8 @@ export default function ComputeEnvSelection({
                   </div>
                 ))}
                 <div>
-                  <strong>Total Cost:</strong> {currentRes.price.toFixed(2)}{' '}
-                  {tokenSymbol}
+                  <strong>Total Cost:</strong>{' '}
+                  {Number(currentRes.price).toFixed(2)} {tokenSymbol}
                 </div>
               </>
             )}
