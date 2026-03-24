@@ -1,7 +1,8 @@
 .titleContainer {
   display: flex;
-  flex-direction: row;
-  align-items: center;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 1rem;
   width: 100%;
   margin-bottom: 1rem;
 }
@@ -21,9 +22,32 @@
   font-size: 18px;
   line-height: 111%;
   color: rgba(48, 48, 49, 0.7);
+  min-width: 0;
+  flex: 1 1 100%;
+  padding-left: 0.5rem;
   padding-right: 0.5rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .right {
-  margin-left: auto;
+  margin-left: 0;
+}
+
+@media (min-width: 960px) {
+  .titleContainer {
+    flex-wrap: nowrap;
+    align-items: center;
+  }
+
+  .assetInfo {
+    flex: 1 1 auto;
+    padding-left: 0;
+  }
+
+  .right {
+    margin-left: auto;
+    text-align: right;
+  }
 }

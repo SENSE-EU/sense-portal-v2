@@ -20,6 +20,10 @@ import Decimal from 'decimal.js'
 import { MAX_DECIMALS } from '@utils/constants'
 import { truncateDid } from '@utils/string'
 import { LAST_TRACKED_COMPLETION_STEP } from '../_steps'
+import {
+  getComputeResourceLimits,
+  getDefaultComputeResourceValue
+} from '../computeEnvironmentDefaults'
 import OutputStorageSection from './OutputStorageSection'
 
 interface ResourceValues {
@@ -414,37 +418,21 @@ export default function ConfigureEnvironment({
       const envResourceValues = allResourceValues?.[`${envId}_${modeKey}`]
 
       return {
-        cpu: isFree
-          ? envResourceValues?.cpu ?? 0
-          : hasStoredResourceValue(envResourceValues?.cpu)
+        cpu: hasStoredResourceValue(envResourceValues?.cpu)
           ? envResourceValues.cpu
-          : env.resources?.find((r) => r.id === 'cpu')?.min ?? 1,
-        ram: isFree
-          ? envResourceValues?.ram ?? 0
-          : hasStoredResourceValue(envResourceValues?.ram)
+          : getDefaultComputeResourceValue(env, 'cpu', isFree),
+        ram: hasStoredResourceValue(envResourceValues?.ram)
           ? envResourceValues.ram
-          : env.resources?.find((r) => r.id === 'ram')?.min ?? 1,
-        disk: isFree
-          ? envResourceValues?.disk ?? 0
-          : hasStoredResourceValue(envResourceValues?.disk)
+          : getDefaultComputeResourceValue(env, 'ram', isFree),
+        disk: hasStoredResourceValue(envResourceValues?.disk)
           ? envResourceValues.disk
-          : env.resources?.find((r) => r.id === 'disk')?.min ?? 0,
-        gpu: isFree
-          ? envResourceValues?.gpu ?? 0
-          : hasStoredResourceValue(envResourceValues?.gpu)
+          : getDefaultComputeResourceValue(env, 'disk', isFree),
+        gpu: hasStoredResourceValue(envResourceValues?.gpu)
           ? envResourceValues.gpu
-          : (() => {
-              const source = isFree ? env.free?.resources : env.resources
-              const gpuResource = source?.find(
-                (r) => r.type === 'gpu' || r.id?.toLowerCase().includes('gpu')
-              )
-              return gpuResource?.min ?? 0
-            })(),
-        jobDuration: isFree
-          ? envResourceValues?.jobDuration ?? 0
-          : hasStoredResourceValue(envResourceValues?.jobDuration)
+          : getDefaultComputeResourceValue(env, 'gpu', isFree),
+        jobDuration: hasStoredResourceValue(envResourceValues?.jobDuration)
           ? envResourceValues.jobDuration
-          : 1
+          : getDefaultComputeResourceValue(env, 'jobDuration', isFree)
       }
     },
     [values.computeEnv, allResourceValues]
@@ -467,42 +455,11 @@ export default function ConfigureEnvironment({
     new Decimal(v).toDecimalPlaces(3, Decimal.ROUND_UP).toNumber()
 
   const getLimits = (id: string, isFree: boolean) => {
-    const env = values.computeEnv
-    if (!env) return { minValue: 0, maxValue: 0 }
-
-    if (id === 'jobDuration') {
-      const maxDuration = isFree ? env.free?.maxJobDuration : env.maxJobDuration
-      return {
-        minValue: 1,
-        maxValue: Math.floor((maxDuration ?? 3600) / 60),
-        step: 1
-      }
-    }
-
-    const resourceLimits = isFree ? env.free?.resources : env.resources
-    if (!resourceLimits) return { minValue: 0, maxValue: 0 }
-
-    let resource
-    if (id === 'gpu') {
-      resource = resourceLimits.find(
-        (r) => r.type === 'gpu' || r.id?.toLowerCase().includes('gpu')
-      )
-    } else {
-      resource = resourceLimits.find((r) => r.id === id)
-    }
-
-    if (!resource) return { minValue: 0, maxValue: 0 }
-
-    const available = Math.max(
-      0,
-      ((resource.max || resource.total) ?? 0) - (resource.inUse ?? 0)
+    return getComputeResourceLimits(
+      values.computeEnv,
+      id as ResourceValueKey,
+      isFree
     )
-
-    return {
-      minValue: resource.min ?? 0,
-      maxValue: available,
-      step: id === 'ram' || id === 'disk' ? 0.1 : 1
-    }
   }
 
   const calculatePrice = useCallback(() => {
@@ -870,28 +827,123 @@ export default function ConfigureEnvironment({
     return freeResource?.description
   }
 
+  const formatLimitValue = (value: number): string =>
+    Number.isInteger(value) ? value.toString() : value.toFixed(1)
+
+  const formatLimitRange = (
+    id: ResourceValueKey,
+    unit: string,
+    isFree: boolean
+  ): string => {
+    const { minValue, maxValue } = getLimits(id, isFree)
+    return `${formatLimitValue(minValue)} - ${formatLimitValue(
+      maxValue
+    )} ${unit}`
+  }
+
+  const environmentTechnicalRows = [
+    {
+      label: 'CPU',
+      freeValue: freeAvailable ? formatLimitRange('cpu', 'units', true) : null,
+      paidValue: formatLimitRange('cpu', 'units', false)
+    },
+    ...(gpuAvailable
+      ? [
+          {
+            label: 'GPU',
+            freeValue: freeAvailable
+              ? formatLimitRange('gpu', 'units', true)
+              : null,
+            paidValue: formatLimitRange('gpu', 'units', false)
+          }
+        ]
+      : []),
+    {
+      label: 'RAM',
+      freeValue: freeAvailable ? formatLimitRange('ram', 'GB', true) : null,
+      paidValue: formatLimitRange('ram', 'GB', false)
+    },
+    {
+      label: 'DISK',
+      freeValue: freeAvailable ? formatLimitRange('disk', 'GB', true) : null,
+      paidValue: formatLimitRange('disk', 'GB', false)
+    },
+    {
+      label: 'JOB DURATION',
+      freeValue: freeAvailable
+        ? formatLimitRange('jobDuration', 'min', true)
+        : null,
+      paidValue: formatLimitRange('jobDuration', 'min', false)
+    }
+  ]
+
   return (
     <div className={styles.container}>
       <StepTitle title="C2D Environment Configuration" />
 
       {showEnvironmentSummary && (
-        <div className={styles.environmentSummaryCard}>
-          <div className={styles.environmentSummaryHeader}>
-            <div className={styles.environmentSummaryTitleGroup}>
+        <details className={styles.environmentSummaryCard}>
+          <summary className={styles.environmentSummaryToggle}>
+            <div className={styles.environmentSummaryHeading}>
               <span className={styles.environmentSummaryEyebrow}>
                 Selected environment
               </span>
-              <h3 className={styles.environmentSummaryTitle}>
-                {truncateDid(env.id)}
-              </h3>
+              <div className={styles.environmentSummaryContent}>
+                <h3 className={styles.environmentSummaryTitle} title={env.id}>
+                  {truncateDid(env.id)}
+                </h3>
+                {env.description && (
+                  <p
+                    className={styles.environmentSummaryDescription}
+                    title={env.description}
+                  >
+                    {env.description}
+                  </p>
+                )}
+              </div>
+            </div>
+            <span className={styles.environmentSummaryAction}>
+              More details
+            </span>
+          </summary>
+
+          <div className={styles.environmentSummaryDetails}>
+            <div className={styles.environmentDetailsTable}>
+              <div className={styles.environmentDetailsTableHeader}>
+                <span className={styles.environmentDetailsTableLabel}>
+                  Resource
+                </span>
+                {freeAvailable && (
+                  <span className={styles.environmentDetailsTableLabel}>
+                    Free
+                  </span>
+                )}
+                <span className={styles.environmentDetailsTableLabel}>
+                  Paid
+                </span>
+              </div>
+
+              {environmentTechnicalRows.map((row) => (
+                <div
+                  key={row.label}
+                  className={styles.environmentDetailsTableRow}
+                >
+                  <span className={styles.environmentDetailLabel}>
+                    {row.label}
+                  </span>
+                  {freeAvailable && (
+                    <span className={styles.environmentDetailValue}>
+                      {row.freeValue}
+                    </span>
+                  )}
+                  <span className={styles.environmentDetailValue}>
+                    {row.paidValue}
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
-
-          <p className={styles.environmentSummaryDescription}>
-            {env.description ||
-              'Workspace configured for testing and running C2D processes.'}
-          </p>
-        </div>
+        </details>
       )}
 
       <Field

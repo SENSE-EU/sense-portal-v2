@@ -4,8 +4,12 @@ import { ComputeEnvironment, ProviderInstance } from '@oceanprotocol/lib'
 import StepTitle from '@shared/StepTitle'
 import EnvironmentSelection from '@shared/FormInput/InputElement/EnvironmentSelection'
 import { FormComputeData } from '../_types'
-import { LAST_TRACKED_COMPLETION_STEP } from '../_steps'
+import {
+  getComputeWizardStepNumbers,
+  LAST_TRACKED_COMPLETION_STEP
+} from '../_steps'
 import { ResourceType } from 'src/@types/ResourceType'
+import { createDefaultComputeResourceValues } from '../computeEnvironmentDefaults'
 import styles from './index.module.css'
 import appConfig from 'app.config.cjs'
 
@@ -19,32 +23,24 @@ interface SelectEnvironmentProps {
 
 const { customProviderUrl } = appConfig
 const downstreamStepOffsets = [1, 2, 3] as const
-const resetEnvironmentSelectionValues = {
-  cpu: 0,
-  ram: 0,
-  disk: 0,
-  gpu: 0,
-  jobDuration: 0,
-  jobPrice: '0',
-  escrowFunds: '0',
-  actualPaymentAmount: '0',
-  escrowCoveredAmount: '0',
-  baseToken: null
-} as const
+const resetEnvironmentSelectionValues = (
+  selectedEnv: ComputeEnvironment,
+  mode: 'free' | 'paid'
+) => {
+  const defaultResources = createDefaultComputeResourceValues(selectedEnv, mode)
 
-function createResetResourceValues(mode: 'free' | 'paid'): ResourceType {
   return {
-    cpu: 0,
-    ram: 0,
-    disk: 0,
-    gpu: 0,
-    jobDuration: 0,
-    mode,
-    price: '0',
-    fullJobPrice: '0',
+    cpu: defaultResources.cpu,
+    ram: defaultResources.ram,
+    disk: defaultResources.disk,
+    gpu: defaultResources.gpu ?? 0,
+    jobDuration: defaultResources.jobDuration,
+    jobPrice: '0',
+    escrowFunds: '0',
     actualPaymentAmount: '0',
-    escrowCoveredAmount: '0'
-  }
+    escrowCoveredAmount: '0',
+    baseToken: null
+  } as const
 }
 
 export default function SelectEnvironment({
@@ -55,6 +51,10 @@ export default function SelectEnvironment({
   const { values, setFieldValue } = useFormikContext<FormComputeData>()
   const [selectedEnvId, setSelectedEnvId] = useState<string>()
   const providerUrlForNodeInfo = providerUrl || customProviderUrl
+  const stepNumbers = getComputeWizardStepNumbers(
+    Boolean(values.isUserParameters),
+    Boolean(values.withoutDataset)
+  )
 
   useEffect(() => {
     if (values.computeEnv?.id) {
@@ -77,17 +77,18 @@ export default function SelectEnvironment({
         const hasEnvironmentChanged = previousEnvId && previousEnvId !== envId
 
         if (hasEnvironmentChanged) {
-          setFieldValue('mode', selectedEnv.free ? 'free' : 'paid')
-          Object.entries(resetEnvironmentSelectionValues).forEach(
-            ([field, value]) => {
-              setFieldValue(field, value)
-            }
-          )
+          const nextMode = selectedEnv.free ? 'free' : 'paid'
+          setFieldValue('mode', nextMode)
+          Object.entries(
+            resetEnvironmentSelectionValues(selectedEnv, nextMode)
+          ).forEach(([field, value]) => {
+            setFieldValue(field, value)
+          })
           downstreamStepOffsets.forEach((offset) => {
             const dependentStep = values.user.stepCurrent + offset
             if (
               dependentStep <= LAST_TRACKED_COMPLETION_STEP &&
-              dependentStep !== 6
+              dependentStep !== stepNumbers.jobResultsStorage
             ) {
               setFieldValue(`step${dependentStep}Completed`, false)
             }
@@ -95,8 +96,14 @@ export default function SelectEnvironment({
 
           setAllResourceValues?.((prev) => ({
             ...prev,
-            [`${selectedEnv.id}_free`]: createResetResourceValues('free'),
-            [`${selectedEnv.id}_paid`]: createResetResourceValues('paid')
+            [`${selectedEnv.id}_free`]: createDefaultComputeResourceValues(
+              selectedEnv,
+              'free'
+            ),
+            [`${selectedEnv.id}_paid`]: createDefaultComputeResourceValues(
+              selectedEnv,
+              'paid'
+            )
           }))
         }
 
@@ -109,6 +116,8 @@ export default function SelectEnvironment({
       setAllResourceValues,
       setFieldValue,
       values.computeEnv?.id,
+      values.isUserParameters,
+      values.withoutDataset,
       values.user.stepCurrent
     ]
   )

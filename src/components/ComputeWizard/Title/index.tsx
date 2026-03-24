@@ -20,11 +20,16 @@ export default function Title({
   asset,
   service
 }: TitleProps): ReactElement {
+  const assetTitle = `${asset.credentialSubject.metadata.name} - ${service.name}`
+
   return (
     <div className={styles.titleContainer}>
       <span className={styles.titleText}>{titleCopy[flow]}</span>
-      <span className={`${styles.assetInfo} ${styles.right}`}>
-        {asset.credentialSubject.metadata.name} - {service.name}
+      <span
+        className={`${styles.assetInfo} ${styles.right}`}
+        title={assetTitle}
+      >
+        {assetTitle}
       </span>
     </div>
   )

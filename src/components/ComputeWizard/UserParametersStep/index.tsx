@@ -84,6 +84,38 @@ type NormalizedContext = {
   hasUserParams: boolean
 }
 
+function ParameterCardHeader({
+  primaryLabel,
+  primaryValue,
+  secondaryLabel,
+  secondaryValue
+}: {
+  primaryLabel: string
+  primaryValue?: string
+  secondaryLabel: string
+  secondaryValue?: string
+}): ReactElement {
+  return (
+    <div className={styles.cardHeader}>
+      <div className={styles.cardHeaderBlock}>
+        <span className={styles.cardHeaderLabel}>{primaryLabel}</span>
+        <h2 className={styles.cardHeaderValue}>
+          {primaryValue || primaryLabel}
+        </h2>
+      </div>
+
+      <div className={styles.cardHeaderDivider} aria-hidden="true" />
+
+      <div className={styles.cardHeaderBlock}>
+        <span className={styles.cardHeaderLabel}>{secondaryLabel}</span>
+        <h2 className={styles.cardHeaderValue}>
+          {secondaryValue || secondaryLabel}
+        </h2>
+      </div>
+    </div>
+  )
+}
+
 export default function UserParametersStep({
   flow,
   asset,
@@ -415,27 +447,21 @@ export default function UserParametersStep({
               key={entry.serviceId + (entry.did ?? '')}
               className={styles.card}
             >
-              <h2 className={styles.cardHeader}>
-                {entry.did ? (
-                  <>
-                    <span className={styles.datasetName}>{datasetName}</span>
-                    <span className={styles.separator}> | </span>
-                    <span className={styles.serviceName}>
-                      {serviceName ?? 'Service'}
-                    </span>
-                  </>
-                ) : (
-                  <>
-                    <span className={styles.datasetName}>
-                      {values.algorithms?.name || 'Algorithm'}
-                    </span>
-                    <span className={styles.separator}> | </span>
-                    <span className={styles.serviceName}>
-                      {values.algorithms?.services?.[0]?.name ?? 'Service'}
-                    </span>
-                  </>
-                )}
-              </h2>
+              {entry.did ? (
+                <ParameterCardHeader
+                  primaryLabel="Dataset"
+                  primaryValue={datasetName}
+                  secondaryLabel="Service"
+                  secondaryValue={serviceName ?? 'Service'}
+                />
+              ) : (
+                <ParameterCardHeader
+                  primaryLabel="Algorithm"
+                  primaryValue={values.algorithms?.name || 'Algorithm'}
+                  secondaryLabel="Service"
+                  secondaryValue={values.algorithms?.services?.[0]?.name}
+                />
+              )}
 
               {entry.userParameters.map((param, i) => (
                 <div key={i} className={styles.paramRow}>
@@ -467,15 +493,12 @@ export default function UserParametersStep({
               )
               .map((entry) => (
                 <div key={entry.did + entry.serviceId} className={styles.card}>
-                  <h2 className={styles.cardHeader}>
-                    <span className={styles.datasetName}>
-                      {asset?.credentialSubject?.metadata?.name ?? 'Algorithm'}
-                    </span>
-                    <span className={styles.separator}> | </span>
-                    <span className={styles.serviceName}>
-                      {service?.name ?? 'Service'}
-                    </span>
-                  </h2>
+                  <ParameterCardHeader
+                    primaryLabel="Algorithm"
+                    primaryValue={asset?.credentialSubject?.metadata?.name}
+                    secondaryLabel="Service"
+                    secondaryValue={service?.name}
+                  />
                   {entry.userParameters.map(
                     (param: UserParameter, i: number) => (
                       <div key={i} className={styles.paramRow}>
@@ -508,15 +531,16 @@ export default function UserParametersStep({
 
               return (
                 <div key={dataset.did || dataset.id} className={styles.card}>
-                  <h2 className={styles.cardHeader}>
-                    <span className={styles.datasetName}>{dataset.name}</span>
-                    <span className={styles.separator}> | </span>
-                    <span className={styles.serviceName}>
-                      {selectedServices[0].serviceName ??
-                        selectedServices[0].name ??
-                        'Service'}
-                    </span>
-                  </h2>
+                  <ParameterCardHeader
+                    primaryLabel="Dataset"
+                    primaryValue={dataset.name}
+                    secondaryLabel="Service"
+                    secondaryValue={
+                      selectedServices[0].serviceName ??
+                      selectedServices[0].name ??
+                      'Service'
+                    }
+                  />
 
                   {selectedServices.map((srv) => {
                     const matched = localParams.find(
