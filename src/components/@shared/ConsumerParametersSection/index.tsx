@@ -6,6 +6,7 @@ import consumerParametersContent from '../../../../content/publish/consumerParam
 import content from '../../../../content/publish/form.json'
 import SectionContainer from '../SectionContainer/SectionContainer'
 import { FormPublishData } from '../../Publish/_types'
+import { isFileTypeCompatibleWithConsumerParameters } from '@utils/fileTypes'
 
 interface ConsumerParametersSectionProps {
   title?: string
@@ -42,6 +43,13 @@ export default function ConsumerParametersSection({
   }
 
   const usesConsumerParameters = getFieldValue('usesConsumerParameters')
+
+  const currentFileType = values.services?.[0]?.files?.[0]?.type || 'url'
+  const isCompatible =
+    isFileTypeCompatibleWithConsumerParameters(currentFileType)
+  if (!isCompatible) {
+    return null
+  }
 
   return (
     <SectionContainer title={title} help={help}>

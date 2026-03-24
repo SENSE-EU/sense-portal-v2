@@ -1,6 +1,6 @@
 import Input from '@shared/FormInput'
 import { Field, useFormikContext } from 'formik'
-import { ReactElement, useEffect, useMemo } from 'react'
+import { ReactElement, useEffect, useMemo, useState } from 'react'
 import IconDownload from '@images/download2.svg'
 import IconCompute from '@images/compute.svg'
 import content from '../../../../content/publish/form.json'
@@ -11,6 +11,7 @@ import FormEditComputeService from '@components/Asset/Edit/FormEditComputeServic
 import AccessRulesSection from '../AccessPolicies/AccessRulesSection'
 import ConsumerParametersSection from '../../@shared/ConsumerParametersSection'
 import SSIPoliciesSection from '../../@shared/SSIPoliciesSection'
+import { isFileTypeCompatibleWithConsumerParameters } from '@utils/fileTypes'
 
 import SectionContainer from '../../@shared/SectionContainer/SectionContainer'
 
@@ -22,6 +23,10 @@ const accessTypeOptionsTitles = getFieldContent(
 export default function ServicesFields(): ReactElement {
   // connect with Form state, use for conditional field rendering
   const { values, setFieldValue } = useFormikContext<FormPublishData>()
+
+  const currentFileType = values.services?.[0]?.files?.[0]?.type || 'url'
+  const isConsumerParametersCompatible =
+    isFileTypeCompatibleWithConsumerParameters(currentFileType)
 
   // 1. Create display options (names) and maintain code mapping
   const languageOptions = useMemo(() => {
@@ -100,7 +105,20 @@ export default function ServicesFields(): ReactElement {
     )
   }, [values.services[0].algorithmPrivacy, values.metadata.type, setFieldValue])
 
-  // Removed default policy loading - users must manually select policies
+  useEffect(() => {
+    if (
+      !isConsumerParametersCompatible &&
+      values.services[0]?.usesConsumerParameters
+    ) {
+      setFieldValue('services[0].usesConsumerParameters', false)
+      setFieldValue('services[0].consumerParameters', [])
+    }
+  }, [
+    currentFileType,
+    isConsumerParametersCompatible,
+    setFieldValue,
+    values.services
+  ])
 
   return (
     <>
@@ -214,10 +232,12 @@ export default function ServicesFields(): ReactElement {
         isAsset={false}
       />
 
-      <ConsumerParametersSection
-        fieldNamePrefix="services[0]"
-        type="consumerParametersBuilder"
-      />
+      {isConsumerParametersCompatible && (
+        <ConsumerParametersSection
+          fieldNamePrefix="services[0]"
+          type="consumerParametersBuilder"
+        />
+      )}
     </>
   )
 }
