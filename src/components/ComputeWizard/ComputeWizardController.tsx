@@ -614,6 +614,11 @@ export default function ComputeWizardController({
         )
       }
 
+      const { output } = createComputeOutput(
+        formValues?.outputStorageEnabled,
+        formValues?.outputStorage
+      )
+
       const initResult = await initializePricingAndProvider({
         datasetsForProvider,
         algorithmAsset: actualAlgorithmAsset,
@@ -625,6 +630,7 @@ export default function ComputeWizardController({
         selectedResources,
         algoIndex: actualSvcIndex,
         paymentTokenAddress,
+        computeOutput: output,
         algoParams,
         datasetParams,
         accountId,

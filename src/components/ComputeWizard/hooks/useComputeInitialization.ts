@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState } from 'react'
 import {
   ComputeEnvironment,
+  ComputeOutput,
   ProviderComputeInitializeResults,
   ProviderFees,
   EscrowContract,
@@ -32,6 +33,7 @@ type InitializeParams = {
   selectedResources: ResourceType
   algoIndex: number
   paymentTokenAddress: string
+  computeOutput?: ComputeOutput
   algoParams?: Record<string, any>
   datasetParams?: Record<string, any>
   accountId?: string
@@ -140,6 +142,7 @@ export function useComputeInitialization({
       selectedResources,
       algoIndex,
       paymentTokenAddress,
+      computeOutput,
       algoParams,
       datasetParams,
       accountId,
@@ -158,6 +161,7 @@ export function useComputeInitialization({
           selectedResources,
           algoIndex,
           paymentTokenAddress,
+          computeOutput,
           algoParams,
           datasetParams
         )

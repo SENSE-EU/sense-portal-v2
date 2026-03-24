@@ -2,6 +2,7 @@ import {
   ArweaveFileObject,
   ComputeAlgorithm,
   ComputeEnvironment,
+  ComputeOutput,
   FileInfo,
   IpfsFileObject,
   LoggerInstance,
@@ -55,6 +56,7 @@ export async function initializeProviderForComputeMulti(
   selectedResources: ResourceType,
   svcIndexAlgo: number,
   paymentTokenAddress: string,
+  computeOutput?: ComputeOutput,
   algoParams?: Record<string, any>,
   datasetParams?: Record<string, any>
 ) {
@@ -130,7 +132,9 @@ export async function initializeProviderForComputeMulti(
     accountId,
     resources,
     chainId,
-    policiesServer
+    policiesServer,
+    null,
+    computeOutput
   )
 }
 
