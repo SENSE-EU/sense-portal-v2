@@ -6,6 +6,7 @@ import IconUrl from '@images/url.svg'
 import IconS3Storage from '@images/s3_storage.svg'
 import IconFtp from '@images/ftp.svg'
 import { FormComputeData } from '../_types'
+import { LAST_TRACKED_COMPLETION_STEP } from '../_steps'
 import { generateComputeOutputEncryptionKey } from '../outputStorage'
 import styles from './index.module.css'
 
@@ -178,7 +179,7 @@ export default function OutputStorageSection({
     'idle'
   )
   const storageStepKey =
-    values.user.stepCurrent <= 7
+    values.user.stepCurrent <= LAST_TRACKED_COMPLETION_STEP
       ? `step${values.user.stepCurrent}Completed`
       : undefined
 

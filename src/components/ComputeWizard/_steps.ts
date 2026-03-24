@@ -2,6 +2,15 @@ import React from 'react'
 import { ComputeFlow, FormComputeData, StepContent } from './_types'
 import { initialValues } from './_constants'
 
+export const LAST_TRACKED_COMPLETION_STEP = 7
+
+type ComputeWizardStepTitle =
+  | 'User Parameters'
+  | 'Select C2D Environment'
+  | 'C2D Environment Configuration'
+  | 'Job Results Storage'
+  | 'Review'
+
 export function createInitialValues(flow: ComputeFlow): FormComputeData {
   const clonedValues = JSON.parse(
     JSON.stringify(initialValues)
@@ -62,4 +71,42 @@ export function getDatasetSteps(
   }
 
   return steps
+}
+
+function getRequiredStepNumber(
+  steps: StepContent[],
+  title: Exclude<ComputeWizardStepTitle, 'User Parameters'>
+): number {
+  const step = steps.find((item) => item.title === title)
+
+  if (!step) {
+    throw new Error(`Missing compute wizard step: ${title}`)
+  }
+
+  return step.step
+}
+
+export function getComputeWizardStepNumbers(
+  hasUserParamsStep: boolean,
+  withoutDataset: boolean
+): {
+  userParameters?: number
+  selectEnvironment: number
+  configureEnvironment: number
+  jobResultsStorage: number
+  review: number
+} {
+  const steps = getDatasetSteps(hasUserParamsStep, withoutDataset)
+
+  return {
+    userParameters: steps.find((item) => item.title === 'User Parameters')
+      ?.step,
+    selectEnvironment: getRequiredStepNumber(steps, 'Select C2D Environment'),
+    configureEnvironment: getRequiredStepNumber(
+      steps,
+      'C2D Environment Configuration'
+    ),
+    jobResultsStorage: getRequiredStepNumber(steps, 'Job Results Storage'),
+    review: getRequiredStepNumber(steps, 'Review')
+  }
 }

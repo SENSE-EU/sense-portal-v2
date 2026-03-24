@@ -33,7 +33,7 @@ import SuccessState from './SuccessState'
 import SectionContainer from '../@shared/SectionContainer/SectionContainer'
 import WizardActions from '@shared/WizardActions'
 import { LoadingState, ErrorState } from './WizardState'
-import { createInitialValues } from './_steps'
+import { createInitialValues, getComputeWizardStepNumbers } from './_steps'
 import { validationSchema } from './_validation'
 import { CredentialDialogProvider } from '../Asset/AssetActions/Compute/CredentialDialogProvider'
 import { useAsset } from '@context/Asset'
@@ -253,9 +253,12 @@ export default function ComputeWizardController({
 
     const rerunDatasets = rerunConfig.datasets || []
     const withoutDataset = rerunDatasets.length === 0
+    const stepNumbers = getComputeWizardStepNumbers(
+      Boolean(service.consumerParameters?.length),
+      withoutDataset
+    )
     const { datasetPairs, datasets } =
       buildRerunDatasetsFromConfig(rerunDatasets)
-    const stepCurrent = withoutDataset ? 3 : 5
 
     return {
       ...baseInitialFormValues,
@@ -264,7 +267,7 @@ export default function ComputeWizardController({
       datasets,
       user: {
         ...baseInitialFormValues.user,
-        stepCurrent
+        stepCurrent: stepNumbers.selectEnvironment
       },
       serviceSelected: !withoutDataset,
       step1Completed: true,
@@ -272,7 +275,7 @@ export default function ComputeWizardController({
       step3Completed: true,
       step4Completed: true
     }
-  }, [baseInitialFormValues, isAlgorithmFlow, rerunConfig])
+  }, [baseInitialFormValues, isAlgorithmFlow, rerunConfig, service])
   const formikRef = useRef<FormikProps<FormComputeData>>(null)
   const hasAppliedRerunConfigRef = useRef(false)
   const tokenSymbolMap = useMemo(() => {
@@ -378,6 +381,10 @@ export default function ComputeWizardController({
 
     const rerunDatasets = rerunConfig.datasets || []
     const withoutDataset = rerunDatasets.length === 0
+    const stepNumbers = getComputeWizardStepNumbers(
+      Boolean(formik.values.isUserParameters),
+      withoutDataset
+    )
 
     if (!withoutDataset && (!datasetList || datasetList.length === 0)) return
 
@@ -401,7 +408,7 @@ export default function ComputeWizardController({
       formik.setFieldValue('computeEnv', selectedEnvironment)
     }
 
-    formik.setFieldValue('user.stepCurrent', withoutDataset ? 3 : 5)
+    formik.setFieldValue('user.stepCurrent', stepNumbers.selectEnvironment)
 
     hasAppliedRerunConfigRef.current = true
   }, [isAlgorithmFlow, rerunConfig, datasetList, computeEnvs])
@@ -413,8 +420,12 @@ export default function ComputeWizardController({
     if (!computeEnvs || computeEnvs.length === 0) return
 
     const currentStep = Number(formik.values?.user?.stepCurrent || 1)
+    const stepNumbers = getComputeWizardStepNumbers(
+      Boolean(formik.values?.isUserParameters),
+      Boolean(formik.values?.withoutDataset)
+    )
     const hasComputeEnv = Boolean(formik.values?.computeEnv)
-    if (hasComputeEnv || currentStep < 5) return
+    if (hasComputeEnv || currentStep < stepNumbers.selectEnvironment) return
 
     const selectedEnvironment = resolveRerunEnvironment(
       rerunConfig.computeEnv,
@@ -1075,9 +1086,20 @@ export default function ComputeWizardController({
         const { values, setFieldValue } = formikContext
 
         const hasUserParamsStep = Boolean(values.isUserParameters)
-        const computeStep = hasUserParamsStep ? 5 : 4
-        const configurationStep = computeStep + 1
-        const storageStep = computeStep + 2
+        const stepNumbers = getComputeWizardStepNumbers(
+          hasUserParamsStep,
+          Boolean(values.withoutDataset)
+        )
+        const isOnPrimarySelectionStep = values.user.stepCurrent === 1
+        const isOnServiceSelectionStep = values.user.stepCurrent === 2
+        const isOnC2DEnvironmentSelectionStep =
+          values.user.stepCurrent === stepNumbers.selectEnvironment
+        const isOnC2DEnvironmentConfigurationStep =
+          values.user.stepCurrent === stepNumbers.configureEnvironment
+        const isOnUserParametersStep =
+          values.user.stepCurrent === stepNumbers.userParameters
+        const isOnJobResultsStorageStep =
+          values.user.stepCurrent === stepNumbers.jobResultsStorage
         const hasMissingRequiredDefaults =
           Array.isArray(values.userUpdatedParameters) &&
           values.userUpdatedParameters.some((entry) =>
@@ -1097,25 +1119,29 @@ export default function ComputeWizardController({
           values.outputStorage
         )
 
-        const isContinueDisabled = isAlgorithmFlow
-          ? (values.user.stepCurrent === 1 &&
-              !(values.datasets?.length > 0 || values.withoutDataset)) ||
-            (values.user.stepCurrent === 2 &&
-              !(values.serviceSelected || values.withoutDataset)) ||
-            (values.user.stepCurrent === computeStep && !values.computeEnv) ||
-            (values.user.stepCurrent === configurationStep &&
-              !isComputeEnvironmentConfigured(values)) ||
-            (values.user.stepCurrent === 4 && hasMissingRequiredDefaults) ||
-            (values.user.stepCurrent === storageStep &&
-              Boolean(outputStorageError))
-          : (values.user.stepCurrent === 1 && !values.algorithm) ||
-            (values.user.stepCurrent === computeStep && !values.computeEnv) ||
-            (values.user.stepCurrent === 2 && !values.serviceSelected) ||
-            (values.user.stepCurrent === configurationStep &&
-              !isComputeEnvironmentConfigured(values)) ||
-            (values.user.stepCurrent === 4 && hasMissingRequiredDefaults) ||
-            (values.user.stepCurrent === storageStep &&
-              Boolean(outputStorageError))
+        const isPrimarySelectionIncomplete = isAlgorithmFlow
+          ? !(values.datasets?.length > 0 || values.withoutDataset)
+          : !values.algorithm
+        const isServiceSelectionIncomplete = isAlgorithmFlow
+          ? !(values.serviceSelected || values.withoutDataset)
+          : !values.serviceSelected
+        const isEnvironmentSelectionIncomplete =
+          isOnC2DEnvironmentSelectionStep && !values.computeEnv
+        const isEnvironmentConfigurationIncomplete =
+          isOnC2DEnvironmentConfigurationStep &&
+          !isComputeEnvironmentConfigured(values)
+        const isUserParametersIncomplete =
+          isOnUserParametersStep && hasMissingRequiredDefaults
+        const isJobResultsStorageIncomplete =
+          isOnJobResultsStorageStep && Boolean(outputStorageError)
+
+        const isContinueDisabled =
+          (isOnPrimarySelectionStep && isPrimarySelectionIncomplete) ||
+          (isOnServiceSelectionStep && isServiceSelectionIncomplete) ||
+          isEnvironmentSelectionIncomplete ||
+          isEnvironmentConfigurationIncomplete ||
+          isUserParametersIncomplete ||
+          isJobResultsStorageIncomplete
 
         const selectedAlgoAssetForDisplay = isAlgorithmFlow
           ? asset

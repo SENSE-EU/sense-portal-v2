@@ -4,6 +4,7 @@ import { ComputeEnvironment, ProviderInstance } from '@oceanprotocol/lib'
 import StepTitle from '@shared/StepTitle'
 import EnvironmentSelection from '@shared/FormInput/InputElement/EnvironmentSelection'
 import { FormComputeData } from '../_types'
+import { LAST_TRACKED_COMPLETION_STEP } from '../_steps'
 import { ResourceType } from 'src/@types/ResourceType'
 import styles from './index.module.css'
 import appConfig from 'app.config.cjs'
@@ -84,7 +85,10 @@ export default function SelectEnvironment({
           )
           downstreamStepOffsets.forEach((offset) => {
             const dependentStep = values.user.stepCurrent + offset
-            if (dependentStep <= 7 && dependentStep !== 6) {
+            if (
+              dependentStep <= LAST_TRACKED_COMPLETION_STEP &&
+              dependentStep !== 6
+            ) {
               setFieldValue(`step${dependentStep}Completed`, false)
             }
           })

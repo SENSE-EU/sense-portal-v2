@@ -19,6 +19,7 @@ import { useEthersSigner } from '@hooks/useEthersSigner'
 import Decimal from 'decimal.js'
 import { MAX_DECIMALS } from '@utils/constants'
 import { truncateDid } from '@utils/string'
+import { LAST_TRACKED_COMPLETION_STEP } from '../_steps'
 import OutputStorageSection from './OutputStorageSection'
 
 interface ResourceValues {
@@ -762,7 +763,7 @@ export default function ConfigureEnvironment({
 
   const resetCurrentStorageStepCompletion = useCallback(() => {
     const currentStep = values.user.stepCurrent
-    if (currentStep <= 7) {
+    if (currentStep <= LAST_TRACKED_COMPLETION_STEP) {
       setFieldValue(`step${currentStep}Completed`, false)
     }
   }, [setFieldValue, values.user.stepCurrent])

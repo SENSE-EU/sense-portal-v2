@@ -1,15 +1,5 @@
 import { ComputeEnvironment } from '@oceanprotocol/lib'
 
-export function shouldAppendMockComputeEnvironment(
-  nodeEnv = process.env.NODE_ENV,
-  flag = process.env.NEXT_PUBLIC_ENABLE_MOCK_C2D_ENV
-): boolean {
-  if (flag === 'true') return true
-  if (flag === 'false') return false
-
-  return nodeEnv !== 'production'
-}
-
 function adjustResourceCapacity(
   value: number | undefined,
   fallback: number
