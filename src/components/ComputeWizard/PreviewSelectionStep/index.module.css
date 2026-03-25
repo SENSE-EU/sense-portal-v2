@@ -23,7 +23,7 @@
 }
 
 .previewContainer::-webkit-scrollbar-thumb {
-  background: #fdd655;
+  background: var(--clr-amber);
   border-radius: 4px;
 }
 
@@ -38,7 +38,7 @@
   margin: 0 0 16px;
   padding: 20px 22px;
   border-radius: 24px;
-  background: rgba(10, 75, 112, 0.04);
+  background: var(--surface-hover);
   box-shadow: 1px 4px 8px 0 var(--black-alpha-15);
 }
 
@@ -128,14 +128,14 @@
   padding: 7px 12px;
   border-radius: 999px;
   background: var(--brand-white);
-  border: 1px solid rgba(10, 75, 112, 0.12);
+  border: 1px solid var(--clr-slate-12);
   cursor: pointer;
   transition: border-color 0.15s ease, box-shadow 0.15s ease,
     background 0.15s ease;
 }
 
 .selectionDidButton:hover {
-  border-color: rgba(10, 75, 112, 0.28);
+  border-color: var(--border-navy-soft);
   box-shadow: 0 4px 10px rgba(10, 75, 112, 0.08);
   background: #f9fcff;
 }
@@ -160,7 +160,7 @@
 .selectionDidStatus {
   width: 14px;
   height: 14px;
-  color: rgba(10, 75, 112, 0.55);
+  color: var(--clr-slate-50);
   flex-shrink: 0;
   transition: color 0.15s ease;
 }
@@ -205,7 +205,7 @@
   padding: 14px 16px;
   border-radius: 18px;
   background: var(--brand-white);
-  border: 1px solid rgba(10, 75, 112, 0.08);
+  border: 1px solid var(--clr-slate-12);
 }
 
 .serviceContent {
