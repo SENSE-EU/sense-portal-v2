@@ -247,7 +247,7 @@ export default function Steps({
 
   const currentStep = values?.user?.stepCurrent ?? 1
   const hasUserParamsStep = Boolean(values.isUserParameters)
-  const showEnvironmentSummary = computeEnvs.length > 1
+  const showEnvironmentSummary = true
 
   function renderDatasetFlow() {
     switch (currentStep) {

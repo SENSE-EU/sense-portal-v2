@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { ComputeEnvironment } from '@oceanprotocol/lib'
 import { getComputeEnvironments } from '@utils/provider'
-import { appendMockComputeEnvironment } from './mockComputeEnvironment'
 
 interface UseComputeEnvironmentsParams {
   serviceEndpoint?: string
@@ -24,7 +23,7 @@ export function useComputeEnvironments({
       setComputeEnvsError(undefined)
       const envs =
         (await getComputeEnvironments(serviceEndpoint, chainId)) || []
-      setComputeEnvs(appendMockComputeEnvironment(envs))
+      setComputeEnvs(envs)
     } catch (error) {
       const message =
         (error as Error)?.message || 'Failed to load compute environments'

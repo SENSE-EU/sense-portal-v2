@@ -95,7 +95,7 @@
   font-size: 12px;
   line-height: 1.2;
   font-weight: var(--text-weight-bold);
-  color: var(--brand-pacific-blue);
+  color: var(--clr-slate-50);
 }
 
 .environmentSummaryAction::after {
