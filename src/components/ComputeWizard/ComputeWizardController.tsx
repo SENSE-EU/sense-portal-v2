@@ -234,14 +234,37 @@ function ComputePricingResetWatcher({
         serviceId,
         algorithm: values.algorithm ?? null,
         dataset: values.dataset ?? null,
-        withoutDataset: Boolean(values.withoutDataset)
+        withoutDataset: Boolean(values.withoutDataset),
+        computeEnvId:
+          typeof values.computeEnv === 'string'
+            ? values.computeEnv
+            : values.computeEnv?.id ?? null,
+        mode: values.mode ?? 'free',
+        cpu: values.cpu ?? null,
+        gpu: values.gpu ?? null,
+        ram: values.ram ?? null,
+        disk: values.disk ?? null,
+        jobDuration: values.jobDuration ?? null,
+        baseToken: values.baseToken ?? null,
+        outputStorageEnabled: Boolean(values.outputStorageEnabled),
+        outputStorage: values.outputStorage ?? null
       }),
     [
       assetId,
       serviceId,
       values.algorithm,
       values.dataset,
-      values.withoutDataset
+      values.withoutDataset,
+      values.computeEnv,
+      values.mode,
+      values.cpu,
+      values.gpu,
+      values.ram,
+      values.disk,
+      values.jobDuration,
+      values.baseToken,
+      values.outputStorageEnabled,
+      values.outputStorage
     ]
   )
 
