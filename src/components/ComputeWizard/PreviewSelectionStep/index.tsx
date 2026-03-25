@@ -1,39 +1,286 @@
 'use client'
 
-import { ReactElement, useEffect, useMemo } from 'react'
+import {
+  type RefObject,
+  ReactElement,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react'
 import { useFormikContext } from 'formik'
+import { truncateDid } from '@utils/string'
+import Link from 'next/link'
+import External from '@images/external.svg'
 import styles from './index.module.css'
 import StepTitle from '@shared/StepTitle'
 import { ComputeFlow, FormComputeData } from '../_types'
 
-type AlgoPreview = {
-  id: string
-  name: string
-  description: string
-  service: {
-    name: string
-    description: string
-    type: string
-    duration: number
-  }
+type RawPreviewService = {
+  id?: string
+  serviceId?: string
+  name?: string
+  serviceName?: string
+  description?: string
+  serviceDescription?: string
+  serviceDuration?: string | number
+  duration?: string | number
+  tokenSymbol?: string
+  symbol?: string
+  checked?: boolean
+  userParameters?: unknown[]
 }
 
-type DatasetPreview = {
+type RawPreviewItem = {
+  did?: string
+  id?: string
+  name?: string
+  description?: string
+  services?: RawPreviewService[]
+}
+
+type PreviewService = {
   id: string
   name: string
-  description: string
-  services: {
-    id: string
-    name: string
-    description: string
-    type: string
-    duration: number
-    userParameters?: unknown[]
-  }[]
+  description?: string
+  duration: number
+  tokenSymbol?: string
+  userParameters?: unknown[]
+}
+
+type PreviewItem = {
+  id: string
+  name: string
+  description?: string
+  services: PreviewService[]
 }
 
 interface PreviewSelectionStepProps {
   flow: ComputeFlow
+}
+
+function DidLinkPill({ value }: { value: string }): ReactElement {
+  return (
+    <Link
+      href={`/asset/${value}`}
+      target="_blank"
+      rel="noreferrer"
+      className={styles.selectionDidButton}
+      title={value}
+    >
+      <span className={styles.selectionDid}>{truncateDid(value)}</span>
+      <span className={styles.selectionDidStatus} aria-hidden="true">
+        <External className={styles.selectionDidIcon} />
+      </span>
+    </Link>
+  )
+}
+
+function normalizeDescription(value: unknown): string | undefined {
+  if (typeof value !== 'string') return undefined
+  const trimmed = value.trim()
+  return trimmed.length > 0 ? trimmed : undefined
+}
+
+function formatAccessDuration(duration: number): string {
+  if (Number(duration) === 0 || Number.isNaN(Number(duration))) {
+    return 'Forever'
+  }
+
+  return `${Math.floor(Number(duration) / (60 * 60 * 24))} days`
+}
+
+function useClampedOverflow<T extends HTMLElement>(
+  ref: RefObject<T>,
+  enabled: boolean,
+  text: string
+): boolean {
+  const [isOverflowing, setIsOverflowing] = useState(false)
+
+  useEffect(() => {
+    if (!enabled) {
+      setIsOverflowing(false)
+      return
+    }
+
+    const element = ref.current
+    if (!element) return
+
+    const updateOverflow = () => {
+      if (!ref.current) return
+      setIsOverflowing(ref.current.scrollHeight > ref.current.clientHeight + 1)
+    }
+
+    updateOverflow()
+
+    if (typeof ResizeObserver !== 'undefined') {
+      const observer = new ResizeObserver(updateOverflow)
+      observer.observe(element)
+      return () => observer.disconnect()
+    }
+
+    window.addEventListener('resize', updateOverflow)
+    return () => window.removeEventListener('resize', updateOverflow)
+  }, [enabled, ref, text])
+
+  return isOverflowing
+}
+
+function ExpandableText({
+  text,
+  className
+}: {
+  text: string
+  className: string
+}): ReactElement {
+  const [expanded, setExpanded] = useState(false)
+  const textRef = useRef<HTMLParagraphElement>(null)
+  const isExpandable = useClampedOverflow(textRef, !expanded, text)
+
+  return (
+    <div className={styles.expandableText}>
+      <p
+        ref={textRef}
+        className={`${className} ${
+          expanded ? styles.expandedText : styles.collapsedText
+        }`}
+      >
+        {text}
+      </p>
+      {(isExpandable || expanded) && (
+        <button
+          type="button"
+          className={styles.descriptionToggle}
+          onClick={() => setExpanded((prev) => !prev)}
+        >
+          {expanded ? 'Show less' : 'Show more'}
+        </button>
+      )}
+    </div>
+  )
+}
+
+function SelectionCard({
+  title,
+  description,
+  id,
+  services
+}: {
+  title: string
+  description?: string
+  id: string
+  services: PreviewService[]
+}): ReactElement {
+  return (
+    <article className={styles.selectionCard}>
+      <div className={styles.selectionHeader}>
+        <div className={styles.selectionHeading}>
+          <h2 className={styles.selectionTitle}>{title}</h2>
+          {description && (
+            <ExpandableText
+              text={description}
+              className={styles.selectionDescription}
+            />
+          )}
+        </div>
+
+        <DidLinkPill value={id} />
+      </div>
+
+      <div className={styles.servicesSection}>
+        <span className={styles.servicesSectionLabel}>
+          {services.length > 1 ? 'Selected services' : 'Selected service'}
+        </span>
+        <div className={styles.servicesList}>
+          {services.map((service) => (
+            <div key={service.id} className={styles.serviceRow}>
+              <div className={styles.serviceContent}>
+                <h3 className={styles.serviceName}>{service.name}</h3>
+                {service.description && (
+                  <ExpandableText
+                    text={service.description}
+                    className={styles.serviceDescription}
+                  />
+                )}
+              </div>
+
+              <div className={styles.serviceMeta}>
+                {service.tokenSymbol && (
+                  <span className={styles.metaPill}>
+                    Currency: {service.tokenSymbol}
+                  </span>
+                )}
+                <span className={styles.metaPill}>
+                  Access: {formatAccessDuration(service.duration)}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </article>
+  )
+}
+
+function normalizePreviewService(service: RawPreviewService): PreviewService {
+  return {
+    id: service.serviceId ?? service.id ?? '',
+    name: service.serviceName ?? service.name ?? 'Unnamed Service',
+    description: normalizeDescription(
+      service.description ?? service.serviceDescription
+    ),
+    duration: Number(service.serviceDuration ?? service.duration ?? 0),
+    tokenSymbol: service.tokenSymbol ?? service.symbol ?? '',
+    userParameters: service.userParameters
+  }
+}
+
+function buildAlgorithmPreview(
+  algorithm: FormComputeData['algorithms']
+): PreviewItem | null {
+  if (!algorithm) return null
+
+  const selectedService =
+    algorithm.services?.find((service) => service.checked) ||
+    algorithm.services?.[0]
+
+  if (!selectedService) return null
+
+  return {
+    id: algorithm.id,
+    name: algorithm.name,
+    description: normalizeDescription(algorithm.description),
+    services: [normalizePreviewService(selectedService)]
+  }
+}
+
+function buildDatasetPreview(
+  datasets: FormComputeData['datasets']
+): PreviewItem[] {
+  if (!datasets) return []
+
+  return (datasets as RawPreviewItem[])
+    .map((dataset) => {
+      const services = dataset.services ?? []
+      const hasExplicitSelection = services.some((service) => service.checked)
+      const selectedServices = hasExplicitSelection
+        ? services.filter((service) => service.checked)
+        : services.length > 0
+        ? [services[0]]
+        : []
+
+      if (!selectedServices.length) return null
+
+      return {
+        id: dataset.did || dataset.id || '',
+        name: dataset.name || 'Unnamed Dataset',
+        description: normalizeDescription(dataset.description),
+        services: selectedServices.map((service) =>
+          normalizePreviewService(service)
+        )
+      }
+    })
+    .filter(Boolean) as PreviewItem[]
 }
 
 export default function PreviewSelectionStep({
@@ -42,60 +289,15 @@ export default function PreviewSelectionStep({
   const isDatasetFlow = flow === 'dataset'
   const { values, setFieldValue } = useFormikContext<FormComputeData>()
 
-  const algoPreview: AlgoPreview | null = useMemo(() => {
-    if (!isDatasetFlow || !values.algorithms) return null
-    const algo = values.algorithms
-    const svc = algo.services?.find((s) => s.checked) || algo.services?.[0]
-    if (!svc) return null
-    return {
-      id: algo.id,
-      name: algo.name,
-      description: algo.description || '',
-      service: {
-        name: svc.name,
-        description: svc.serviceDescription || '',
-        type: svc.type,
-        duration: Number(svc.duration ?? 0)
-      }
-    }
-  }, [isDatasetFlow, values.algorithms])
+  const algoPreview = useMemo(
+    () => (isDatasetFlow ? buildAlgorithmPreview(values.algorithms) : null),
+    [isDatasetFlow, values.algorithms]
+  )
 
-  const datasetPreview: DatasetPreview[] = useMemo(() => {
-    if (isDatasetFlow || !values.datasets) return []
-    return (values.datasets || [])
-      .map((d) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const services = d.services ?? []
-        const hasExplicitSelection = services.some(
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (s: any) => s.checked
-        )
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const selected = hasExplicitSelection
-          ? services.filter((s: any) => s.checked)
-          : services.length > 0
-          ? [services[0]]
-          : []
-        if (!selected.length) return null
-        return {
-          id: d.did || d.id || '',
-          name: d.name,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          description: (d as any).description ?? '',
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          services: selected.map((s: any) => ({
-            id: s.serviceId ?? s.id ?? '',
-            name: s.serviceName ?? s.name ?? 'Unnamed Service',
-            description:
-              s.serviceDescription ?? s.description ?? 'No description',
-            type: s.serviceType ?? s.type ?? 'Access',
-            duration: Number(s.serviceDuration ?? s.duration ?? 0),
-            userParameters: s.userParameters
-          }))
-        }
-      })
-      .filter(Boolean) as DatasetPreview[]
-  }, [isDatasetFlow, values.datasets])
+  const datasetPreview = useMemo(
+    () => (isDatasetFlow ? [] : buildDatasetPreview(values.datasets)),
+    [isDatasetFlow, values.datasets]
+  )
 
   useEffect(() => {
     if (isDatasetFlow) {
@@ -158,45 +360,12 @@ export default function PreviewSelectionStep({
       <div className={styles.container}>
         <StepTitle title="Preview Algorithm & Service" />
         <div className={styles.previewContainer}>
-          <div className={styles.algorithmContainer}>
-            <div className={styles.algorithmHeader}>
-              <h2 className={styles.algorithmName}>{algoPreview.name}</h2>
-              <p className={styles.algorithmAddress}>{algoPreview.id}</p>
-              <p className={styles.algorithmDescription}>
-                {algoPreview.description.slice(0, 40)}
-                {algoPreview.description.length > 40 ? '...' : ''}
-              </p>
-            </div>
-
-            <div className={styles.servicesList}>
-              <div className={styles.serviceItem}>
-                <div className={styles.serviceHeader}>
-                  <h3 className={styles.serviceName}>
-                    {algoPreview.service.name}
-                  </h3>
-                </div>
-                <p className={styles.serviceDescription}>
-                  {algoPreview.service.description.slice(0, 40)}
-                  {algoPreview.service.description.length > 40 ? '...' : ''}
-                </p>
-                <div className={styles.serviceDetails}>
-                  <p>
-                    <strong>Type:</strong> {algoPreview.service.type}
-                  </p>
-                </div>
-                <div className={styles.serviceDetails}>
-                  <p>
-                    <strong>Access duration:</strong>{' '}
-                    {Number(algoPreview.service.duration) === 0
-                      ? 'Forever'
-                      : `${Math.floor(
-                          Number(algoPreview.service.duration) / (60 * 60 * 24)
-                        )} days`}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
+          <SelectionCard
+            title={algoPreview.name}
+            description={algoPreview.description}
+            id={algoPreview.id}
+            services={algoPreview.services}
+          />
         </div>
       </div>
     )
@@ -204,49 +373,16 @@ export default function PreviewSelectionStep({
 
   return (
     <div className={styles.container}>
-      <h1 className={styles.title}>Preview Selected Datasets & Services</h1>
+      <StepTitle title="Preview Selected Datasets & Services" />
       <div className={styles.previewContainer}>
         {datasetPreview.map((dataset) => (
-          <div key={dataset.id} className={styles.datasetContainer}>
-            <div className={styles.datasetHeader}>
-              <h2 className={styles.datasetName}>{dataset.name}</h2>
-              <p className={styles.datasetAddress}>{dataset.id}</p>
-              <p className={styles.datasetDescription}>
-                {dataset.description.slice(0, 40)}
-                {dataset.description.length > 40 ? '...' : ''}
-              </p>
-            </div>
-
-            <div className={styles.servicesList}>
-              {dataset.services.map((service) => (
-                <div key={service.id} className={styles.serviceItem}>
-                  <div className={styles.serviceHeader}>
-                    <h3 className={styles.serviceName}>{service.name}</h3>
-                  </div>
-                  <p className={styles.serviceDescription}>
-                    {service.description.slice(0, 40)}
-                    {service.description.length > 40 ? '...' : ''}
-                  </p>
-                  <div className={styles.serviceDetails}>
-                    <p>
-                      <strong>Type:</strong> {service.type}
-                    </p>
-                  </div>
-                  <div className={styles.serviceDetails}>
-                    <p>
-                      <strong>Access duration:</strong>{' '}
-                      {Number(service.duration) === 0 ||
-                      Number.isNaN(Number(service.duration))
-                        ? 'Forever'
-                        : `${Math.floor(
-                            Number(service.duration) / (60 * 60 * 24)
-                          )} days`}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+          <SelectionCard
+            key={dataset.id}
+            title={dataset.name}
+            description={dataset.description}
+            id={dataset.id}
+            services={dataset.services}
+          />
         ))}
         {datasetPreview.length === 0 && (
           <p className={styles.noSelection}>No services selected.</p>
