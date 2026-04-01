@@ -1,10 +1,10 @@
 .featuresSection {
-  background-color: white;
+  background-color: var(--brand-white);
   padding: 2rem 1rem;
   font-weight: 400;
   font-size: 24px;
   line-height: 117%;
-  color: #fff;
+  color: var(--font-color-text);
 }
 
 .container {
@@ -32,7 +32,7 @@
 }
 
 .iconContainer {
-  background-color: #fdd655;
+  background-color: var(--clr-amber);
   border-radius: 50%;
   padding: 0.25rem;
   display: flex;
@@ -45,7 +45,7 @@
   margin: 0;
   font-weight: 700;
   font-size: 20px;
-  color: #303031;
+  color: var(--text-ink);
 }
 
 .featureDescription {

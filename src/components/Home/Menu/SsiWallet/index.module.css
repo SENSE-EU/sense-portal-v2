@@ -6,7 +6,7 @@
 .panelColumn h3 {
   font-weight: 700;
   font-size: 18px;
-  color: #303031;
+  color: var(--text-ink);
 }
 .panelColumn label {
   font-weight: 700;
@@ -36,11 +36,11 @@
   align-items: center;
   gap: 8px;
   padding: 8px 16px;
-  font-family: var(--font-family);
+  font-family: var(--font-family-base);
   font-weight: 700;
   line-height: 137%;
   text-align: center;
-  color: #fff;
+  color: var(--brand-white);
   transition: all 0.3s ease;
   border: none;
   background-color: transparent;
@@ -176,7 +176,7 @@
   font-size: 14px;
   line-height: 114%;
   text-align: center;
-  color: #0a4b70;
+  color: var(--clr-navy);
   box-shadow: 1px 2px 8px 0 var(--black-alpha-15);
   background: rgba(48, 48, 49, 0.12);
 }
@@ -190,27 +190,20 @@
   font-size: 14px;
   line-height: 114%;
   text-align: center;
-  color: #0a4b70;
+  color: var(--clr-navy);
   box-shadow: 1px 2px 8px 0 var(--black-alpha-15);
-  background: linear-gradient(
-    135deg,
-    #fdd655 0%,
-    rgba(253, 214, 85, 0.8) 27.47%,
-    rgba(253, 214, 85, 0.7) 43.49%,
-    rgba(253, 214, 85, 0.8) 55.43%,
-    #fdd655 100%
-  );
+  background: var(--gradient-accent);
 }
 
 .inputField {
-  border: 1px solid rgba(10, 75, 112, 0.5);
+  border: 1px solid var(--border-navy-soft);
   border-radius: 20px;
   padding: 10px 30px;
   width: 500px;
   height: 40px;
   font-weight: 400;
   font-size: 14px;
-  color: #303031;
+  color: var(--text-ink);
   font-family: var(--font-family-base);
 
   box-shadow: none;

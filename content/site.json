@@ -1,10 +1,10 @@
 {
-  "siteTitle": "Ocean Protocol Enterprise",
-  "siteTagline": "Publish, find, compare, manage and monetize proprietary data & AI products in a secure,",
-  "taglineContinuation": "Continuted",
-  "siteUrl": "https://enterprise.oceanprotocol.com",
+  "siteTitle": "SENSE Data Space Portal",
+  "siteTagline": "Publish, find, compare, manage and monetize proprietary data & AI products in a secure, trusted and compliant environment.",
+  "taglineContinuation": "Powered by Senseverse",
+  "siteUrl": "https://sense.eu",
   "siteImage": "/share.png",
-  "copyright": "All Rights Reserved. Powered by [Ocean Protocol](https://oceanprotocol.com).",
+  "copyright": "All Rights Reserved. Powered by [SENSE-EU](https://sense.eu).",
   "menu": [
     {
       "name": "Catalogue",
@@ -24,10 +24,10 @@
   "warning": {
     "ctd": "Please note that Compute-to-Data is still in beta phase."
   },
-  "siteDescription": "A decentralized data marketplace powered by Ocean Protocol.",
+  "siteDescription": "A decentralized data space portal powered by Senseverse.",
   "footer": {
-    "subtitle": "The enterprise data market",
-    "copyright": "© Ocean Enterprise 2025",
+    "subtitle": "The SENSE data space portal",
+    "copyright": "© SENSE-EU 2025",
     "privacyTitle": "Privacy",
     "content": [
       {
@@ -39,7 +39,7 @@
           },
           {
             "name": "GitHub",
-            "link": "https://github.com/OceanProtocolEnterprise"
+            "link": "https://github.com/SENSE-EU"
           },
           {
             "name": "Docs",

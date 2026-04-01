@@ -21,6 +21,7 @@ import { useSearchBarStatus } from '@context/SearchBarStatus'
 import { useUserPreferences } from '@context/UserPreferences'
 import Container from '@components/@shared/atoms/Container'
 import OnboardingSection from '@components/@shared/Onboarding'
+import { useMarketMetadata } from '@context/MarketMetadata'
 
 async function emptySearch() {
   const searchParams = new URLSearchParams(window?.location.href)
@@ -42,6 +43,7 @@ function HeroSection({
   const [value, setValue] = useState(initialValue || '')
   const parsed = router.query
   const searchBarRef = useRef<HTMLInputElement>(null)
+  const { siteContent } = useMarketMetadata()
   const {
     isSearchBarVisible,
     setSearchBarVisible,
@@ -110,12 +112,12 @@ function HeroSection({
         </header>
         <div className={styles.textContent}>
           <h1 className={styles.title}>
-            Ocean Enterprise Demonstration Marketplace
+            {siteContent?.siteTitle || 'SENSE Data Space Portal'}
           </h1>
           <div className={styles.subtitle}>
             <p>
-              Publish, find, compare, manage and monetize proprietary data & AI
-              products in a secure, trusted and compliant environment
+              {siteContent?.siteTagline ||
+                'Publish, find, compare, manage and monetize proprietary data & AI products in a secure, trusted and compliant environment'}
             </p>
           </div>
           <div className={styles.ctaContainer}>

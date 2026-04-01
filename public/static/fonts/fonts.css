@@ -13,3 +13,11 @@
   font-style: normal;
   src: url('./SharpSans-Bold.otf') format('truetype');
 }
+
+@font-face {
+  font-family: 'Konnekt';
+  font-weight: 400 700;
+  font-display: swap;
+  font-style: normal;
+  src: url('./6348Konnekt.woff2') format('woff2');
+}
