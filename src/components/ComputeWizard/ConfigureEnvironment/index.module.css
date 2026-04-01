@@ -378,7 +378,7 @@ body .customSlider {
   appearance: none;
   width: 16px;
   height: 16px;
-  background: #0a4b70;
+  background: var(--color-primary);
   border-radius: 50%;
   cursor: pointer;
   border: none;
@@ -388,7 +388,7 @@ body .customSlider {
 }
 
 .customSlider::-webkit-slider-thumb:hover {
-  background: #0a4b70;
+  background: var(--color-primary);
   transform: scale(1.1);
   box-shadow: 0 3px 6px var(--black-alpha-15);
 }
@@ -406,7 +406,7 @@ body .customSlider {
 .customSlider::-moz-range-thumb {
   width: 16px;
   height: 16px;
-  background: #0a4b70;
+  background: var(--color-primary);
   border-radius: 50%;
   cursor: pointer;
   border: none;
@@ -416,7 +416,7 @@ body .customSlider {
 }
 
 .customSlider::-moz-range-thumb:hover {
-  background: #0a4b70;
+  background: var(--color-primary);
   transform: scale(1.1);
   box-shadow: 0 3px 6px var(--black-alpha-15);
 }
@@ -435,7 +435,7 @@ body .customSlider {
 .customSlider::-ms-thumb {
   width: 16px;
   height: 16px;
-  background: #0a4b70;
+  background: var(--color-primary);
   border-radius: 50%;
   cursor: pointer;
   border: none;
@@ -445,7 +445,7 @@ body .customSlider {
 }
 
 .customSlider::-ms-thumb:hover {
-  background: #0a4b70;
+  background: var(--color-primary);
   transform: scale(1.1);
   box-shadow: 0 3px 6px var(--black-alpha-15);
 }

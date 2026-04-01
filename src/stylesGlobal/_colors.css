@@ -2,9 +2,9 @@
   /* Base palette */
   --brand-white: #ffffff;
   --brand-black: #012037;
-  --brand-blue: #014f86;
-  --brand-blue-light: #2a6f97;
-  --brand-blue-lighter: #61a5c2;
+  --brand-blue: #083163;
+  --brand-blue-light: #0053ff;
+  --brand-blue-lighter: #3d7aff;
   --brand-red: #ff360d;
 
   --brand-gradient: linear-gradient(
@@ -27,10 +27,13 @@
   --ocean-pink: #ff4092;
   --ocean-violet: #e000cf;
   --ocean-blue: #4ca3d3;
-  --ocean-orange-color: #fdd655;
+  --ocean-orange-color: #0053ff;
 
-  --clr-navy: #0a4b70;
-  --clr-amber: #fdd655;
+  --clr-navy: #083163;
+  --clr-amber: #0053ff;
+
+  /* Accent for text/elements on dark backgrounds */
+  --accent-on-dark: var(--brand-white);
   --clr-teal: #00adb2;
   --clr-slate-70: rgba(48, 48, 49, 0.7);
   --clr-slate-50: rgba(48, 48, 49, 0.5);
@@ -59,34 +62,34 @@
   --background-detail-box: var(--surface-highlight);
 
   --border-color: var(--brand-grey-lighter);
-  --border-navy-soft: rgba(10, 75, 112, 0.5);
+  --border-navy-soft: rgba(8, 49, 99, 0.5);
   --box-shadow-color: rgba(0, 0, 0, 0.05);
   --modal-overlay-background: rgba(1, 32, 55, 0.45);
 
   --primary-hover: var(--clr-navy);
   --surface-highlight: var(--surface-warning);
-  --surface-warning: rgba(253, 214, 85, 0.15);
+  --surface-warning: rgba(0, 83, 255, 0.12);
   --surface-neutral: rgba(48, 48, 49, 0.02);
-  --surface-hover: rgba(10, 75, 112, 0.04);
+  --surface-hover: rgba(8, 49, 99, 0.04);
 
   --gradient-primary: linear-gradient(
       115.97deg,
-      #1f2c50 0%,
-      rgba(10, 75, 112, 0.8) 27.47%,
-      rgba(10, 75, 112, 0.7) 43.49%,
-      rgba(10, 75, 112, 0.8) 55.43%,
-      #1e2e52 100%
+      #051d3e 0%,
+      rgba(8, 49, 99, 0.9) 27.47%,
+      rgba(8, 49, 99, 0.8) 43.49%,
+      rgba(8, 49, 99, 0.9) 55.43%,
+      #061f40 100%
     ),
-    #64ace0;
+    #3d7aff;
   --gradient-accent: linear-gradient(
       115.97deg,
-      #fdd655 0%,
-      rgba(253, 214, 85, 0.8) 27.47%,
-      rgba(253, 214, 85, 0.7) 43.49%,
-      rgba(253, 214, 85, 0.8) 55.43%,
-      #fdd655 100%
+      #0053ff 0%,
+      rgba(0, 83, 255, 0.8) 27.47%,
+      rgba(0, 83, 255, 0.7) 43.49%,
+      rgba(0, 83, 255, 0.8) 55.43%,
+      #0053ff 100%
     ),
-    linear-gradient(0deg, #fdd655, #fdd655), #ffffff;
+    linear-gradient(0deg, #0053ff, #0053ff), #ffffff;
 
   /* Component tokens */
   --checkbox-selected-background: var(--ocean-orange-color);
@@ -130,7 +133,7 @@
 
   --loader-message-color: var(--color-secondary);
   --loader-ordering-spinner-border-color: rgba(48, 48, 49, 0.5);
-  --loader-ordering-spinner-border-top-color: #0a4b70;
+  --loader-ordering-spinner-border-top-color: var(--clr-navy);
 
   --box-template-background: var(--background-content);
   --box-template-border-color: var(--border-color);
@@ -246,12 +249,12 @@
   --ink-alpha-30: rgba(48, 48, 49, 0.3);
   --ink-alpha-40: rgba(48, 48, 49, 0.4);
   --ink-alpha-80: rgba(48, 48, 49, 0.8);
-  --navy-alpha-5: rgba(10, 75, 112, 0.05);
-  --navy-alpha-10: rgba(10, 75, 112, 0.1);
-  --navy-alpha-20: rgba(10, 75, 112, 0.2);
-  --navy-alpha-30: rgba(10, 75, 112, 0.3);
-  --navy-alpha-40: rgba(10, 75, 112, 0.4);
-  --navy-alpha-94: rgb(6 68 103 / 94%);
+  --navy-alpha-5: rgba(8, 49, 99, 0.05);
+  --navy-alpha-10: rgba(8, 49, 99, 0.1);
+  --navy-alpha-20: rgba(8, 49, 99, 0.2);
+  --navy-alpha-30: rgba(8, 49, 99, 0.3);
+  --navy-alpha-40: rgba(8, 49, 99, 0.4);
+  --navy-alpha-94: rgb(8 49 99 / 94%);
   --ocean-alpha-10: rgba(75, 163, 211, 0.1);
   --ocean-alpha-30: rgba(75, 163, 211, 0.3);
   --ocean-bright-alpha-10: rgba(76, 163, 211, 0.1);
@@ -260,8 +263,8 @@
   --cyan-alpha-1: rgba(0, 173, 178, 0.01);
   --green-alpha-1: rgba(69, 192, 31, 0.01);
   --green-bright-alpha-15: rgba(93, 253, 85, 0.15);
-  --yellow-alpha-10: rgba(253, 214, 85, 0.1);
-  --yellow-alpha-30: rgba(253, 214, 85, 0.3);
+  --yellow-alpha-10: rgba(0, 83, 255, 0.1);
+  --yellow-alpha-30: rgba(0, 83, 255, 0.3);
   --red-alpha-15: rgba(255, 0, 0, 0.15);
   --white-alpha-15: rgba(255, 255, 255, 0.15);
   --white-alpha-20: rgba(255, 255, 255, 0.2);
