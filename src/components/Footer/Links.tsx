@@ -46,14 +46,7 @@ export default function Links(): ReactElement {
                   const isInternalLink = e.link.startsWith('/')
                   return isInternalLink ? (
                     <Link key={i} className={styles.link} href={e.link}>
-                      {e.name === 'Log' ? (
-                        <>
-                          <span>Log</span>
-                          <span className={styles.logIcon}>&nbsp;↗</span>{' '}
-                        </>
-                      ) : (
-                        e.name
-                      )}
+                      {e.name}
                     </Link>
                   ) : (
                     <a
@@ -63,14 +56,8 @@ export default function Links(): ReactElement {
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      {e.name === 'Log' ? (
-                        <>
-                          <span>Log</span>
-                          <span className={styles.logIcon}>&nbsp;↗</span>{' '}
-                        </>
-                      ) : (
-                        e.name
-                      )}
+                      <span>{e.name}</span>
+                      <span className={styles.externalIcon}>&nbsp;↗</span>
                     </a>
                   )
                 })}

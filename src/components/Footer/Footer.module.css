@@ -3,7 +3,7 @@
   /* padding-bottom: calc(var(--spacer) / 2); */
   text-align: center;
   color: #fff;
-  background-color: #303031;
+  background-color: var(--brand-blue);
   font-size: var(--font-size-small);
 }
 
@@ -41,45 +41,6 @@
   text-decoration: underline;
   text-decoration-skip-ink: none;
   margin-top: 5rem;
-}
-
-.socialLinks {
-  display: flex;
-  justify-content: center;
-  gap: 1.5rem; /* Adjust spacing between icons */
-  width: 100%;
-}
-
-.socialIcon {
-  width: 24px; /* Adjust size as needed */
-  height: 24px;
-  transition: transform 0.2s ease, fill 0.2s ease;
-  fill: linear-gradient(
-    135deg,
-    #1f2c50 0%,
-    var(--navy-640) 27.47%,
-    var(--navy-620) 43.49%,
-    var(--navy-alpha-94) 55.43%,
-    #1e2e52 100%
-  ); /* This makes icons inherit parent color */
-}
-
-.socialIcon:hover {
-  transform: translateY(-2px);
-  fill: var(--color-primary); /* Or any highlight color you prefer */
-}
-
-/* Optional: Different colors for different platforms */
-.socialLinks a[href*='x.com']:hover .socialIcon {
-  fill: #fdd655; /* Twitter/X blue */
-}
-
-.socialLinks a[href*='linkedin.com']:hover .socialIcon {
-  fill: #fdd655; /* LinkedIn blue */
-}
-
-.socialLinks a[href*='medium.com']:hover .socialIcon {
-  fill: #fdd655; /* Medium black */
 }
 
 @media screen and (min-width: 55rem) {
