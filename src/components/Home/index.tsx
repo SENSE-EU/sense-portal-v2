@@ -109,13 +109,11 @@ function HeroSection({
           <Menu />
         </header>
         <div className={styles.textContent}>
-          <h1 className={styles.title}>
-            Ocean Enterprise Demonstration Marketplace
-          </h1>
+          <h1 className={styles.title}>Senseverse</h1>
           <div className={styles.subtitle}>
             <p>
-              Publish, find, compare, manage and monetize proprietary data & AI
-              products in a secure, trusted and compliant environment
+              Discover, share and exchange smart city data and services in a
+              secure, trusted and interoperable ecosystem
             </p>
           </div>
           <div className={styles.ctaContainer}>

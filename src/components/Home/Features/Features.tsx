@@ -21,7 +21,7 @@ export default function Features(): ReactElement {
     {
       title: 'Data Regulation Compliance',
       description:
-        'Ocean Enterprise is compliant to the most recent EU regulations related to data exchange, AI and privacy regulation (Data Act, AI Act, GDPR, ...).'
+        'The Senseverse portal is compliant with the most recent EU regulations related to data exchange, AI and privacy (Data Act, AI Act, GDPR, ...).'
     },
     {
       title: 'Cloud Agnostic Design',
