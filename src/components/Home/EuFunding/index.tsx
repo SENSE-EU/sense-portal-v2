@@ -1,6 +1,8 @@
 import { ReactElement } from 'react'
+import Image from 'next/image'
 import styles from './index.module.css'
 import Container from '@shared/atoms/Container'
+import euFundedLogo from '@images/funded-by-eu.png'
 
 export default function EuFunding(): ReactElement {
   return (
@@ -8,14 +10,13 @@ export default function EuFunding(): ReactElement {
       <Container>
         <div className={styles.content}>
           <div className={styles.logoContainer}>
-            {/* 
-              PLACEHOLDER: Replace with EU funded logo.
-              Recommended: ~300×80px, WebP format.
-              Save to: public/images/eu-funded.webp
-            */}
-            <div className={styles.logoPlaceholder}>
-              <span>EU Funded Logo</span>
-            </div>
+            <Image
+              src={euFundedLogo}
+              alt="Funded by the European Union"
+              className={styles.logo}
+              height={80}
+              placeholder="blur"
+            />
           </div>
           <div className={styles.text}>
             <p className={styles.disclaimer}>

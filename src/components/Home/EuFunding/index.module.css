@@ -14,17 +14,9 @@
   flex-shrink: 0;
 }
 
-.logoPlaceholder {
-  width: 300px;
+.logo {
+  width: auto;
   height: 80px;
-  background: var(--background-body);
-  border: var(--border);
-  border-radius: var(--border-radius);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: var(--font-size-mini);
-  color: var(--font-color-text);
 }
 
 .text {
