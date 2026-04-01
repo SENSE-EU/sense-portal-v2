@@ -90,7 +90,7 @@ export default function Menu(): ReactElement {
         <Link href="/" className={styles.logo}>
           <Logo />
         </Link>
-        <div className={styles.demoText}>Cityverse Portal</div>
+        <div className={styles.demoText}>CitiVerse Portal</div>
 
         {/* <ul className={styles.navigation}>
         {siteContent?.menu.map((item: MenuItem) => (
