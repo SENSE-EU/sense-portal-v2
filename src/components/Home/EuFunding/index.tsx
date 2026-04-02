@@ -20,12 +20,10 @@ export default function EuFunding(): ReactElement {
           </div>
           <div className={styles.text}>
             <p className={styles.disclaimer}>
-              The SENSE project is funded by the European Union, under Grant
-              Agreement number 101168041. Views and opinions expressed are
-              however those of the author(s) only and do not necessarily reflect
-              those of the European Union or the European Health and Digital
-              Executive Agency. Neither the European Union nor the granting
-              authority can be held responsible for them.
+              Strengthening Cities and Enhancing Neighbourhood Sense of
+              Belonging (SENSE) Project has received co-funding from European
+              Union&apos;s Digital Europe Programme under the Grant Agreement
+              No. 101167948
             </p>
             <div className={styles.dates}>
               <span>Start: 01/01/2025</span>
