@@ -72,20 +72,20 @@
         "title": "Privacy",
         "links": [
           {
+            "name": "Imprint",
+            "link": "https://www.delta-dao.com/imprint"
+          },
+          {
             "name": "Terms and Conditions",
-            "link": "/imprint"
+            "link": "https://portal.pontus-x.eu/terms"
           },
           {
             "name": "Privacy",
-            "link": "/privacy/en#6-cookies-and-web-storage"
+            "link": "https://portal.pontus-x.eu/privacy"
           },
           {
-            "name": "Cookie Policy",
+            "name": "Cookie Settings",
             "link": "/cookie-settings"
-          },
-          {
-            "name": "Data Portal Usage Agreement",
-            "link": "/privacy/en#data-portal-usage-agreement"
           }
         ]
       }

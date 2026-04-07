@@ -41,21 +41,18 @@ export default function Partners(): ReactElement {
         <div className={styles.grid}>
           {partners.map((partner) => (
             <div key={partner.name} className={styles.card}>
-              {/* 
-                PLACEHOLDER: Replace with actual partner logos.
-                Recommended: 200×100px, PNG or WebP with transparent background.
-                Save to: public/images/partners/<name>.png
-              */}
-              <div className={styles.logoPlaceholder}>
-                <span>{partner.name}</span>
-              </div>
+              <img
+                className={styles.logo}
+                src={partner.logo}
+                alt={partner.name}
+              />
             </div>
           ))}
         </div>
         <div className={styles.allPartners}>
           <a
             className={styles.link}
-            href="https://senseverse.eu/"
+            href="https://senseverse.eu/partner-description/"
             target="_blank"
             rel="noopener noreferrer"
           >

@@ -68,9 +68,6 @@ export default function Links(): ReactElement {
       <div className={styles.section}>
         <p className={styles.title}>{privacyTitle}</p>
         <div className={styles.links}>
-          <Link className={styles.link} href="/imprint">
-            Imprint
-          </Link>
           <Link
             className={styles.link}
             href={`${privacyPolicySlug}#terms-and-conditions`}
