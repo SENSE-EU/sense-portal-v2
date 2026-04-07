@@ -176,7 +176,7 @@
         "type": "checkbox",
         "options": ["Terms and Conditions"],
         "prefixes": ["I agree to the"],
-        "actions": ["/privacy/en#terms-and-conditions"],
+        "actions": ["https://portal.pontus-x.eu/terms"],
         "required": true
       },
       {
