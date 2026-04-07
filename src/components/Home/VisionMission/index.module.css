@@ -56,18 +56,12 @@
   justify-content: center;
 }
 
-.imagePlaceholder {
+.image {
   width: 100%;
   max-width: 560px;
-  height: 400px;
-  background: var(--background-highlight);
-  border: var(--border);
+  height: auto;
   border-radius: var(--border-radius);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--font-color-text);
-  font-size: var(--font-size-small);
+  object-fit: contain;
 }
 
 @media (max-width: 768px) {
@@ -85,7 +79,7 @@
     margin-bottom: calc(var(--spacer) * 2);
   }
 
-  .imagePlaceholder {
-    height: 250px;
+  .image {
+    max-width: 100%;
   }
 }

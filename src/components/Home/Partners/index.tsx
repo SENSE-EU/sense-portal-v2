@@ -9,27 +9,30 @@ interface Partner {
 }
 
 const partners: Partner[] = [
-  { name: 'City of Kiel', logo: '/images/partners/city-of-kiel.png' },
+  { name: 'City of Kiel', logo: '/images/partners/1-Kiel-sailing-city.png' },
   {
     name: 'City of Cartagena',
-    logo: '/images/partners/city-of-cartagena.png'
+    logo: '/images/partners/2-EscudoAytoCartagenaHorizontal-bn.jpg'
   },
-  { name: 'deltaDAO', logo: '/images/partners/deltadao.png' },
+  { name: 'deltaDAO', logo: '/images/partners/3-delta-DAO.png' },
   {
     name: 'Drees & Sommer',
-    logo: '/images/partners/drees-and-sommer.png'
+    logo: '/images/partners/4-Deers-Sommer.png'
   },
-  { name: 'DUNAV NET', logo: '/images/partners/dunav-net.png' },
-  { name: 'Libelium', logo: '/images/partners/libelium.png' },
-  { name: 'OASCities', logo: '/images/partners/oascities.png' },
-  { name: 'MaaS Alliance', logo: '/images/partners/maas-alliance.png' },
+  { name: 'DUNAV NET', logo: '/images/partners/5-Dunav-Net.png' },
+  { name: 'Libelium', logo: '/images/partners/6-Libelium.png' },
   {
-    name: 'Kiel Marketing',
-    logo: '/images/partners/kiel-marketing.png'
+    name: 'OASCities',
+    logo: '/images/partners/7-Open-Agile-Smart-Cities-Communities.png'
+  },
+  { name: 'MaaS Alliance', logo: '/images/partners/8-MaaS-Alliance.png' },
+  {
+    name: 'University of Europe',
+    logo: '/images/partners/9-University-of-Europe.png'
   },
   {
     name: 'University of Galway',
-    logo: '/images/partners/university-of-galway.png'
+    logo: '/images/partners/91-OllScoil-Gaillimhe-University-of-Galway.png'
   }
 ]
 

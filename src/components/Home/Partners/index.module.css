@@ -27,19 +27,10 @@
   padding: calc(var(--spacer) / 2);
 }
 
-.logoPlaceholder {
-  width: 160px;
-  height: 80px;
-  background: var(--background-highlight);
-  border: var(--border);
-  border-radius: var(--border-radius);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  font-size: var(--font-size-mini);
-  color: var(--font-color-text);
-  padding: calc(var(--spacer) / 4);
+.logo {
+  max-width: 160px;
+  max-height: 80px;
+  object-fit: contain;
 }
 
 .allPartners {
@@ -69,9 +60,9 @@
     padding: calc(var(--spacer) * 2) 0;
   }
 
-  .logoPlaceholder {
-    width: 130px;
-    height: 65px;
+  .logo {
+    max-width: 130px;
+    max-height: 65px;
   }
 }
 

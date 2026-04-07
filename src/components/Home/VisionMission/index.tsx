@@ -29,14 +29,11 @@ export default function VisionMission(): ReactElement {
             </a>
           </div>
           <div className={styles.imageContainer}>
-            {/* 
-              PLACEHOLDER: Replace with SENSE vision graphic.
-              Recommended size: 560×400px, WebP format.
-              Save to: public/images/sense-vision.webp
-            */}
-            <div className={styles.imagePlaceholder}>
-              <span>Vision Graphic</span>
-            </div>
+            <img
+              className={styles.image}
+              src="/images/vision.png"
+              alt="SENSE Vision"
+            />
           </div>
         </div>
 
@@ -60,14 +57,11 @@ export default function VisionMission(): ReactElement {
             </a>
           </div>
           <div className={styles.imageContainer}>
-            {/* 
-              PLACEHOLDER: Replace with SENSE mission graphic.
-              Recommended size: 560×400px, WebP format.
-              Save to: public/images/sense-mission.webp
-            */}
-            <div className={styles.imagePlaceholder}>
-              <span>Mission Graphic</span>
-            </div>
+            <img
+              className={styles.image}
+              src="/images/mission.png"
+              alt="SENSE Mission"
+            />
           </div>
         </div>
       </Container>
