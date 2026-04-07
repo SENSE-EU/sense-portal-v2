@@ -74,7 +74,7 @@ export default function Features(): ReactElement {
     {
       title: 'Smart City Digital Twins',
       description:
-        'Immersive digital twins of urban environments — interact with real-time city data through VR/AR for better decision-making.',
+        'Immersive digital twins of urban environments — Introducing VR/AR and metaverse technology, allowing citizens to navigate and interact in urban spaces.',
       icon: icons.digitalTwin
     },
     {
