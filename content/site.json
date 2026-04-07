@@ -35,11 +35,11 @@
         "links": [
           {
             "name": "Log",
-            "link": "https://sepolia.etherscan.io/"
+            "link": "https://explorer.pontus-x.eu/"
           },
           {
             "name": "GitHub",
-            "link": "https://github.com/deltaDAO"
+            "link": "https://github.com/sense-eu"
           },
           {
             "name": "Docs",
@@ -82,10 +82,6 @@
           {
             "name": "Privacy",
             "link": "https://portal.pontus-x.eu/privacy"
-          },
-          {
-            "name": "Cookie Settings",
-            "link": "/cookie-settings"
           }
         ]
       }
