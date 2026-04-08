@@ -74,7 +74,7 @@
 .searchIcon {
   width: 16px;
   height: 16px;
-  fill: var(--color-primary);
+  fill: var(--brand-white);
 }
 
 .searchButtonText {
@@ -84,5 +84,5 @@
   font-size: 14px;
   line-height: 22px;
   text-align: center;
-  color: var(--color-primary);
+  color: var(--brand-white);
 }

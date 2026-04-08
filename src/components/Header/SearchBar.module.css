@@ -124,7 +124,7 @@
 .searchIcon {
   width: 24px;
   height: 24px;
-  fill: var(--navy-750);
+  fill: var(--brand-white);
   transition: transform 0.2s ease;
 }
 
