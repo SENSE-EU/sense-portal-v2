@@ -15,7 +15,7 @@ module.exports = {
   credentialSubject: {
     metadata: {
       tags: {
-        keyword: 'SENSE'
+        keyword: ['SENSE', 'sense']
       }
     }
   }
