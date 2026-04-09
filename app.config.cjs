@@ -184,7 +184,7 @@ module.exports = {
     null,
 
   // Controls whether asset descriptions are expanded by default on the detail page
-  descriptionExpandedByDefault:
+  assetDescriptionExpandedByDefault:
     getEnv('NEXT_PUBLIC_DESCRIPTION_EXPANDED_BY_DEFAULT') ||
     process.env.NEXT_PUBLIC_DESCRIPTION_EXPANDED_BY_DEFAULT
       ? (getEnv('NEXT_PUBLIC_DESCRIPTION_EXPANDED_BY_DEFAULT') ||

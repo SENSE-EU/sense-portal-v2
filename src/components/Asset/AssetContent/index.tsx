@@ -57,7 +57,7 @@ export default function AssetContent({
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [computeJobsRefetchTrigger, setComputeJobsRefetchTrigger] = useState(0)
   const [expanded, setExpanded] = useState(
-    appConfig.descriptionExpandedByDefault
+    appConfig.assetDescriptionExpandedByDefault
   )
   const [showDdo, setShowDdo] = useState(false)
   const availableServices =
