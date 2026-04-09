@@ -6,14 +6,17 @@
 //   - an object with { match: value } → translated to a case-insensitive "match" filter
 //
 // Examples:
-//   indexedMetadata: { nft: { owner: '0x123…' } }                  → term filter
-//   indexedMetadata: { nft: { state: [0, 1] } }                    → terms filter
-//   credentialSubject: { metadata: { tags: { match: 'SENSE' } } }  → match filter
+//   indexedMetadata: { nft: { owner: '0x123…' } }                           → term filter
+//   indexedMetadata: { nft: { state: [0, 1] } }                             → terms filter
+//   credentialSubject: { metadata: { tags: { keyword: 'SENSE' } } }         → term filter (.keyword sub-field)
+//   credentialSubject: { metadata: { tags: { match: 'SENSE' } } }           → match filter (full-text, use with caution)
 //
 module.exports = {
   credentialSubject: {
     metadata: {
-      tags: { match: 'SENSE' }
+      tags: {
+        keyword: 'SENSE'
+      }
     }
   }
 }
