@@ -1,10 +1,10 @@
 {
-  "siteTitle": "Ocean Protocol Enterprise",
-  "siteTagline": "Publish, find, compare, manage and monetize proprietary data & AI products in a secure,",
-  "taglineContinuation": "Continuted",
-  "siteUrl": "https://enterprise.oceanprotocol.com",
+  "siteTitle": "SENSE Portal",
+  "siteTagline": "Discover, share and monetize smart city data and AI services powering the European CitiVerse",
+  "taglineContinuation": "",
+  "siteUrl": "https://senseverse.eu",
   "siteImage": "/share.png",
-  "copyright": "All Rights Reserved. Powered by [Ocean Protocol](https://oceanprotocol.com).",
+  "copyright": "All Rights Reserved. Powered by [SENSE](https://senseverse.eu).",
   "menu": [
     {
       "name": "Catalogue",
@@ -24,10 +24,10 @@
   "warning": {
     "ctd": "Please note that Compute-to-Data is still in beta phase."
   },
-  "siteDescription": "A decentralized data marketplace powered by Ocean Protocol.",
+  "siteDescription": "The SENSE Portal — discover, share and monetize smart city data and AI services for the European CitiVerse.",
   "footer": {
-    "subtitle": "The enterprise data market",
-    "copyright": "© Ocean Enterprise 2025",
+    "subtitle": "Smart city data for the European CitiVerse",
+    "copyright": "© SENSE Project 2025",
     "privacyTitle": "Privacy",
     "content": [
       {
@@ -35,19 +35,19 @@
         "links": [
           {
             "name": "Log",
-            "link": "https://sepolia.etherscan.io/"
+            "link": "https://explorer.pontus-x.eu/"
           },
           {
             "name": "GitHub",
-            "link": "https://github.com/OceanProtocolEnterprise"
+            "link": "https://github.com/sense-eu"
           },
           {
             "name": "Docs",
-            "link": "https://docs.oceanenterprise.io/"
+            "link": "https://docs.pontus-x.eu/"
           },
           {
-            "name": "Medium",
-            "link": "https://medium.com/ocean-enterprise-collective"
+            "name": "SenseVerse",
+            "link": "https://senseverse.eu"
           }
         ]
       },
@@ -72,20 +72,16 @@
         "title": "Privacy",
         "links": [
           {
+            "name": "Imprint",
+            "link": "https://www.delta-dao.com/imprint"
+          },
+          {
+            "name": "Privacy Policy",
+            "link": "https://portal.pontus-x.eu/privacy/en"
+          },
+          {
             "name": "Terms and Conditions",
-            "link": "/imprint"
-          },
-          {
-            "name": "Privacy",
-            "link": "/privacy/en#6-cookies-and-web-storage"
-          },
-          {
-            "name": "Cookie Policy",
-            "link": "/cookie-settings"
-          },
-          {
-            "name": "Data Portal Usage Agreement",
-            "link": "/privacy/en#ocean-enterprise-collective-ev-data-portal-usage-agreement"
+            "link": "https://portal.pontus-x.eu/terms"
           }
         ]
       }

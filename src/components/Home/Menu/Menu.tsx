@@ -16,7 +16,7 @@ export default function Menu(): ReactElement {
       <Link href="/" className={styles.logo}>
         <Logo />
       </Link>
-      <div className={styles.demoText}>Demonstration MarketPlace</div>
+      <div className={styles.demoText}>CitiVerse Portal</div>
       <div className={styles.actions}>
         {validatedSupportedChains.length > 1 && <Networks />}
         <UserPreferences />

@@ -31,7 +31,7 @@
   line-height: 80%;
   text-transform: uppercase;
   text-align: center;
-  color: #0a4b70;
+  color: var(--color-primary);
 }
 .profileButton {
   font-family: var(--font-family);
@@ -40,11 +40,11 @@
   line-height: 80%;
   text-transform: uppercase;
   text-align: center;
-  color: #0a4b70;
+  color: var(--color-primary);
 }
 
 .bookmarksLink svg {
-  fill: var(--yellow-400);
+  fill: var(--brand-blue-light);
 }
 
 /* Divider between sections */

@@ -2,7 +2,7 @@
 title: Imprint
 ---
 
-Thanks for your interest in the OEC
+Thanks for your interest in the SENSE Portal
 
 **Ocean Enterprise Collective e.V**
 Carmerstrasse 18

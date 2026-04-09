@@ -1,4 +1,6 @@
 {
+  "name": "SENSE Portal",
+  "short_name": "SENSE",
   "icons": [
     {
       "src": "/android-chrome-192x192.png",
