@@ -185,9 +185,10 @@ module.exports = {
 
   // Controls whether asset descriptions are expanded by default on the detail page
   assetDescriptionExpandedByDefault:
-    getEnv('NEXT_PUBLIC_DESCRIPTION_EXPANDED_BY_DEFAULT') ||
-    process.env.NEXT_PUBLIC_DESCRIPTION_EXPANDED_BY_DEFAULT
-      ? (getEnv('NEXT_PUBLIC_DESCRIPTION_EXPANDED_BY_DEFAULT') ||
-          process.env.NEXT_PUBLIC_DESCRIPTION_EXPANDED_BY_DEFAULT) === 'true'
+    getEnv('NEXT_PUBLIC_ASSET_DESCRIPTION_EXPANDED_BY_DEFAULT') ||
+    process.env.NEXT_PUBLIC_ASSET_DESCRIPTION_EXPANDED_BY_DEFAULT
+      ? (getEnv('NEXT_PUBLIC_ASSET_DESCRIPTION_EXPANDED_BY_DEFAULT') ||
+          process.env.NEXT_PUBLIC_ASSET_DESCRIPTION_EXPANDED_BY_DEFAULT) ===
+        'true'
       : true
 }
