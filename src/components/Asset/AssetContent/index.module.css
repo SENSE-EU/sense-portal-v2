@@ -246,9 +246,8 @@
 }
 .descriptionWrapper {
   display: flex;
-  align-items: flex-start;
-  gap: 6px;
-  flex-direction: row;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .description {
@@ -262,7 +261,7 @@
 
 .description.collapsed {
   display: -webkit-box;
-  -webkit-line-clamp: 1; /* 1 line only */
+  -webkit-line-clamp: 6;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -283,6 +282,8 @@
   border-radius: 10px;
   padding: 0 6px;
   white-space: nowrap;
+  text-align: center;
+  margin: calc(var(--spacer) / 3) 0;
 }
 
 .toggle:hover {

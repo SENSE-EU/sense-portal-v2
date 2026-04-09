@@ -38,6 +38,7 @@ export interface AppConfig {
   ssiEnabled: boolean
   showOnboardingModuleByDefault: boolean
   dataspace: string | null
+  assetDescriptionExpandedByDefault: boolean
 }
 export interface SiteContent {
   siteTitle: string

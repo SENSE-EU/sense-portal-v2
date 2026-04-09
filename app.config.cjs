@@ -179,5 +179,16 @@ module.exports = {
         ],
 
   dataspace:
-    getEnv('NEXT_PUBLIC_DATASPACE') || process.env.NEXT_PUBLIC_DATASPACE || null
+    getEnv('NEXT_PUBLIC_DATASPACE') ||
+    process.env.NEXT_PUBLIC_DATASPACE ||
+    null,
+
+  // Controls whether asset descriptions are expanded by default on the detail page
+  assetDescriptionExpandedByDefault:
+    getEnv('NEXT_PUBLIC_ASSET_DESCRIPTION_EXPANDED_BY_DEFAULT') ||
+    process.env.NEXT_PUBLIC_ASSET_DESCRIPTION_EXPANDED_BY_DEFAULT
+      ? (getEnv('NEXT_PUBLIC_ASSET_DESCRIPTION_EXPANDED_BY_DEFAULT') ||
+          process.env.NEXT_PUBLIC_ASSET_DESCRIPTION_EXPANDED_BY_DEFAULT) ===
+        'true'
+      : true
 }
