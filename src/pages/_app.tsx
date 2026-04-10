@@ -17,6 +17,7 @@ import { ConnectKitProvider } from 'connectkit'
 import { connectKitTheme, createWagmiConfig } from '@utils/wallet'
 import { FilterProvider } from '@context/Filter'
 import { SsiWalletProvider } from '@context/SsiWallet'
+import { QueryFilterProvider } from '@hooks/useQueryFilter'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 const queryClient = new QueryClient()
 function MyApp({ Component, pageProps }: AppProps): ReactElement {
@@ -44,13 +45,15 @@ function MyApp({ Component, pageProps }: AppProps): ReactElement {
               <UserPreferencesProvider>
                 <ConsentProvider>
                   <SearchBarStatusProvider>
-                    <FilterProvider>
-                      <SsiWalletProvider>
-                        <App>
-                          <Component {...pageProps} />
-                        </App>
-                      </SsiWalletProvider>
-                    </FilterProvider>
+                    <QueryFilterProvider>
+                      <FilterProvider>
+                        <SsiWalletProvider>
+                          <App>
+                            <Component {...pageProps} />
+                          </App>
+                        </SsiWalletProvider>
+                      </FilterProvider>
+                    </QueryFilterProvider>
                   </SearchBarStatusProvider>
                 </ConsentProvider>
               </UserPreferencesProvider>
