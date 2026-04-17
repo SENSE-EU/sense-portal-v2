@@ -7,7 +7,7 @@ import Copy from '@shared/atoms/Copy'
 import Avatar from '@shared/atoms/Avatar'
 import styles from './Account.module.css'
 import { accountTruncate } from '@utils/wallet'
-import { useAddressConfig } from '@hooks/useAddressConfig'
+import { usePontusXIdentity } from '@deltadao/pontusx-registry-hooks'
 
 export default function Account({
   accountId
@@ -15,7 +15,7 @@ export default function Account({
   accountId: string
 }): ReactElement {
   const { chainIds } = useUserPreferences()
-  const { verifiedWallets } = useAddressConfig()
+  const { legalName } = usePontusXIdentity(accountId)
 
   return (
     <div className={styles.account}>
@@ -28,7 +28,7 @@ export default function Account({
       </figure>
       <div>
         <h3 className={styles.name}>
-          {verifiedWallets?.[accountId] || accountTruncate(accountId)}{' '}
+          {legalName || accountTruncate(accountId)}{' '}
         </h3>
 
         {accountId && (
