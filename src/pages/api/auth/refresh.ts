@@ -5,19 +5,25 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
+  // Allow preflight requests
+  if (req.method === 'OPTIONS') {
+    res.setHeader('Allow', 'POST, OPTIONS')
+    return res.status(200).end()
+  }
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' })
   }
 
-  // eslint-disable-next-line camelcase
-  const { refresh_token } = req.body
-
-  // eslint-disable-next-line camelcase
-  if (!refresh_token) {
-    return res.status(400).json({ error: 'Refresh token required' })
-  }
-
   try {
+    const { refresh_token: refreshToken } = req.body
+
+    if (!refreshToken) {
+      return res.status(400).json({
+        error: 'Refresh token required'
+      })
+    }
+
     const oidcConfig = getServerSideOidcConfig()
 
     const tokenUrl = `${oidcConfig.issuer.replace(/\/$/, '')}/token/`
@@ -30,22 +36,19 @@ export default async function handler(
       body: new URLSearchParams({
         grant_type: 'refresh_token',
         client_id: oidcConfig.clientId,
-        client_secret: oidcConfig.clientSecret || '',
-        // eslint-disable-next-line camelcase
-        refresh_token
+        client_secret: oidcConfig.clientSecret,
+        refresh_token: refreshToken
       })
     })
 
-    if (!response.ok) {
-      const errorText = await response.text()
-      console.error('Token refresh failed:', errorText)
-      return res.status(response.status).json({ error: 'Token refresh failed' })
-    }
+    const data = await response.json()
 
-    const tokens = await response.json()
-    res.status(200).json(tokens)
+    return res.status(response.status).json(data)
   } catch (error) {
-    console.error('Token refresh error:', error)
-    res.status(500).json({ error: 'Internal server error' })
+    console.error('Refresh error:', error)
+
+    return res.status(500).json({
+      error: 'Internal server error'
+    })
   }
 }
