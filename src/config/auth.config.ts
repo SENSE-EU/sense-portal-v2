@@ -8,6 +8,7 @@ export interface AuthConfig {
     clientId: string
     clientSecret: string
     redirectUri: string
+    signupFlow: string
     scope: string
     responseType: string
     pkceMethod: string
@@ -48,6 +49,10 @@ export const authConfig = ((): AuthConfig => {
     : runtimeConfig.NEXT_PUBLIC_OIDC_REDIRECT_URI ||
       'http://localhost:8008/auth/callback'
 
+  const signupFlow = isServer()
+    ? process.env.NEXT_PUBLIC_OIDC_SIGNUP_FLOW || 'self-service-registration'
+    : runtimeConfig.NEXT_PUBLIC_OIDC_SIGNUP_FLOW || 'self-service-registration'
+
   return {
     enabled,
     provider,
@@ -56,6 +61,7 @@ export const authConfig = ((): AuthConfig => {
       clientId,
       clientSecret: getServerSideClientSecret(),
       redirectUri,
+      signupFlow,
       scope: 'openid profile email federated_identity',
       responseType: 'code',
       pkceMethod: 'S256'

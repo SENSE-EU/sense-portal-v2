@@ -51,9 +51,9 @@ class OIDCProvider {
       config.scope
     }&code_challenge=${codeChallenge}&code_challenge_method=S256`
     const authentikBase = config.issuer.replace(/\/application\/o\/.*$/, '')
-    const signupUrl = `${authentikBase}/if/flow/self-service-registration/?next=${encodeURIComponent(
-      authorizeUrl
-    )}`
+    const signupUrl = `${authentikBase}/if/flow/${
+      config.signupFlow
+    }/?next=${encodeURIComponent(authorizeUrl)}`
     window.location.href = signupUrl
   }
 
