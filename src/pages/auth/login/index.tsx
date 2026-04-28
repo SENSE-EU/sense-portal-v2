@@ -6,7 +6,7 @@ import Page from '../../../components/@shared/Page'
 import type { AuthFeature, AuthTab } from '../../../components/Auth/constants'
 import { authConfig } from '../../../config/auth.config'
 import content from '../../../../content/auth/login.json'
-
+// redeploy push
 export default function AuthLogin(): ReactElement {
   const pageRouter = useRouter()
   const { title, description, features } = content
