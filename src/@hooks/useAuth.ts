@@ -78,31 +78,38 @@ class OIDCProvider {
 
   async logout(): Promise<void> {
     try {
-      const config = this.getConfig()
-      const endpoints = getEndpoints(config.issuer)
-      const redirectUri = encodeURIComponent(
-        `${window.location.origin}/auth/login`
-      )
-
-      let idTokenHint = ''
-      const tokens = localStorage.getItem('oidc_tokens')
-      if (tokens) {
-        try {
-          const parsed = JSON.parse(tokens)
-          if (parsed.id_token) {
-            idTokenHint = `&id_token_hint=${encodeURIComponent(
-              parsed.id_token
-            )}`
-          }
-        } catch (e) {}
-      }
-
       const state = Math.random().toString(36).substring(2)
       sessionStorage.setItem(OIDC_LOGOUT_STATE_KEY, state)
       sessionStorage.setItem(OIDC_LOGOUT_PENDING_KEY, 'true')
       sessionStorage.setItem(OIDC_LOGOUT_STARTED_AT_KEY, Date.now().toString())
 
-      const logoutUrl = `${endpoints.endSession}?client_id=${config.clientId}&post_logout_redirect_uri=${redirectUri}&state=${state}${idTokenHint}`
+      let parsedTokens: Record<string, string> | null = null
+      const rawTokens = localStorage.getItem('oidc_tokens')
+      if (rawTokens) {
+        try {
+          parsedTokens = JSON.parse(rawTokens)
+        } catch (e) {}
+      }
+
+      const postLogoutRedirectUri = `${window.location.origin}/auth/login`
+
+      const res = await fetch('/api/auth/logout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id_token: parsedTokens?.id_token, // eslint-disable-line camelcase
+          access_token: parsedTokens?.access_token, // eslint-disable-line camelcase
+          refresh_token: parsedTokens?.refresh_token, // eslint-disable-line camelcase
+          state,
+          post_logout_redirect_uri: postLogoutRedirectUri // eslint-disable-line camelcase
+        })
+      })
+
+      if (!res.ok) {
+        throw new Error('Logout request failed')
+      }
+
+      const { logoutUrl } = await res.json()
       window.location.href = logoutUrl
     } catch (err) {
       console.error('Logout error:', err)
