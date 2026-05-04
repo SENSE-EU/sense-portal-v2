@@ -26,12 +26,12 @@ export default function LogoutCallback() {
     const run = async () => {
       if (flow === 'vm3' || isTimeout) {
         sessionStorage.removeItem('logout_flow')
-        clearVM3Storage()
 
         if (!isTimeout) {
           restoreVM3SessionData()
         }
 
+        clearVM3Storage()
         await logout()
       } else {
         localStorage.removeItem('oidc_session')
