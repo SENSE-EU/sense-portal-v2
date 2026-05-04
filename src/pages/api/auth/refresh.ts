@@ -40,7 +40,7 @@ export default async function handler(
       })
     }
 
-    const { refresh_token } = req.cookies
+    const { refresh_token, id_token } = req.cookies
     if (!refresh_token) {
       return res.status(401).json({
         error: 'Refresh token required'
@@ -94,7 +94,10 @@ export default async function handler(
       return res.status(response.status).json(data)
     }
 
-    setAuthCookies(res, data)
+    setAuthCookies(res, {
+      ...data,
+      id_token: data.id_token || id_token
+    })
 
     return res.status(200).json({
       expires_in: getAccessTokenMaxAge(data)
