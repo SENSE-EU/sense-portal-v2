@@ -1,6 +1,7 @@
 import { useEffect, ReactNode } from 'react'
 import { useRouter } from 'next/router'
 import { useAuth } from '@hooks/useAuth'
+import Loader from '@shared/atoms/Loader'
 
 interface AuthGuardProps {
   children: ReactNode
@@ -65,16 +66,7 @@ export default function AuthGuard({ children }: AuthGuardProps) {
           justifyContent: 'center'
         }}
       >
-        <div
-          style={{
-            width: '40px',
-            height: '40px',
-            border: '3px solid #e2e8f0',
-            borderTopColor: '#0a4b70',
-            borderRadius: '50%',
-            animation: 'spin 0.8s linear infinite'
-          }}
-        />
+        <Loader variant="primary" noMargin />
       </div>
     )
   }
