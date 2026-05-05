@@ -10,6 +10,7 @@ import TableOfContents from '../../components/@shared/TableOfContents'
 import StickySidebarLayout from '../../components/@shared/StickySidebarLayout'
 import HashScrollHandler from '../../components/@shared/HashScrollHandler'
 import { useRouter } from 'next/router'
+import DynamicPolicyContent from '../../components/Privacy/DynamicPolicyContent'
 
 interface PrivacyPageData extends PageData {
   headings: Heading[]
@@ -37,17 +38,21 @@ export default function PageMarkdown(page: PrivacyPageData): ReactElement {
             sidebar={<TableOfContents headings={headings} />}
           >
             <div className={styles.section}>
-              <div
-                className={styles.content}
-                dangerouslySetInnerHTML={{ __html: content }}
+              <DynamicPolicyContent
+                slug={slug?.replace('/privacy/', '') || ''}
+                localContent={content}
+                localHeadings={headings}
+                localTitle={title}
               />
             </div>
           </StickySidebarLayout>
         ) : (
           <div className={styles.section}>
-            <div
-              className={styles.content}
-              dangerouslySetInnerHTML={{ __html: content }}
+            <DynamicPolicyContent
+              slug={slug?.replace('/privacy/', '') || ''}
+              localContent={content}
+              localHeadings={headings}
+              localTitle={title}
             />
           </div>
         )}
