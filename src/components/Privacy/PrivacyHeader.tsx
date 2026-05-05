@@ -5,7 +5,6 @@ import PrivacyLanguages from './PrivacyLanguages'
 import AnchorNavigation from '@shared/AnchorNavigation'
 
 export default function PrivacyPolicyHeader({
-  policy,
   lastUpdatedDate
 }: {
   policy: string
