@@ -31,10 +31,7 @@ export default function PageMarkdown(page: PrivacyPageData): ReactElement {
     >
       <Container>
         <HashScrollHandler />
-        <PrivacyPolicyHeader
-          policy={slug.replace('/privacy/', '')}
-          lastUpdatedDate={fileLastUpdated}
-        />
+        <PrivacyPolicyHeader lastUpdatedDate={fileLastUpdated} />
         {headings.length > 0 ? (
           <StickySidebarLayout
             sidebar={<TableOfContents headings={headings} />}
