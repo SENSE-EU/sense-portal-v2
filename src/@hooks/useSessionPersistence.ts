@@ -2,18 +2,18 @@ import { useCallback, useEffect } from 'react'
 import { useAuth } from './useAuth'
 
 export function useSessionPersistence() {
-  const { user, logout } = useAuth()
+  const { user, clearLocalSession } = useAuth()
 
   const checkSession = useCallback(async () => {
     try {
       const response = await fetch('/api/auth/session')
       if (!response.ok) {
-        logout()
+        clearLocalSession()
       }
     } catch {
       // network error — transient, don't logout
     }
-  }, [logout])
+  }, [clearLocalSession])
 
   const refreshToken = useCallback(async () => {
     try {
@@ -32,17 +32,17 @@ export function useSessionPersistence() {
           console.error(
             'Token refresh response missing expires_in, logging out'
           )
-          logout()
+          clearLocalSession()
         }
       } else {
         console.error('Token refresh failed, logging out')
-        logout()
+        clearLocalSession()
       }
     } catch (error) {
       console.error('Token refresh error:', error)
-      logout()
+      clearLocalSession()
     }
-  }, [logout])
+  }, [clearLocalSession])
 
   useEffect(() => {
     if (!user) return

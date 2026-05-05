@@ -16,10 +16,11 @@ export default async function handler(
     return res.status(404).json({ error: 'Not found' })
   }
 
+  const accessToken = req.cookies.access_token
   const refreshToken = req.cookies.refresh_token
   const idToken = req.cookies.id_token
 
-  if (!refreshToken) {
+  if (!accessToken && !refreshToken) {
     return res.status(401).json({ error: 'No session' })
   }
 

@@ -377,6 +377,13 @@ export const useAuth = () => {
     await login(mode)
   }
 
+  const clearLocalSession = React.useCallback(() => {
+    clearOidcStorage()
+    setLogoutPending(false)
+    storeLogout()
+    router.replace('/auth/login')
+  }, [router, setLogoutPending, storeLogout])
+
   const logout = async () => {
     setLoading(true)
     try {
@@ -412,10 +419,7 @@ export const useAuth = () => {
         return
       }
 
-      clearOidcStorage()
-      setLogoutPending(false)
-      storeLogout()
-      router.replace('/auth/login')
+      clearLocalSession()
     } catch (error) {
       setLogoutPending(false)
       console.error('Logout flow failed:', error)
@@ -432,6 +436,7 @@ export const useAuth = () => {
     login,
     beginOidcFlow,
     logout,
+    clearLocalSession,
     checkSession,
     authEnabled
   }
