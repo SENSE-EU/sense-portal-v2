@@ -56,7 +56,7 @@ export default function AuthGuard({ children }: AuthGuardProps) {
     return <>{children}</>
   }
 
-  if ((isLoading && !isPublic) || shouldRedirectToLogin) {
+  if (isLoading || shouldRedirectToLogin) {
     return (
       <div
         style={{

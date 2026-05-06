@@ -125,7 +125,9 @@ export const useAuth = () => {
       const qs = params.toString() ? `?${params.toString()}` : ''
       window.location.href =
         mode === 'signup' ? `/api/auth/signup${qs}` : `/api/auth/login${qs}`
-    } finally {
+      // setLoading(false) intentionally omitted — page navigates away,
+      // loader stays visible until unload
+    } catch {
       setLoading(false)
     }
   }

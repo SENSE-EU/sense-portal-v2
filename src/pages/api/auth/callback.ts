@@ -114,10 +114,11 @@ export default async function handler(
       ...buildClearTransientCookieStrings()
     ])
 
-    // ?hydrated=1 signals useAuth to fetch /api/auth/session for user data
-    const destination = callbackUrl || '/'
-    const separator = destination.includes('?') ? '&' : '?'
-    return res.redirect(302, `${destination}${separator}hydrated=1`)
+    // Always return to /auth/login so the onboarding flow (wallet + SSI) can run.
+    // The login page then redirects to callbackUrl when onboarding is complete.
+    const qs = new URLSearchParams({ hydrated: '1' })
+    if (callbackUrl) qs.set('callbackUrl', callbackUrl)
+    return res.redirect(302, `/auth/login?${qs.toString()}`)
   } catch (err) {
     console.error('OIDC callback error:', err)
     return failRedirect(res)
