@@ -19,6 +19,22 @@ function getEndSessionUrl(issuer: string) {
   return `${issuer.replace(/\/$/, '')}/end-session/`
 }
 
+function isFederatedSource(loginSource: string): boolean {
+  const raw = process.env.NEXT_PUBLIC_FEDERATED_OIDC_ISSUERS
+  if (!raw) return false
+  try {
+    const issuers = JSON.parse(raw)
+    if (!Array.isArray(issuers)) return false
+    return issuers.some(
+      (issuer: unknown) =>
+        typeof issuer === 'string' &&
+        loginSource.toLowerCase().includes(issuer.toLowerCase())
+    )
+  } catch {
+    return false
+  }
+}
+
 function getRevokeUrl(issuer: string) {
   if (issuer.includes('/application/o/')) {
     const base = issuer.split('/application/o/')[0]
@@ -97,7 +113,7 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
 
   const federationEndSessionUrl = process.env.OIDC_FEDERATION_END_SESSION_URL
   const isFederatedLogin = Boolean(
-    login_source && login_source !== 'unknown' && federationEndSessionUrl
+    login_source && federationEndSessionUrl && isFederatedSource(login_source)
   )
 
   const redirectUrl = isFederatedLogin
@@ -160,7 +176,7 @@ async function handlePost(req: NextApiRequest, res: NextApiResponse) {
 
   const federationEndSessionUrl = process.env.OIDC_FEDERATION_END_SESSION_URL
   const isFederatedLogin = Boolean(
-    login_source && login_source !== 'unknown' && federationEndSessionUrl
+    login_source && federationEndSessionUrl && isFederatedSource(login_source)
   )
 
   const logoutUrl =
