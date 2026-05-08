@@ -266,6 +266,12 @@ export const useAuth = () => {
     router.replace('/auth/login')
   }, [router, setLogoutPending, storeLogout])
 
+  const markLogoutPending = React.useCallback(() => {
+    setLogoutPending(true)
+    sessionStorage.setItem(OIDC_LOGOUT_PENDING_KEY, 'true')
+    sessionStorage.setItem(OIDC_LOGOUT_STARTED_AT_KEY, Date.now().toString())
+  }, [setLogoutPending])
+
   const login = async (mode: PendingAuthMode = 'login') => {
     setLoading(true)
     try {
@@ -309,7 +315,7 @@ export const useAuth = () => {
       }
 
       if (user?.authProvider === 'oidc') {
-        setLogoutPending(true)
+        markLogoutPending()
         clearOidcStorage()
         storeLogout()
 
@@ -317,11 +323,7 @@ export const useAuth = () => {
           // Federated return path: POST to revoke + get logoutUrl, then follow it
           const state = Math.random().toString(36).substring(2)
           sessionStorage.setItem(OIDC_LOGOUT_STATE_KEY, state)
-          sessionStorage.setItem(OIDC_LOGOUT_PENDING_KEY, 'true')
-          sessionStorage.setItem(
-            OIDC_LOGOUT_STARTED_AT_KEY,
-            Date.now().toString()
-          )
+          markLogoutPending()
           const res = await fetch('/api/auth/logout', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -334,7 +336,7 @@ export const useAuth = () => {
         }
 
         // Standard path: server-driven GET logout
-        sessionStorage.setItem(OIDC_LOGOUT_PENDING_KEY, 'true')
+        markLogoutPending()
         window.location.href = '/api/auth/logout'
         return
       }
@@ -358,6 +360,7 @@ export const useAuth = () => {
     login,
     beginOidcFlow,
     logout,
+    markLogoutPending,
     clearLocalSession,
     authEnabled
   }

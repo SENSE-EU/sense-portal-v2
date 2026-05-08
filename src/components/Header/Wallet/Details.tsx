@@ -110,7 +110,8 @@ export default function Details({
 }: DetailsProps): ReactElement {
   const { connector: activeConnector, address: accountId } = useAccount()
   const { disconnect } = useDisconnect()
-  const { logout, isAuthenticated, user, authEnabled } = useAuth()
+  const { logout, markLogoutPending, isAuthenticated, user, authEnabled } =
+    useAuth()
   const { setOpen } = useModal()
   const router = useRouter()
   const { showOnboardingModule } = useUserPreferences()
@@ -165,6 +166,7 @@ export default function Details({
   const handleLogout = async () => {
     if (isLoggingOut) return
     setIsLoggingOut(true)
+    markLogoutPending()
 
     try {
       if (isWalletConnected) {

@@ -1,5 +1,9 @@
 import { useCallback, useEffect, useRef } from 'react'
+import { useAccount, useDisconnect } from 'wagmi'
 import { useAuth, verifyAuthSessionDetailed } from './useAuth'
+import { useSsiWallet } from '@context/SsiWallet'
+import { disconnectFromWallet } from '@utils/wallet/ssiWallet'
+import { clearFederatedStorage } from '@utils/logoutRouter'
 
 const SESSION_REFRESH_INTERVAL_MS = 30000
 const DEFINITIVE_REFRESH_FAILURE_STATUSES = new Set([400, 401, 403])
@@ -23,6 +27,14 @@ export function useSessionPersistence() {
     authEnabled,
     clearLocalSession
   } = useAuth()
+  const { address } = useAccount()
+  const { disconnect } = useDisconnect()
+  const {
+    setSessionToken,
+    ssiWalletCache,
+    setCachedCredentials,
+    clearVerifierSessionCache
+  } = useSsiWallet()
   const logoutHandledRef = useRef(false)
   const refreshInFlightRef = useRef(false)
 
@@ -35,6 +47,38 @@ export function useSessionPersistence() {
     logoutHandledRef.current = true
     clearLocalSession()
   }, [clearLocalSession])
+
+  const disconnectWallets = useCallback(async () => {
+    try {
+      if (address) {
+        await disconnect()
+      }
+    } catch (error) {
+      console.error(
+        'Web3 wallet disconnect failed during session expiry',
+        error
+      )
+    }
+
+    try {
+      ssiWalletCache.clearCredentials()
+      setCachedCredentials([])
+      clearVerifierSessionCache()
+      setSessionToken(undefined)
+      await disconnectFromWallet()
+    } catch (error) {
+      console.error('SSI wallet disconnect failed during session expiry', error)
+    }
+
+    clearFederatedStorage()
+  }, [
+    address,
+    clearVerifierSessionCache,
+    disconnect,
+    ssiWalletCache,
+    setCachedCredentials,
+    setSessionToken
+  ])
 
   const refreshToken = useCallback(async (): Promise<RefreshResult> => {
     try {
@@ -103,6 +147,7 @@ export function useSessionPersistence() {
         const initialSessionResult = await checkSession()
 
         if (initialSessionResult.status === 'logout') {
+          await disconnectWallets()
           clearLocalSessionOnce()
           return
         }
@@ -119,6 +164,7 @@ export function useSessionPersistence() {
         const result = await refreshToken()
 
         if (result.status === 'logout') {
+          await disconnectWallets()
           clearLocalSessionOnce()
           return
         }
@@ -127,6 +173,7 @@ export function useSessionPersistence() {
 
         const sessionResult = await checkSession()
         if (sessionResult.status === 'logout') {
+          await disconnectWallets()
           clearLocalSessionOnce()
         }
       } finally {
@@ -145,6 +192,7 @@ export function useSessionPersistence() {
     user,
     refreshToken,
     checkSession,
+    disconnectWallets,
     clearLocalSessionOnce
   ])
 
