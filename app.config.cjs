@@ -197,6 +197,15 @@ module.exports = {
     process.env.NEXT_PUBLIC_DATASPACE ||
     null,
 
+  // Controls whether the decrypted private key from a JSON wallet import
+  // is stored in sessionStorage for the duration of the browser tab session.
+  // Set to 'false' to require the user to re-enter the password on every page reload.
+  persistJsonWalletSession:
+    getEnv('NEXT_PUBLIC_PERSIST_JSON_WALLET_SESSION') ||
+    process.env.NEXT_PUBLIC_PERSIST_JSON_WALLET_SESSION
+      ? (getEnv('NEXT_PUBLIC_PERSIST_JSON_WALLET_SESSION') ||
+          process.env.NEXT_PUBLIC_PERSIST_JSON_WALLET_SESSION) === 'true'
+      : true,
   imprintUrl:
     getEnv('NEXT_PUBLIC_IMPRINT_URL') ||
     process.env.NEXT_PUBLIC_IMPRINT_URL ||
