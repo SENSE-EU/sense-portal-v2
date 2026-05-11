@@ -10,10 +10,11 @@ import {
   setPendingCallbackUrl,
   type PendingAuthMode
 } from '@utils/authFlow'
-
-const OIDC_LOGOUT_PENDING_KEY = 'oidc_logout_pending'
-const OIDC_LOGOUT_STATE_KEY = 'oidc_logout_state'
-const OIDC_LOGOUT_STARTED_AT_KEY = 'oidc_logout_started_at'
+import {
+  OIDC_LOGOUT_PENDING_KEY,
+  OIDC_LOGOUT_STATE_KEY,
+  OIDC_LOGOUT_STARTED_AT_KEY
+} from './_constants'
 
 type SessionResponse = {
   user?: {

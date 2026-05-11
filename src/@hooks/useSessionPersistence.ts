@@ -5,22 +5,12 @@ import { useAuthStore } from './stores/authStore'
 import { useSsiWallet } from '@context/SsiWallet'
 import { disconnectFromWallet } from '@utils/wallet/ssiWallet'
 import { clearFederatedStorage } from '@utils/logoutRouter'
-
-/**
- * Refresh the access token this many milliseconds before its server-reported
- * expiry. 60s gives clock-skew tolerance and absorbs transient network errors
- * without the user ever seeing an expired session.
- */
-const REFRESH_LEAD_MS = 60_000
-
-/**
- * On a transient failure (network error, 5xx) retry after this delay instead
- * of giving up or re-arming on the original expiry timeline. Bounded retries
- * keep us from hammering an unhealthy auth server.
- */
-const RETRY_DELAY_MS = 30_000
-
-const DEFINITIVE_REFRESH_FAILURE_STATUSES = new Set([400, 401, 403])
+import {
+  REFRESH_LEAD_MS,
+  RETRY_DELAY_MS,
+  SESSION_POLL_INTERVAL_MS,
+  DEFINITIVE_REFRESH_FAILURE_STATUSES
+} from './_constants'
 
 type RefreshResult =
   | { status: 'success'; expiresIn: number }
@@ -217,6 +207,50 @@ export function useSessionPersistence() {
     user,
     expiresAt,
     refreshToken,
+    checkSession,
+    disconnectWallets,
+    clearLocalSessionOnce
+  ])
+
+  // Cheap revocation pickup between refresh cycles: poll every 2 min and
+  // re-check whenever the tab returns to the foreground. Session-only check —
+  // refresh is left to the scheduled cycle above.
+  useEffect(() => {
+    if (!authEnabled || !isAuthenticated || !isSessionVerified || !user) return
+
+    let cancelled = false
+
+    const verifySession = async () => {
+      if (cancelled || refreshInFlightRef.current || logoutHandledRef.current) {
+        return
+      }
+      const result = await checkSession()
+      if (cancelled) return
+      if (result.status === 'logout') {
+        await disconnectWallets()
+        clearLocalSessionOnce()
+      }
+    }
+
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') verifySession()
+    }
+
+    document.addEventListener('visibilitychange', onVisible)
+    window.addEventListener('focus', onVisible)
+    const intervalId = setInterval(verifySession, SESSION_POLL_INTERVAL_MS)
+
+    return () => {
+      cancelled = true
+      document.removeEventListener('visibilitychange', onVisible)
+      window.removeEventListener('focus', onVisible)
+      clearInterval(intervalId)
+    }
+  }, [
+    authEnabled,
+    isAuthenticated,
+    isSessionVerified,
+    user,
     checkSession,
     disconnectWallets,
     clearLocalSessionOnce
