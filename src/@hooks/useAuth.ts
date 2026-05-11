@@ -32,6 +32,12 @@ type SessionVerificationResult = {
   user: User | null
   hasRefreshToken: boolean
   refreshRequired: boolean
+  /**
+   * Access-token lifetime in seconds, as reported by /api/auth/session.
+   * `null` when the session is not valid or the server did not return a
+   * usable value.
+   */
+  expiresIn: number | null
 }
 
 const getUserDataFromSessionResponse = (user: {
@@ -109,6 +115,12 @@ function isDefinitiveAuthFailure(status: number): boolean {
   return status === 400 || status === 401 || status === 403
 }
 
+function readExpiresIn(data: SessionResponse): number | null {
+  return typeof data.expires_in === 'number' && data.expires_in > 0
+    ? data.expires_in
+    : null
+}
+
 export async function verifyAuthSessionDetailed({
   allowRefresh = true
 }: {
@@ -121,7 +133,8 @@ export async function verifyAuthSessionDetailed({
     return {
       user: persistVerifiedSession(data),
       hasRefreshToken,
-      refreshRequired: false
+      refreshRequired: false,
+      expiresIn: readExpiresIn(data)
     }
   }
 
@@ -129,7 +142,8 @@ export async function verifyAuthSessionDetailed({
     return {
       user: null,
       hasRefreshToken,
-      refreshRequired: true
+      refreshRequired: true,
+      expiresIn: null
     }
   }
 
@@ -146,7 +160,8 @@ export async function verifyAuthSessionDetailed({
         return {
           user: persistVerifiedSession(retryData),
           hasRefreshToken: Boolean(retryData.has_refresh_token),
-          refreshRequired: false
+          refreshRequired: false,
+          expiresIn: readExpiresIn(retryData)
         }
       }
 
@@ -172,7 +187,8 @@ export async function verifyAuthSessionDetailed({
   return {
     user: null,
     hasRefreshToken,
-    refreshRequired: Boolean(data.refresh_required)
+    refreshRequired: Boolean(data.refresh_required),
+    expiresIn: null
   }
 }
 
@@ -195,10 +211,24 @@ export const useAuth = () => {
     setLoading,
     setSessionVerified,
     setLogoutPending,
+    setExpiresAt,
     logout: storeLogout
   } = useAuthStore()
   const authEnabled = authConfig.enabled
   const router = useRouter()
+
+  const applyVerificationResult = React.useCallback(
+    (result: SessionVerificationResult | null) => {
+      const verifiedUser = result?.user ?? null
+      setUser(verifiedUser)
+      setExpiresAt(
+        verifiedUser && result?.expiresIn
+          ? Date.now() + result.expiresIn * 1000
+          : null
+      )
+    },
+    [setUser, setExpiresAt]
+  )
 
   // Server session is the source of truth; localStorage is only a verified UI cache.
   React.useEffect(() => {
@@ -217,12 +247,12 @@ export const useAuth = () => {
 
       setLoading(true)
       try {
-        const verifiedUser = await verifyAuthSession()
+        const result = await verifyAuthSessionDetailed()
         if (cancelled) return
-        setUser(verifiedUser)
+        applyVerificationResult(result)
       } catch {
         if (cancelled) return
-        setUser(null)
+        applyVerificationResult(null)
       } finally {
         if (!cancelled) {
           setSessionVerified(true)
@@ -236,7 +266,13 @@ export const useAuth = () => {
     return () => {
       cancelled = true
     }
-  }, [authEnabled, isSessionVerified, setLoading, setSessionVerified, setUser])
+  }, [
+    authEnabled,
+    isSessionVerified,
+    setLoading,
+    setSessionVerified,
+    applyVerificationResult
+  ])
 
   // After server-driven callback, ?hydrated=1 signals us to fetch session data
   React.useEffect(() => {
@@ -250,14 +286,14 @@ export const useAuth = () => {
     })
 
     setLoading(true)
-    verifyAuthSession()
-      .then((verifiedUser) => setUser(verifiedUser))
-      .catch(() => setUser(null))
+    verifyAuthSessionDetailed()
+      .then((result) => applyVerificationResult(result))
+      .catch(() => applyVerificationResult(null))
       .finally(() => {
         setSessionVerified(true)
         setLoading(false)
       })
-  }, [router, setLoading, setSessionVerified, setUser])
+  }, [router, setLoading, setSessionVerified, applyVerificationResult])
 
   const clearLocalSession = React.useCallback(() => {
     clearOidcStorage()

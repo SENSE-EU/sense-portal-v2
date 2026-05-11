@@ -1,11 +1,25 @@
 import { useCallback, useEffect, useRef } from 'react'
 import { useAccount, useDisconnect } from 'wagmi'
 import { useAuth, verifyAuthSessionDetailed } from './useAuth'
+import { useAuthStore } from './stores/authStore'
 import { useSsiWallet } from '@context/SsiWallet'
 import { disconnectFromWallet } from '@utils/wallet/ssiWallet'
 import { clearFederatedStorage } from '@utils/logoutRouter'
 
-const SESSION_REFRESH_INTERVAL_MS = 30000
+/**
+ * Refresh the access token this many milliseconds before its server-reported
+ * expiry. 60s gives clock-skew tolerance and absorbs transient network errors
+ * without the user ever seeing an expired session.
+ */
+const REFRESH_LEAD_MS = 60_000
+
+/**
+ * On a transient failure (network error, 5xx) retry after this delay instead
+ * of giving up or re-arming on the original expiry timeline. Bounded retries
+ * keep us from hammering an unhealthy auth server.
+ */
+const RETRY_DELAY_MS = 30_000
+
 const DEFINITIVE_REFRESH_FAILURE_STATUSES = new Set([400, 401, 403])
 
 type RefreshResult =
@@ -27,6 +41,8 @@ export function useSessionPersistence() {
     authEnabled,
     clearLocalSession
   } = useAuth()
+  const expiresAt = useAuthStore((s) => s.expiresAt)
+  const setExpiresAt = useAuthStore((s) => s.setExpiresAt)
   const { address } = useAccount()
   const { disconnect } = useDisconnect()
   const {
@@ -90,10 +106,11 @@ export function useSessionPersistence() {
       if (response.ok) {
         const { expires_in: newExpiresIn } = await response.json()
         if (typeof newExpiresIn === 'number' && newExpiresIn > 0) {
-          localStorage.setItem(
-            'token_expires_at',
-            String(Date.now() + newExpiresIn * 1000)
-          )
+          const newExpiresAt = Date.now() + newExpiresIn * 1000
+          // Updating the store re-arms the scheduling effect below, which is
+          // how we get continuous refresh without any setInterval.
+          setExpiresAt(newExpiresAt)
+          localStorage.setItem('token_expires_at', String(newExpiresAt))
           return { status: 'success', expiresIn: newExpiresIn }
         }
 
@@ -112,7 +129,7 @@ export function useSessionPersistence() {
       console.error('Token refresh network error, will retry:', error)
       return { status: 'retry', reason: 'refresh_network_error' }
     }
-  }, [])
+  }, [setExpiresAt])
 
   const checkSession = useCallback(async (): Promise<SessionCheckResult> => {
     try {
@@ -128,9 +145,7 @@ export function useSessionPersistence() {
         return { status: 'refresh_required' }
       }
 
-      if (!session.user) {
-        return { status: 'logout', reason: 'session_invalid' }
-      }
+      return { status: 'logout', reason: 'session_invalid' }
     } catch {
       return { status: 'retry', reason: 'session_check_transient_error' }
     }
@@ -138,30 +153,41 @@ export function useSessionPersistence() {
 
   useEffect(() => {
     if (!authEnabled || !isAuthenticated || !isSessionVerified || !user) return
+    if (!expiresAt) return
 
-    const checkAndRefresh = async () => {
-      if (refreshInFlightRef.current || logoutHandledRef.current) return
+    let cancelled = false
+    let timer: ReturnType<typeof setTimeout> | null = null
+
+    const runRefreshCycle = async () => {
+      if (cancelled || refreshInFlightRef.current || logoutHandledRef.current) {
+        return
+      }
       refreshInFlightRef.current = true
 
       try {
-        const initialSessionResult = await checkSession()
+        const sessionResult = await checkSession()
+        if (cancelled) return
 
-        if (initialSessionResult.status === 'logout') {
+        if (sessionResult.status === 'logout') {
           await disconnectWallets()
           clearLocalSessionOnce()
           return
         }
 
-        if (initialSessionResult.status === 'retry') return
+        if (sessionResult.status === 'retry') {
+          timer = setTimeout(runRefreshCycle, RETRY_DELAY_MS)
+          return
+        }
 
         if (
-          initialSessionResult.status === 'valid' &&
-          !initialSessionResult.hasRefreshToken
+          sessionResult.status === 'valid' &&
+          !sessionResult.hasRefreshToken
         ) {
           return
         }
 
         const result = await refreshToken()
+        if (cancelled) return
 
         if (result.status === 'logout') {
           await disconnectWallets()
@@ -169,27 +195,27 @@ export function useSessionPersistence() {
           return
         }
 
-        if (result.status !== 'success') return
-
-        const sessionResult = await checkSession()
-        if (sessionResult.status === 'logout') {
-          await disconnectWallets()
-          clearLocalSessionOnce()
+        if (result.status === 'retry') {
+          timer = setTimeout(runRefreshCycle, RETRY_DELAY_MS)
         }
       } finally {
         refreshInFlightRef.current = false
       }
     }
 
-    checkAndRefresh()
-    const interval = setInterval(checkAndRefresh, SESSION_REFRESH_INTERVAL_MS)
+    const initialDelay = Math.max(0, expiresAt - Date.now() - REFRESH_LEAD_MS)
+    timer = setTimeout(runRefreshCycle, initialDelay)
 
-    return () => clearInterval(interval)
+    return () => {
+      cancelled = true
+      if (timer) clearTimeout(timer)
+    }
   }, [
     authEnabled,
     isAuthenticated,
     isSessionVerified,
     user,
+    expiresAt,
     refreshToken,
     checkSession,
     disconnectWallets,
