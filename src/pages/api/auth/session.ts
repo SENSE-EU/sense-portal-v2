@@ -3,7 +3,9 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import { jwtVerify, type JWTPayload } from 'jose'
 import { clearAuthCookies, DEFAULT_ACCESS_TOKEN_MAX_AGE } from './_cookies'
 import { getOidcMetadata } from './_oidc'
-import { isSessionBlacklisted } from './_session-blacklist'
+import { isAccessTokenActive } from './_introspect'
+
+const OIDC_CLIENT_SECRET_ENV_KEY = 'OIDC_CLIENT_SECRET'
 
 function getOptionalStringClaim(
   payload: JWTPayload,
@@ -39,10 +41,21 @@ export default async function handler(
     })
   }
 
+  // A refresh token alone is not enough to trust the session. Make the client
+  // refresh so Authentik can reject revoked sessions with `invalid_grant`.
+  if (!accessToken && refreshToken) {
+    return res.status(401).json({
+      error: 'Access token missing',
+      has_refresh_token: true,
+      refresh_required: true
+    })
+  }
+
   const issuer = process.env.NEXT_PUBLIC_OIDC_ISSUER
   const clientId = process.env.NEXT_PUBLIC_OIDC_CLIENT_ID
+  const clientSecret = process.env[OIDC_CLIENT_SECRET_ENV_KEY]
 
-  if (!issuer || !clientId) {
+  if (!issuer || !clientId || !clientSecret) {
     console.error('Missing OIDC configuration for session verification')
     return res.status(500).json({ error: 'Server configuration error' })
   }
@@ -62,10 +75,20 @@ export default async function handler(
       audience: clientId
     })
 
-    const sid = typeof payload.sid === 'string' ? payload.sid : undefined
-    if (sid && isSessionBlacklisted(sid)) {
-      clearAuthCookies(res)
-      return res.status(401).json({ error: 'Session terminated' })
+    // JWT verification only proves the token was issued by us. Introspection
+    // catches revocations that happened after the token was created.
+    // If Authentik is unavailable, _introspect.ts keeps the request moving.
+    if (accessToken) {
+      const active = await isAccessTokenActive(
+        accessToken,
+        issuer,
+        clientId,
+        clientSecret
+      )
+      if (!active) {
+        clearAuthCookies(res)
+        return res.status(401).json({ error: 'Session terminated' })
+      }
     }
 
     const expiresIn = payload.exp

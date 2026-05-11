@@ -6,8 +6,6 @@ import {
   setAuthCookies
 } from './_cookies'
 import { OIDC_REQUEST_TIMEOUT_MS } from './_constants'
-import { getSidFromIdToken } from './_oidc'
-import { isSessionBlacklisted } from './_session-blacklist'
 
 const OIDC_CLIENT_SECRET_ENV_KEY = 'OIDC_CLIENT_SECRET'
 
@@ -117,20 +115,6 @@ export default async function handler(
         error: 'Server configuration error',
         message: 'OIDC credentials or token URL not configured'
       })
-    }
-
-    if (id_token && issuer) {
-      try {
-        const sid = await getSidFromIdToken(id_token, issuer, clientId)
-        if (sid && isSessionBlacklisted(sid)) {
-          clearAuthCookies(res)
-          return res.status(401).json({
-            error: 'Session has been terminated'
-          })
-        }
-      } catch (error) {
-        console.error('Unable to verify id_token for blacklist check:', error)
-      }
     }
 
     const response = await fetch(tokenUrl, {
