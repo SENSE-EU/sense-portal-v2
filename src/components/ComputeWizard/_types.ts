@@ -3,6 +3,7 @@ import { UserCustomParameters } from '@oceanprotocol/lib'
 import { KeyValuePair } from '@shared/FormInput/InputElement/KeyValueInput'
 
 export type ComputeFlow = 'dataset' | 'algorithm'
+export type QueueWaitTimeUnit = 'seconds' | 'minutes' | 'hours'
 
 export type UserParameterOption = Record<string, string>
 
@@ -118,6 +119,9 @@ export interface FormComputeData {
   actualPaymentAmount?: string
   jobPrice: string
   baseToken?: string | null
+  queueWaitingEnabled?: boolean
+  queueMaxWaitTime?: number | null
+  queueMaxWaitTimeUnit?: QueueWaitTimeUnit
   outputStorageEnabled?: boolean
   outputStorage?: {
     type?: 'url' | 's3' | 'ftp'

@@ -111,6 +111,28 @@ export const validationSchema: Yup.SchemaOf<FormComputeData> = Yup.object()
     escrowFunds: Yup.string().required(),
     jobPrice: Yup.string().required(),
     baseToken: Yup.string().required(),
+    queueWaitingEnabled: Yup.boolean(),
+    queueMaxWaitTime: Yup.number()
+      .nullable()
+      .transform((value, originalValue) => {
+        if (originalValue === '' || originalValue === null) return null
+        return Number.isNaN(value) ? null : value
+      })
+      .when('queueWaitingEnabled', {
+        is: true,
+        then: (schema) =>
+          schema
+            .required('Maximum waiting time is required')
+            .min(1, 'Maximum waiting time must be at least 1'),
+        otherwise: (schema) => schema.notRequired().nullable()
+      }),
+    queueMaxWaitTimeUnit: Yup.mixed<'seconds' | 'minutes' | 'hours'>()
+      .oneOf(['seconds', 'minutes', 'hours'])
+      .when('queueWaitingEnabled', {
+        is: true,
+        then: (schema) => schema.required('Waiting time unit is required'),
+        otherwise: (schema) => schema.notRequired()
+      }),
     outputStorageEnabled: Yup.boolean(),
     outputStorage: Yup.mixed().nullable()
   })

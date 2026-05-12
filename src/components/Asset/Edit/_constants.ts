@@ -455,8 +455,20 @@ export const getServiceInitialValues = (
     }
   }
 
+  const hasExistingEncryptedFile =
+    Array.isArray(service.files) && service.files.length > 0
+
   let processedFiles = []
-  if (detectedFileType === 's3') {
+  if (hasExistingEncryptedFile) {
+    processedFiles = [
+      {
+        type: 'hidden',
+        url: '',
+        valid: true,
+        isEncrypted: true
+      } as FileInfo & { isEncrypted: boolean }
+    ]
+  } else if (detectedFileType === 's3') {
     processedFiles = [
       {
         type: 's3',

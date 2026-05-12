@@ -17,7 +17,7 @@ export interface ExchangeStateData {
   sessionId: string
   dids: SsiWalletDid[]
   selectedDid: string
-  poliyServerData: any
+  policyServerData: any
 }
 
 function newExchangeStateData(): ExchangeStateData {
@@ -28,7 +28,7 @@ function newExchangeStateData(): ExchangeStateData {
     selectedCredentials: [],
     dids: [],
     selectedDid: '',
-    poliyServerData: undefined
+    policyServerData: undefined
   }
 }
 
