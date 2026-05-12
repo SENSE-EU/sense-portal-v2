@@ -2,7 +2,6 @@ import { ReactElement } from 'react'
 import Image from 'next/image'
 import styles from './index.module.css'
 import Container from '@shared/atoms/Container'
-import euFundedLogo from '@images/funded-by-eu.png'
 
 export default function EuFunding(): ReactElement {
   return (
@@ -11,11 +10,11 @@ export default function EuFunding(): ReactElement {
         <div className={styles.content}>
           <div className={styles.logoContainer}>
             <Image
-              src={euFundedLogo}
+              src="/images/funded-by-eu.png"
               alt="Funded by the European Union"
               className={styles.logo}
               height={80}
-              placeholder="blur"
+              width={320}
             />
           </div>
           <div className={styles.text}>
