@@ -335,6 +335,7 @@ function transformMergedQueryResults(
   const parsedSize = Number(query.size)
   const from = Number.isFinite(parsedFrom) && parsedFrom > 0 ? parsedFrom : 0
   const size = Number.isFinite(parsedSize) && parsedSize > 0 ? parsedSize : 21
+  const requestedPage = from > 0 ? from : 1
   const uniqueResults = new Map<string, Asset>()
 
   queryResults.forEach((queryResult) => {
@@ -347,11 +348,19 @@ function transformMergedQueryResults(
     Array.from(uniqueResults.values()),
     query.sort
   )
-  const totalResults = queryResults.reduce(
+  const rawResultsCount = queryResults.reduce(
+    (sum, queryResult) => sum + (queryResult?.results?.length || 0),
+    0
+  )
+  const reportedTotalResults = queryResults.reduce(
     (sum, queryResult) =>
       sum + (queryResult?.totalResults || queryResult?.results?.length || 0),
     0
   )
+  const totalResults =
+    rawResultsCount > results.length && results.length < size
+      ? (requestedPage - 1) * size + results.length
+      : reportedTotalResults
 
   return {
     results,
