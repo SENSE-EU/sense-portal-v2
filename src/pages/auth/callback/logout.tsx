@@ -1,17 +1,12 @@
-import { useEffect } from 'react'
-import { useAuthStore } from '@hooks/stores/authStore'
-import { clearFederatedStorage } from '@utils/logoutRouter'
+import type { GetServerSideProps } from 'next'
 
 export default function LogoutCallback() {
-  const storeLogout = useAuthStore((s) => s.logout)
-
-  useEffect(() => {
-    clearFederatedStorage()
-    localStorage.removeItem('oidc_session')
-    localStorage.removeItem('token_expires_at')
-    storeLogout()
-    window.location.replace('/api/auth/logout/continue')
-  }, [storeLogout])
-
-  return <div>Signing you out...</div>
+  return null
 }
+
+export const getServerSideProps: GetServerSideProps = async () => ({
+  redirect: {
+    destination: '/api/auth/logout/continue',
+    permanent: false
+  }
+})
