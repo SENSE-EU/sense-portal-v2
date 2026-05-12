@@ -7,17 +7,34 @@ const getEnv = (key) => {
   return process.env[key]
 }
 
+const parseEnvArray = (value, fallback) => {
+  if (!value) return fallback
+
+  try {
+    const parsed = JSON.parse(value)
+    const values = Array.isArray(parsed) ? parsed : [parsed]
+
+    return values
+      .filter((item) => typeof item === 'string')
+      .map((item) => item.trim())
+      .filter(Boolean)
+  } catch {
+    return [value].map((item) => item.trim()).filter(Boolean)
+  }
+}
+
 module.exports = {
-  // URI of single metadata cache instance for all networks.
+  // URIs of metadata cache instances queried by the marketplace.
   // While ocean.js includes this value for each network as part of its ConfigHelper,
-  // it is assumed to be the same for all networks.
+  // the marketplace queries the configured list for multi-node search.
   // In components can be accessed with the useMarketMetadata hook:
   // const { appConfig } = useMarketMetadata()
   // return appConfig.metadataCacheUri
-  metadataCacheUri:
+  metadataCacheUri: parseEnvArray(
     getEnv('NEXT_PUBLIC_METADATACACHE_URI') ||
-    process.env.NEXT_PUBLIC_METADATACACHE_URI ||
-    'https://ocean-node-vm3.oceanenterprise.io',
+      process.env.NEXT_PUBLIC_METADATACACHE_URI,
+    ['https://ocean-node-vm3.oceanenterprise.io']
+  ),
 
   nodeUri:
     getEnv('NEXT_PUBLIC_NODE_URI') ||
@@ -165,18 +182,15 @@ module.exports = {
   showOnboardingModuleByDefault:
     (getEnv('NEXT_PUBLIC_HIDE_ONBOARDING_MODULE_BY_DEFAULT') ||
       process.env.NEXT_PUBLIC_HIDE_ONBOARDING_MODULE_BY_DEFAULT) === 'false',
-  nodeUriIndex:
+  nodeUriIndex: parseEnvArray(
     getEnv('NEXT_PUBLIC_NODE_URI_INDEXED') ||
-    process.env.NEXT_PUBLIC_NODE_URI_INDEXED
-      ? JSON.parse(
-          getEnv('NEXT_PUBLIC_NODE_URI_INDEXED') ||
-            process.env.NEXT_PUBLIC_NODE_URI_INDEXED
-        )
-      : [
-          getEnv('NEXT_PUBLIC_PROVIDER_URL') ||
-            process.env.NEXT_PUBLIC_PROVIDER_URL ||
-            'https://ocean-node-vm3.oceanenterprise.io'
-        ],
+      process.env.NEXT_PUBLIC_NODE_URI_INDEXED,
+    [
+      getEnv('NEXT_PUBLIC_PROVIDER_URL') ||
+        process.env.NEXT_PUBLIC_PROVIDER_URL ||
+        'https://ocean-node-vm3.oceanenterprise.io'
+    ]
+  ),
 
   dataspace:
     getEnv('NEXT_PUBLIC_DATASPACE') ||
@@ -190,5 +204,18 @@ module.exports = {
       ? (getEnv('NEXT_PUBLIC_ASSET_DESCRIPTION_EXPANDED_BY_DEFAULT') ||
           process.env.NEXT_PUBLIC_ASSET_DESCRIPTION_EXPANDED_BY_DEFAULT) ===
         'true'
-      : true
+      : true,
+
+  imprintUrl:
+    getEnv('NEXT_PUBLIC_IMPRINT_URL') ||
+    process.env.NEXT_PUBLIC_IMPRINT_URL ||
+    '',
+  termsUrl:
+    getEnv('NEXT_PUBLIC_TC_URL') || process.env.NEXT_PUBLIC_TC_URL || '',
+  privacyPolicyUrl:
+    getEnv('NEXT_PUBLIC_PP_URL') || process.env.NEXT_PUBLIC_PP_URL || '',
+  cookiePolicyUrl:
+    getEnv('NEXT_PUBLIC_CP_URL') || process.env.NEXT_PUBLIC_CP_URL || '',
+  dpuaUrl:
+    getEnv('NEXT_PUBLIC_DPUA_URL') || process.env.NEXT_PUBLIC_DPUA_URL || ''
 }

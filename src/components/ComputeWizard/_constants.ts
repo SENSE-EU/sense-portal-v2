@@ -49,6 +49,9 @@ export const initialValues: FormComputeData = {
   escrowFunds: '0',
   jobPrice: '0',
   baseToken: null,
+  queueWaitingEnabled: false,
+  queueMaxWaitTime: 1,
+  queueMaxWaitTimeUnit: 'minutes',
   outputStorageEnabled: false,
   outputStorage: {
     type: 'url',

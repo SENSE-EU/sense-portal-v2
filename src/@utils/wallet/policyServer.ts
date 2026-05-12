@@ -28,12 +28,8 @@ export async function requestCredentialPresentation(
   policyServerData: PolicyServerInitiateActionData
 }> {
   try {
-    const sessionId =
-      typeof globalThis.crypto?.randomUUID === 'function'
-        ? globalThis.crypto.randomUUID()
-        : `${Date.now()}-${Math.random().toString(16).slice(2)}`
     const policyServer: PolicyServerInitiateActionData = {
-      sessionId,
+      sessionId: '',
       successRedirectUri: ``,
       errorRedirectUri: ``,
       responseRedirectUri: ``,
@@ -49,10 +45,21 @@ export async function requestCredentialPresentation(
       customProviderUrl,
       command
     )
+    const providerSessionId =
+      typeof initializePs?.message === 'object' &&
+      initializePs?.message !== null &&
+      'sessionId' in initializePs.message &&
+      typeof initializePs.message.sessionId === 'string'
+        ? initializePs.message.sessionId
+        : ''
+
     return {
       success: initializePs?.success,
       openid4vc: initializePs?.message,
-      policyServerData: policyServer
+      policyServerData: {
+        ...policyServer,
+        sessionId: providerSessionId
+      }
     }
   } catch (error) {
     if (error.request?.response) {
