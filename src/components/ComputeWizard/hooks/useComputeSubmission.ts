@@ -16,6 +16,7 @@ import { Service } from 'src/@types/ddo/Service'
 import { ResourceType } from 'src/@types/ResourceType'
 import { Signer } from 'ethers'
 import { getOrderPriceAndFees } from '@utils/accessDetailsAndPricing'
+import { resolveVerifierSessionId } from '@utils/verifierSession'
 import { FormComputeData } from '../_types'
 import { storeComputeOutputEncryptionKey } from '../outputStorage'
 
@@ -55,6 +56,7 @@ type StartJobParams = {
   computeOutput?: ComputeOutput
   computeOutputEncryptionKey?: string
   computeOutputStorage?: FormComputeData['outputStorage']
+  queueMaxWaitTime?: number
 }
 
 async function setAlgoPrice(
@@ -89,16 +91,59 @@ function buildResourceRequests(
   selectedComputeEnv: ComputeEnvironment,
   selectedResources: ResourceType
 ) {
+  const normalizeResourceKey = (
+    res: ComputeEnvironment['resources'][number]
+  ): string => {
+    const resourceId = res.id?.toLowerCase() || ''
+    if (res.type === 'gpu' || resourceId.includes('gpu')) return 'gpu'
+    if (resourceId.includes('cpu')) return 'cpu'
+    if (resourceId.includes('ram')) return 'ram'
+    if (resourceId.includes('disk')) return 'disk'
+    return res.id
+  }
+
+  const resolveSelectedAmount = (
+    res: ComputeEnvironment['resources'][number]
+  ): number => {
+    const resourceKey = normalizeResourceKey(res)
+    if (resourceKey === 'gpu') {
+      return Number(selectedResources.gpu ?? 0)
+    }
+    if (resourceKey === 'cpu')
+      return Number(selectedResources.cpu ?? res.min ?? 0)
+    if (resourceKey === 'ram')
+      return Number(selectedResources.ram ?? res.min ?? 0)
+    if (resourceKey === 'disk')
+      return Number(selectedResources.disk ?? res.min ?? 0)
+    return Number((selectedResources as any)[res.id] ?? res.min ?? 0)
+  }
+
+  const uniqueResources = (
+    resources: ComputeEnvironment['resources']
+  ): ComputeEnvironment['resources'] => {
+    const seen = new Set<string>()
+    return resources.filter((res) => {
+      const key = normalizeResourceKey(res)
+      if (seen.has(key)) return false
+      seen.add(key)
+      return true
+    })
+  }
+
   if (selectedResources.mode === 'free') {
-    return selectedComputeEnv.resources.map((res) => ({
+    const freeResources = selectedComputeEnv.free?.resources?.length
+      ? selectedComputeEnv.free.resources
+      : selectedComputeEnv.resources
+
+    return uniqueResources(freeResources).map((res) => ({
       id: res.id,
-      amount: res.inUse
+      amount: resolveSelectedAmount(res)
     }))
   }
 
-  return selectedComputeEnv.resources.map((res) => ({
+  return uniqueResources(selectedComputeEnv.resources).map((res) => ({
     id: res.id,
-    amount: (selectedResources as any)[res.id] || (res as any).min
+    amount: resolveSelectedAmount(res)
   }))
 }
 
@@ -132,7 +177,8 @@ export function useComputeSubmission() {
       computeServiceEndpoint,
       computeOutput,
       computeOutputEncryptionKey,
-      computeOutputStorage
+      computeOutputStorage,
+      queueMaxWaitTime
     }: StartJobParams) => {
       try {
         setIsOrdering(true)
@@ -178,11 +224,19 @@ export function useComputeSubmission() {
 
         const firstDataset = datasetResponses[0]
         const algorithmSession = firstDataset
-          ? lookupVerifierSessionId(
+          ? resolveVerifierSessionId(
               firstDataset.asset.id,
-              firstDataset.service.id
+              firstDataset.service.id,
+              lookupVerifierSessionId(
+                firstDataset.asset.id,
+                firstDataset.service.id
+              )
             )
-          : lookupVerifierSessionId(algorithmAsset.id, algorithmService.id)
+          : resolveVerifierSessionId(
+              algorithmAsset.id,
+              algorithmService.id,
+              lookupVerifierSessionId(algorithmAsset.id, algorithmService.id)
+            )
 
         const algorithmOrderTx = await handleComputeOrder(
           signer,
@@ -211,7 +265,11 @@ export function useComputeSubmission() {
             accountId,
             initializedProvider.datasets?.[i],
             hasDatatoken,
-            lookupVerifierSessionId(ds.asset.id, ds.service.id),
+            resolveVerifierSessionId(
+              ds.asset.id,
+              ds.service.id,
+              lookupVerifierSessionId(ds.asset.id, ds.service.id)
+            ),
             selectedComputeEnv.consumerAddress
           )
 
@@ -232,7 +290,11 @@ export function useComputeSubmission() {
           })
 
           policyDatasets.push({
-            sessionId: lookupVerifierSessionId(ds.asset.id, ds.service.id),
+            sessionId: resolveVerifierSessionId(
+              ds.asset.id,
+              ds.service.id,
+              lookupVerifierSessionId(ds.asset.id, ds.service.id)
+            ),
             serviceId: ds.service.id,
             documentId: ds.asset.id,
             successRedirectUri: '',
@@ -256,9 +318,10 @@ export function useComputeSubmission() {
           paymentTokenAddress || algorithmAccessDetails?.baseToken?.address
 
         const policyServerAlgo = {
-          sessionId: lookupVerifierSessionId(
+          sessionId: resolveVerifierSessionId(
             algorithmAsset.id,
-            algorithmService.id
+            algorithmService.id,
+            lookupVerifierSessionId(algorithmAsset.id, algorithmService.id)
           ),
           serviceId: algorithmService.id,
           documentId: algorithmAsset.id,
@@ -286,7 +349,9 @@ export function useComputeSubmission() {
             null,
             null,
             computeOutput,
-            policiesServer as any
+            policiesServer as any,
+            undefined,
+            queueMaxWaitTime
           )
         } else {
           const algorithm: ComputeAlgorithm = {
@@ -294,7 +359,6 @@ export function useComputeSubmission() {
             serviceId: algorithmService.id,
             meta: algorithmAsset.credentialSubject?.metadata?.algorithm as any
           }
-          console.log('computeOutput:', computeOutput)
           response = await ProviderInstance.freeComputeStart(
             providerEndpoint,
             signer,
@@ -308,7 +372,9 @@ export function useComputeSubmission() {
             null,
             null,
             computeOutput,
-            policiesServer as any
+            policiesServer as any,
+            undefined,
+            queueMaxWaitTime
           )
         }
 

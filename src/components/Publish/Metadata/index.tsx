@@ -184,6 +184,8 @@ export default function MetadataFields(): ReactElement {
                 buttonStyle="accent"
                 disabled={!!primaryUploadedLicenseDocument}
                 onReset={handleResetPrimaryUploadedLicense}
+                showProgressBar={true}
+                maxFileSizeKB={700}
               />
             </div>
           )}

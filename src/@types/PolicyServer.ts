@@ -59,11 +59,12 @@ export interface PolicyServerCheckSessionMessage {
 }
 
 export interface PolicyServerRedirectMessage {
-  redirectUri: string
+  sessionId?: string
+  redirectUri?: string
   errorMessage?: string
 }
 
-export type PolicyServerInitiateMessage = string | PolicyServerRedirectMessage
+export type PolicyServerInitiateMessage = PolicyServerRedirectMessage
 
 export interface PolicyServerResponse {
   success: boolean

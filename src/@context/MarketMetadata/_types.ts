@@ -13,7 +13,7 @@ export interface OpcFee {
 }
 
 export interface AppConfig {
-  metadataCacheUri: string
+  metadataCacheUri: string[]
   defaultDatatokenTemplateIndex: number
   marketFeeAddress: string
   publisherMarketOrderFee: string
@@ -39,6 +39,7 @@ export interface AppConfig {
   showOnboardingModuleByDefault: boolean
   dataspace: string | null
   assetDescriptionExpandedByDefault: boolean
+  persistJsonWalletSession: boolean
 }
 export interface SiteContent {
   siteTitle: string

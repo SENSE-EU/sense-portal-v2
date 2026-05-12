@@ -19,7 +19,6 @@ import EuFunding from './EuFunding'
 import Image from 'next/image'
 import Upload from '@images/publish.svg'
 import SearchLogo from '@images/search.svg'
-import cityHero from '@images/city-hero.png'
 import Menu from './Menu/Menu'
 import { addExistingParamsToUrl } from '../Search/utils'
 import { useRouter } from 'next/router'
@@ -111,11 +110,10 @@ function HeroSection({
   return (
     <section className={styles.hero}>
       <Image
-        src={cityHero}
+        src="/images/city-hero.png"
         alt=""
         fill
         priority
-        placeholder="blur"
         className={styles.heroBackground}
       />
       <div className={styles.heroOverlay} />

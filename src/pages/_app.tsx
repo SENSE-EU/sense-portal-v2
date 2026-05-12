@@ -11,14 +11,15 @@ import '@oceanprotocol/typographies/css/ocean-typo.css'
 import '../stylesGlobal/styles.css'
 import Decimal from 'decimal.js'
 import MarketMetadataProvider from '@context/MarketMetadata'
-
 import { WagmiProvider } from 'wagmi'
 import { ConnectKitProvider } from 'connectkit'
 import { connectKitTheme, createWagmiConfig } from '@utils/wallet'
 import { FilterProvider } from '@context/Filter'
 import { SsiWalletProvider } from '@context/SsiWallet'
-import { QueryFilterProvider } from '@hooks/useQueryFilter'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { AuthProvider } from '@utils/authProvider'
+import AuthGuard from '@components/Auth/AuthGuard/AuthGuard'
+
 const queryClient = new QueryClient()
 function MyApp({ Component, pageProps }: AppProps): ReactElement {
   const [mounted, setMounted] = useState(false)
@@ -45,15 +46,17 @@ function MyApp({ Component, pageProps }: AppProps): ReactElement {
               <UserPreferencesProvider>
                 <ConsentProvider>
                   <SearchBarStatusProvider>
-                    <QueryFilterProvider>
-                      <FilterProvider>
-                        <SsiWalletProvider>
+                    <FilterProvider>
+                      <SsiWalletProvider>
+                        <AuthProvider>
                           <App>
-                            <Component {...pageProps} />
+                            <AuthGuard>
+                              <Component {...pageProps} />
+                            </AuthGuard>
                           </App>
-                        </SsiWalletProvider>
-                      </FilterProvider>
-                    </QueryFilterProvider>
+                        </AuthProvider>
+                      </SsiWalletProvider>
+                    </FilterProvider>
                   </SearchBarStatusProvider>
                 </ConsentProvider>
               </UserPreferencesProvider>

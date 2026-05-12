@@ -5,11 +5,13 @@ import { getComputeEnvironments } from '@utils/provider'
 interface UseComputeEnvironmentsParams {
   serviceEndpoint?: string
   chainId?: number
+  enabled?: boolean
 }
 
 export function useComputeEnvironments({
   serviceEndpoint,
-  chainId
+  chainId,
+  enabled = true
 }: UseComputeEnvironmentsParams) {
   const [computeEnvs, setComputeEnvs] = useState<ComputeEnvironment[]>([])
   const [isLoadingComputeEnvs, setIsLoadingComputeEnvs] = useState(false)
@@ -34,8 +36,9 @@ export function useComputeEnvironments({
   }, [serviceEndpoint, chainId])
 
   useEffect(() => {
+    if (!enabled) return
     fetchComputeEnvs()
-  }, [fetchComputeEnvs])
+  }, [enabled, fetchComputeEnvs])
 
   return {
     computeEnvs,

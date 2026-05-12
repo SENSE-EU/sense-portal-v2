@@ -29,6 +29,7 @@ import { toast } from 'react-toastify'
 import AccessRulesSection from '@components/Publish/AccessPolicies/AccessRulesSection'
 import useEditMetadata from './useEditMetadata'
 import styles from './index.module.css'
+import { FILE_UPLOAD_CONFIG } from '@components/@shared/FileUpload/helper'
 
 const { data } = content.form
 const assetTypeOptionsTitles = getFieldContent('type', data).options
@@ -292,6 +293,8 @@ export default function FormEditMetadata(): ReactElement {
                 buttonStyle="accent"
                 disabled={!!primaryUploadedLicenseDocument}
                 onReset={handleResetPrimaryUploadedLicense}
+                showProgressBar={true}
+                maxFileSizeKB={FILE_UPLOAD_CONFIG.MAX_LICENSE_FILE_SIZE_KB}
               />
             </div>
           ) : (

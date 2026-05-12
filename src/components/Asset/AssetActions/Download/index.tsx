@@ -104,7 +104,6 @@ export default function Download({
     null
   )
   const [providerFeeBalance, setProviderFeeBalance] = useState<string>('0')
-
   const [isFullPriceLoading, setIsFullPriceLoading] = useState(
     accessDetails.type !== 'free'
   )
@@ -160,6 +159,10 @@ export default function Download({
   useEffect(() => {
     const fetchTokenDetailsProviderFee = async () => {
       if (!chainId || !signer?.provider) return
+      // const tokenDetails = await getTokenInfo(
+      //   orderPriceAndFees?.providerFee?.providerFeeToken,
+      //   signer.provider
+      // )
       const providerFeeToken = orderPriceAndFees?.providerFee?.providerFeeToken
       const tokenDetails = await getTokenInfo(providerFeeToken, signer.provider)
       setTokenInfoProviderFee(tokenDetails)

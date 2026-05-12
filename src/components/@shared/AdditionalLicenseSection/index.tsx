@@ -21,6 +21,7 @@ import {
   FormAdditionalLicenseFile
 } from '@components/Publish/_types'
 import styles from './index.module.css'
+import { FILE_UPLOAD_CONFIG } from '../FileUpload/helper'
 
 interface AdditionalLicenseSectionProps {
   fieldPathPrefix: string
@@ -158,6 +159,8 @@ function AdditionalLicenseItem({
                 setFileItem={onUpload}
                 buttonStyle="accent"
                 disabled={!!additionalFile.uploadedDocument || isUploading}
+                maxFileSizeKB={FILE_UPLOAD_CONFIG.MAX_LICENSE_FILE_SIZE_KB}
+                showProgressBar={true}
               />
             </div>
           )}
