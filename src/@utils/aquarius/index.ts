@@ -272,6 +272,92 @@ interface AquariusQueryResult {
   aggregations?: unknown
 }
 
+interface MetadataCacheQuery {
+  cacheUri: string
+  query: SearchQuery
+}
+
+const serviceEndpointFilterPath =
+  'credentialSubject.services.serviceEndpoint.keyword'
+
+function getSearchFilters(query: SearchQuery): unknown[] {
+  return Array.isArray(query?.query?.bool?.filter)
+    ? query.query.bool.filter
+    : []
+}
+
+function getServiceEndpointFilterValue(filter: unknown): unknown {
+  const typedFilter = filter as {
+    terms?: Record<string, unknown>
+    term?: Record<string, unknown>
+  }
+
+  return (
+    typedFilter?.terms?.[serviceEndpointFilterPath] ||
+    typedFilter?.term?.[serviceEndpointFilterPath]
+  )
+}
+
+function getServiceEndpointFilterValues(query: SearchQuery): string[] {
+  const filters = getSearchFilters(query)
+  const values = filters
+    .map((filter) => {
+      const filterValue = getServiceEndpointFilterValue(filter)
+
+      return Array.isArray(filterValue) ? filterValue : [filterValue]
+    })
+    .reduce((previous, current) => previous.concat(current), [])
+    .filter((value): value is string => typeof value === 'string')
+
+  return [...new Set(values)]
+}
+
+function replaceServiceEndpointFilter(
+  query: SearchQuery,
+  serviceEndpoint: string
+): SearchQuery {
+  return {
+    ...query,
+    query: {
+      ...query.query,
+      bool: {
+        ...query.query.bool,
+        filter: getSearchFilters(query).map((filter) => {
+          if (getServiceEndpointFilterValue(filter)) {
+            return getFilterTerm(serviceEndpointFilterPath, [serviceEndpoint])
+          }
+
+          return filter
+        })
+      }
+    }
+  }
+}
+
+function buildMetadataCacheQueries(
+  cacheUris: string[],
+  query: SearchQuery
+): MetadataCacheQuery[] {
+  const serviceEndpoints = getServiceEndpointFilterValues(query).map(
+    (serviceEndpoint) => serviceEndpoint.replace(/\/+$/, '')
+  )
+
+  if (serviceEndpoints.length === 0) {
+    return cacheUris.map((cacheUri) => ({ cacheUri, query }))
+  }
+
+  const cacheQueries = cacheUris
+    .filter((cacheUri) => serviceEndpoints.includes(cacheUri))
+    .map((cacheUri) => ({
+      cacheUri,
+      query: replaceServiceEndpointFilter(query, cacheUri)
+    }))
+
+  return cacheQueries.length > 0
+    ? cacheQueries
+    : cacheUris.map((cacheUri) => ({ cacheUri, query }))
+}
+
 function getQueryResult(
   responseData: unknown
 ): AquariusQueryResult | undefined {
@@ -402,10 +488,11 @@ export async function queryMetadata(
 ): Promise<PagedAssets> {
   const cacheUris = getMetadataCacheUris()
   if (cacheUris.length === 0) return
+  const cacheQueries = buildMetadataCacheQueries(cacheUris, query)
 
   const queryResults = (
     await Promise.all(
-      cacheUris.map((cacheUri) =>
+      cacheQueries.map(({ cacheUri, query }) =>
         postMetadataQuery(cacheUri, query, cancelToken)
       )
     )
@@ -415,7 +502,7 @@ export async function queryMetadata(
 
   if (queryResults.length === 0) return
 
-  return cacheUris.length === 1
+  return cacheQueries.length === 1
     ? transformQueryResult(queryResults[0], query.from, query.size)
     : transformMergedQueryResults(queryResults, query)
 }
