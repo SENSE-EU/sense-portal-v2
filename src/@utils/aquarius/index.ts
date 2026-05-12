@@ -334,6 +334,23 @@ function replaceServiceEndpointFilter(
   }
 }
 
+function getMergedQueryFetchSize(query: SearchQuery): number {
+  const parsedFrom = Number(query.from)
+  const parsedSize = Number(query.size)
+  const page = Number.isFinite(parsedFrom) && parsedFrom > 0 ? parsedFrom : 1
+  const size = Number.isFinite(parsedSize) && parsedSize > 0 ? parsedSize : 21
+
+  return page * size
+}
+
+function prepareMergedCacheQuery(query: SearchQuery): SearchQuery {
+  return {
+    ...query,
+    from: 1,
+    size: getMergedQueryFetchSize(query)
+  }
+}
+
 function buildMetadataCacheQueries(
   cacheUris: string[],
   query: SearchQuery
@@ -346,16 +363,35 @@ function buildMetadataCacheQueries(
     return cacheUris.map((cacheUri) => ({ cacheUri, query }))
   }
 
-  const cacheQueries = cacheUris
-    .filter((cacheUri) => serviceEndpoints.includes(cacheUri))
-    .map((cacheUri) => ({
-      cacheUri,
-      query: replaceServiceEndpointFilter(query, cacheUri)
-    }))
+  const matchingCacheUris = cacheUris.filter((cacheUri) =>
+    serviceEndpoints.includes(cacheUri)
+  )
+
+  if (matchingCacheUris.length === 1) {
+    const [cacheUri] = matchingCacheUris
+
+    return [
+      {
+        cacheUri,
+        query: replaceServiceEndpointFilter(query, cacheUri)
+      }
+    ]
+  }
+
+  const cacheQueries = matchingCacheUris.map((cacheUri) => ({
+    cacheUri,
+    query: replaceServiceEndpointFilter(
+      prepareMergedCacheQuery(query),
+      cacheUri
+    )
+  }))
 
   return cacheQueries.length > 0
     ? cacheQueries
-    : cacheUris.map((cacheUri) => ({ cacheUri, query }))
+    : cacheUris.map((cacheUri) => ({
+        cacheUri,
+        query: prepareMergedCacheQuery(query)
+      }))
 }
 
 function getQueryResult(
@@ -422,6 +458,8 @@ function transformMergedQueryResults(
   const from = Number.isFinite(parsedFrom) && parsedFrom > 0 ? parsedFrom : 0
   const size = Number.isFinite(parsedSize) && parsedSize > 0 ? parsedSize : 21
   const requestedPage = from > 0 ? from : 1
+  const pageStart = (requestedPage - 1) * size
+  const pageEnd = pageStart + size
   const uniqueResults = new Map<string, Asset>()
 
   queryResults.forEach((queryResult) => {
@@ -449,7 +487,7 @@ function transformMergedQueryResults(
       : reportedTotalResults
 
   return {
-    results,
+    results: results.slice(pageStart, pageEnd),
     page: from + 1,
     totalPages: Math.ceil(totalResults / size),
     totalResults,
