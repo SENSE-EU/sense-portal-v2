@@ -1,20 +1,6 @@
 /* eslint-disable camelcase */
 import type { NextApiRequest, NextApiResponse } from 'next'
-import {
-  generateCodeVerifier,
-  generateCodeChallenge,
-  generateRandomString,
-  isSafeCallbackUrl,
-  setTransientCookies
-} from './_transient'
-
-function getAuthorizeUrl(issuer: string): string {
-  if (issuer.includes('/application/o/')) {
-    const base = issuer.split('/application/o/')[0]
-    return `${base}/application/o/authorize/`
-  }
-  return `${issuer.replace(/\/$/, '')}/authorize/`
-}
+import { isSafeCallbackUrl } from './_transient'
 
 function getSignupUrl(
   issuer: string,
@@ -25,6 +11,12 @@ function getSignupUrl(
   return `${authentikBase}/if/flow/${signupFlow}/?next=${encodeURIComponent(
     authorizeUrl
   )}`
+}
+
+function buildPostSignupUrl(redirectUri: string, callbackUrl: string | null) {
+  const url = new URL('/api/auth/login', redirectUri)
+  if (callbackUrl) url.searchParams.set('callbackUrl', callbackUrl)
+  return url.toString()
 }
 
 export default async function handler(
@@ -54,29 +46,12 @@ export default async function handler(
     typeof req.query.callbackUrl === 'string' ? req.query.callbackUrl : ''
   const callbackUrl = isSafeCallbackUrl(rawCallbackUrl) ? rawCallbackUrl : null
 
-  const codeVerifier = generateCodeVerifier()
-  const codeChallenge = generateCodeChallenge(codeVerifier)
-  const state = generateRandomString()
-  const nonce = generateRandomString()
-
-  setTransientCookies(res, {
-    oidc_pkce_verifier: codeVerifier,
-    oidc_state: state,
-    oidc_nonce: nonce,
-    ...(callbackUrl ? { oidc_callback_url: callbackUrl } : {})
-  })
-
-  const params = new URLSearchParams({
-    client_id: clientId,
-    redirect_uri: redirectUri,
-    response_type: 'code',
-    scope: 'openid profile email offline_access federated_identity',
-    code_challenge: codeChallenge,
-    code_challenge_method: 'S256',
-    state,
-    nonce
-  })
-
-  const authorizeUrl = `${getAuthorizeUrl(issuer)}?${params.toString()}`
-  return res.redirect(302, getSignupUrl(issuer, signupFlow, authorizeUrl))
+  return res.redirect(
+    302,
+    getSignupUrl(
+      issuer,
+      signupFlow,
+      buildPostSignupUrl(redirectUri, callbackUrl)
+    )
+  )
 }
