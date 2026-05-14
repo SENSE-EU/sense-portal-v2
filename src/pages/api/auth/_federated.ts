@@ -1,5 +1,7 @@
+import { federatedOidcIssuers } from 'app.config.cjs'
+
 export function isFederatedSource(loginSource: string): boolean {
-  const raw = process.env.NEXT_PUBLIC_FEDERATED_OIDC_ISSUERS
+  const raw = federatedOidcIssuers
   if (!raw) return false
 
   const normalizedLoginSource = loginSource.trim().toLowerCase()

@@ -1,6 +1,13 @@
 /* eslint-disable camelcase */
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { isSafeCallbackUrl } from './_transient'
+import {
+  authEnabled,
+  oidcClientId,
+  oidcIssuer,
+  oidcRedirectUri,
+  oidcSignupFlow
+} from 'app.config.cjs'
 
 function getSignupUrl(
   issuer: string,
@@ -28,15 +35,14 @@ export default async function handler(
     return res.status(405).end()
   }
 
-  if (process.env.NEXT_PUBLIC_AUTH_ENABLED !== 'true') {
+  if (authEnabled !== 'true') {
     return res.status(404).end()
   }
 
-  const issuer = process.env.NEXT_PUBLIC_OIDC_ISSUER
-  const clientId = process.env.NEXT_PUBLIC_OIDC_CLIENT_ID
-  const redirectUri = process.env.NEXT_PUBLIC_OIDC_REDIRECT_URI
-  const signupFlow =
-    process.env.NEXT_PUBLIC_OIDC_SIGNUP_FLOW || 'self-service-registration'
+  const issuer = oidcIssuer
+  const clientId = oidcClientId
+  const redirectUri = oidcRedirectUri
+  const signupFlow = oidcSignupFlow || 'self-service-registration'
 
   if (!issuer || !clientId || !redirectUri) {
     return res.status(500).json({ error: 'Server configuration error' })

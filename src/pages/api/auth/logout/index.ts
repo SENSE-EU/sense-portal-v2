@@ -2,6 +2,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { buildClearAuthCookieStrings, clearAuthCookies } from '../_cookies'
 import { isFederatedSource } from '../_federated'
+import { authEnabled, oidcClientId, oidcIssuer } from 'app.config.cjs'
 
 const OIDC_CLIENT_SECRET_ENV_KEY = 'OIDC_CLIENT_SECRET'
 const FEDERATED_LOGOUT_CONTINUE_COOKIE = 'federated_logout_continue'
@@ -61,9 +62,9 @@ async function revokeToken(
 }
 
 async function handleGet(req: NextApiRequest, res: NextApiResponse) {
-  const clientId = process.env.NEXT_PUBLIC_OIDC_CLIENT_ID
+  const clientId = oidcClientId
   const clientSecret = process.env[OIDC_CLIENT_SECRET_ENV_KEY]
-  const issuer = process.env.NEXT_PUBLIC_OIDC_ISSUER
+  const issuer = oidcIssuer
 
   if (!clientId || !clientSecret || !issuer) {
     console.error('Missing OIDC configuration for logout')
@@ -139,7 +140,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  if (process.env.NEXT_PUBLIC_AUTH_ENABLED !== 'true') {
+  if (authEnabled !== 'true') {
     return res.status(404).json({ error: 'Not found' })
   }
 

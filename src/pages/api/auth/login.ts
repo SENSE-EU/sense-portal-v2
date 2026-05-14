@@ -7,6 +7,12 @@ import {
   isSafeCallbackUrl,
   setTransientCookies
 } from './_transient'
+import {
+  authEnabled,
+  oidcClientId,
+  oidcIssuer,
+  oidcRedirectUri
+} from 'app.config.cjs'
 
 function getAuthorizeUrl(issuer: string): string {
   if (issuer.includes('/application/o/')) {
@@ -25,13 +31,13 @@ export default async function handler(
     return res.status(405).end()
   }
 
-  if (process.env.NEXT_PUBLIC_AUTH_ENABLED !== 'true') {
+  if (authEnabled !== 'true') {
     return res.status(404).end()
   }
 
-  const issuer = process.env.NEXT_PUBLIC_OIDC_ISSUER
-  const clientId = process.env.NEXT_PUBLIC_OIDC_CLIENT_ID
-  const redirectUri = process.env.NEXT_PUBLIC_OIDC_REDIRECT_URI
+  const issuer = oidcIssuer
+  const clientId = oidcClientId
+  const redirectUri = oidcRedirectUri
 
   if (!issuer || !clientId || !redirectUri) {
     return res.status(500).json({ error: 'Server configuration error' })

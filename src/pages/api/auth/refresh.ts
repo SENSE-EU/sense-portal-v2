@@ -6,6 +6,12 @@ import {
   setAuthCookies
 } from './_cookies'
 import { OIDC_REQUEST_TIMEOUT_MS } from './_constants'
+import {
+  authEnabled,
+  oidcClientId,
+  oidcIssuer,
+  oidcTokenUrl
+} from 'app.config.cjs'
 
 const OIDC_CLIENT_SECRET_ENV_KEY = 'OIDC_CLIENT_SECRET'
 
@@ -75,7 +81,7 @@ export default async function handler(
   res.setHeader('Cache-Control', 'no-store')
 
   try {
-    if (process.env.NEXT_PUBLIC_AUTH_ENABLED !== 'true') {
+    if (authEnabled !== 'true') {
       return res.status(404).json({
         error: 'Not found'
       })
@@ -102,10 +108,10 @@ export default async function handler(
       })
     }
 
-    const clientId = process.env.NEXT_PUBLIC_OIDC_CLIENT_ID
+    const clientId = oidcClientId
     const clientSecret = process.env[OIDC_CLIENT_SECRET_ENV_KEY]
-    let tokenUrl = process.env.NEXT_PUBLIC_OIDC_TOKEN_URL
-    const issuer = process.env.NEXT_PUBLIC_OIDC_ISSUER
+    let tokenUrl = oidcTokenUrl
+    const issuer = oidcIssuer
 
     if (!tokenUrl && issuer) {
       if (issuer.includes('/application/o/')) {

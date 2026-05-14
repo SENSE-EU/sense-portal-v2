@@ -4,6 +4,7 @@ import { jwtVerify, type JWTPayload } from 'jose'
 import { DEFAULT_ACCESS_TOKEN_MAX_AGE } from './_cookies'
 import { getOidcMetadata } from './_oidc'
 import { introspectAccessToken } from './_introspect'
+import { authEnabled, oidcClientId, oidcIssuer } from 'app.config.cjs'
 
 const OIDC_CLIENT_SECRET_ENV_KEY = 'OIDC_CLIENT_SECRET'
 
@@ -26,7 +27,7 @@ export default async function handler(
 
   res.setHeader('Cache-Control', 'no-store')
 
-  if (process.env.NEXT_PUBLIC_AUTH_ENABLED !== 'true') {
+  if (authEnabled !== 'true') {
     return res.status(404).json({ error: 'Not found' })
   }
 
@@ -51,8 +52,8 @@ export default async function handler(
     })
   }
 
-  const issuer = process.env.NEXT_PUBLIC_OIDC_ISSUER
-  const clientId = process.env.NEXT_PUBLIC_OIDC_CLIENT_ID
+  const issuer = oidcIssuer
+  const clientId = oidcClientId
   const clientSecret = process.env[OIDC_CLIENT_SECRET_ENV_KEY]
 
   if (!issuer || !clientId || !clientSecret) {

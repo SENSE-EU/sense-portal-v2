@@ -6,6 +6,13 @@ import { buildClearTransientCookieStrings } from './_transient'
 import { getOidcMetadata } from './_oidc'
 import { OIDC_REQUEST_TIMEOUT_MS } from './_constants'
 import { introspectAccessToken } from './_introspect'
+import {
+  authEnabled,
+  oidcClientId,
+  oidcIssuer,
+  oidcRedirectUri,
+  oidcTokenUrl
+} from 'app.config.cjs'
 
 const OIDC_CLIENT_SECRET_ENV_KEY = 'OIDC_CLIENT_SECRET'
 
@@ -44,7 +51,7 @@ export default async function handler(
     return res.status(405).end()
   }
 
-  if (process.env.NEXT_PUBLIC_AUTH_ENABLED !== 'true') {
+  if (authEnabled !== 'true') {
     return res.status(404).end()
   }
 
@@ -64,18 +71,17 @@ export default async function handler(
   if (!expectedState || state !== expectedState) return failRedirect(res)
   if (!codeVerifier || !expectedNonce) return failRedirect(res)
 
-  const issuer = process.env.NEXT_PUBLIC_OIDC_ISSUER
-  const clientId = process.env.NEXT_PUBLIC_OIDC_CLIENT_ID
+  const issuer = oidcIssuer
+  const clientId = oidcClientId
   const clientSecret = process.env[OIDC_CLIENT_SECRET_ENV_KEY]
-  const redirectUri = process.env.NEXT_PUBLIC_OIDC_REDIRECT_URI
+  const redirectUri = oidcRedirectUri
 
   if (!issuer || !clientId || !clientSecret || !redirectUri) {
     return failRedirect(res, 'server_error')
   }
 
   try {
-    const tokenUrl =
-      process.env.NEXT_PUBLIC_OIDC_TOKEN_URL || getTokenUrl(issuer)
+    const tokenUrl = oidcTokenUrl || getTokenUrl(issuer)
 
     const tokenRes = await fetch(tokenUrl, {
       method: 'POST',

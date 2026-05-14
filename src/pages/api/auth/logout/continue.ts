@@ -1,6 +1,7 @@
 /* eslint-disable camelcase */
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { buildClearAuthCookieStrings } from '../_cookies'
+import { authEnabled, oidcClientId, oidcIssuer } from 'app.config.cjs'
 
 const FEDERATED_LOGOUT_CONTINUE_COOKIE = 'federated_logout_continue'
 
@@ -39,7 +40,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     return res.status(405).end()
   }
 
-  if (process.env.NEXT_PUBLIC_AUTH_ENABLED !== 'true') {
+  if (authEnabled !== 'true') {
     return res.status(404).end()
   }
 
@@ -48,8 +49,8 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     return res.redirect(302, '/auth/login?loggedout=1')
   }
 
-  const clientId = process.env.NEXT_PUBLIC_OIDC_CLIENT_ID
-  const issuer = process.env.NEXT_PUBLIC_OIDC_ISSUER
+  const clientId = oidcClientId
+  const issuer = oidcIssuer
 
   if (!clientId || !issuer) {
     console.error('Missing OIDC configuration for logout continuation')
