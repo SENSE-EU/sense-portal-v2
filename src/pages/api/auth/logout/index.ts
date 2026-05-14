@@ -1,6 +1,7 @@
 /* eslint-disable camelcase */
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { buildClearAuthCookieStrings, clearAuthCookies } from '../_cookies'
+import { isFederatedSource } from '../_federated'
 
 const OIDC_CLIENT_SECRET_ENV_KEY = 'OIDC_CLIENT_SECRET'
 const FEDERATED_LOGOUT_CONTINUE_COOKIE = 'federated_logout_continue'
@@ -25,22 +26,6 @@ function serializeFederatedLogoutContinueCookie(value: string, maxAge: number) {
   return `${FEDERATED_LOGOUT_CONTINUE_COOKIE}=${encodeURIComponent(
     value
   )}; Max-Age=${maxAge}; HttpOnly; Secure; SameSite=Lax; Path=/api/auth/logout`
-}
-
-function isFederatedSource(loginSource: string): boolean {
-  const raw = process.env.NEXT_PUBLIC_FEDERATED_OIDC_ISSUERS
-  if (!raw) return false
-  try {
-    const issuers = JSON.parse(raw)
-    if (!Array.isArray(issuers)) return false
-    return issuers.some(
-      (issuer: unknown) =>
-        typeof issuer === 'string' &&
-        loginSource.toLowerCase().includes(issuer.toLowerCase())
-    )
-  } catch {
-    return false
-  }
 }
 
 function getRevokeUrl(issuer: string) {
