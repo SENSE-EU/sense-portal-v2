@@ -60,7 +60,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
 
   const callbackUrl = `${getRequestOrigin(req)}/auth/callback/logout`
   const oidcParams = new URLSearchParams({ client_id: clientId })
-  const idTokenHint = req.cookies.logout_id_token || req.cookies.id_token
+  const idTokenHint = req.cookies.id_token
 
   if (idTokenHint) oidcParams.set('id_token_hint', idTokenHint)
   oidcParams.set('post_logout_redirect_uri', callbackUrl)

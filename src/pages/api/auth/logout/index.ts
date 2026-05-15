@@ -72,13 +72,7 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
     return res.redirect(302, '/auth/login')
   }
 
-  const {
-    access_token,
-    refresh_token,
-    id_token,
-    logout_id_token,
-    login_source
-  } = req.cookies
+  const { access_token, refresh_token, id_token, login_source } = req.cookies
   const revokeUrl = getRevokeUrl(issuer)
 
   await Promise.all([
@@ -107,8 +101,7 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
   const callbackUrl = `${getRequestOrigin(req)}/auth/callback/logout`
 
   const oidcParams = new URLSearchParams({ client_id: clientId })
-  if (id_token || logout_id_token)
-    oidcParams.set('id_token_hint', id_token || logout_id_token)
+  if (id_token) oidcParams.set('id_token_hint', id_token)
   oidcParams.set('post_logout_redirect_uri', callbackUrl)
   oidcParams.set('state', 'logout')
   const oidcEndSessionUrl = `${getEndSessionUrl(
@@ -122,7 +115,7 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
 
   if (isFederatedLogin) {
     res.setHeader('Set-Cookie', [
-      ...buildClearAuthCookieStrings({ keepLogoutIdToken: true }),
+      ...buildClearAuthCookieStrings({ keepIdToken: true }),
       serializeFederatedLogoutContinueCookie('1', 300)
     ])
 
