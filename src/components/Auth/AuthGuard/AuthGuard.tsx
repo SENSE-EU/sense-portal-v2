@@ -78,7 +78,7 @@ export default function AuthGuard({ children }: AuthGuardProps) {
     clearLocalSession,
     isAuthenticated,
     isPublic,
-    router.asPath,
+    router.pathname,
     router.isReady
   ])
 
