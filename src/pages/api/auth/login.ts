@@ -63,8 +63,7 @@ export default async function handler(
     client_id: clientId,
     redirect_uri: redirectUri,
     response_type: 'code',
-    scope:
-      'openid profile email offline_access federated_identity organizationId',
+    scope: 'openid profile email offline_access federated_identity',
     code_challenge: codeChallenge,
     code_challenge_method: 'S256',
     state,

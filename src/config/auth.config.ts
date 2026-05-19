@@ -59,8 +59,7 @@ export const authConfig = ((): AuthConfig => {
       clientId,
       redirectUri,
       signupFlow,
-      scope:
-        'openid profile email offline_access federated_identity organizationId',
+      scope: 'openid profile email offline_access federated_identity',
       responseType: 'code',
       pkceMethod: 'S256'
     }
