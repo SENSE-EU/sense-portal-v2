@@ -1,5 +1,5 @@
 import { ReactElement, ReactNode, useState } from 'react'
-import { useDisconnect, useAccount } from 'wagmi'
+import { useDisconnect, useAccount, useSwitchChain } from 'wagmi'
 import styles from './Details.module.css'
 import Avatar from '@components/@shared/atoms/Avatar'
 import Bookmark from '@images/bookmark.svg'
@@ -15,6 +15,9 @@ import { useModal } from 'connectkit'
 import { useRouter } from 'next/router'
 import { useUserPreferences } from '@context/UserPreferences'
 import { clearFederatedStorage } from '@utils/logoutRouter'
+import { JSON_WALLET_CONNECTOR_ID } from '@utils/wallet/jsonWalletConnector'
+import { toast } from 'react-toastify'
+import NetworkName from '@shared/NetworkName'
 
 interface DetailsProps {
   onRequestClose?: () => void
@@ -108,14 +111,21 @@ function ActionButton({
 export default function Details({
   onRequestClose
 }: DetailsProps): ReactElement {
-  const { connector: activeConnector, address: accountId } = useAccount()
+  const {
+    connector: activeConnector,
+    address: accountId,
+    chainId: connectedChainId
+  } = useAccount()
   const { disconnect } = useDisconnect()
   const { logout, markLogoutPending, isAuthenticated, user, authEnabled } =
     useAuth()
   const { setOpen } = useModal()
   const router = useRouter()
-  const { showOnboardingModule } = useUserPreferences()
+  const { showOnboardingModule, setEncryptedWalletJson } = useUserPreferences()
   const [isLoggingOut, setIsLoggingOut] = useState(false)
+  const { chains, switchChain } = useSwitchChain()
+
+  const isJsonWallet = activeConnector?.id === JSON_WALLET_CONNECTOR_ID
 
   const {
     setSessionToken,
@@ -223,6 +233,39 @@ export default function Details({
           )}
           {showTokenList && <AddTokenList disabled={!isWalletConnected} />}
         </div>
+
+        {isJsonWallet && isWalletConnected && chains.length > 0 && (
+          <div className={styles.chainSwitcher}>
+            <span className={styles.chainSwitcherLabel}>Switch Network</span>
+            <div className={styles.chainList}>
+              {chains.map((chain) => (
+                <button
+                  key={chain.id}
+                  type="button"
+                  className={`${styles.chainItem} ${
+                    chain.id === connectedChainId ? styles.chainItemActive : ''
+                  }`}
+                  disabled={chain.id === connectedChainId}
+                  onClick={() =>
+                    switchChain(
+                      { chainId: chain.id },
+                      {
+                        onSuccess: (data) =>
+                          toast.success(`Switched to ${data.name}`),
+                        onError: (err) =>
+                          toast.error(
+                            `Failed to switch network: ${err.message}`
+                          )
+                      }
+                    )
+                  }
+                >
+                  <NetworkName networkId={chain.id} minimal />
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       <div className={styles.section}>
@@ -242,6 +285,25 @@ export default function Details({
             isWalletConnected ? handleDisconnectWallet : handleConnectWallet
           }
         />
+
+        {isJsonWallet && isWalletConnected && (
+          <ActionButton
+            icon={<DisconnectWallet className={styles.actionGlyph} />}
+            title="Remove JSON wallet"
+            description={
+              showActionDescriptions
+                ? 'Remove the stored wallet file and disconnect.'
+                : undefined
+            }
+            onClick={() => {
+              disconnect()
+              setEncryptedWalletJson('')
+              toast.info('Wallet removed.')
+            }}
+            tone="danger"
+          />
+        )}
+
         {hasMarketplaceSession && (
           <ActionButton
             icon={<LogoutIcon className={styles.actionGlyph} />}
