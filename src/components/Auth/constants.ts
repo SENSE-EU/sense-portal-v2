@@ -30,9 +30,9 @@ export const authBrandDefaults: {
   trustLabel: string
   trustBadges: string[]
 } = {
-  title: 'Ocean Enterprise Marketplace',
+  title: 'SENSE Portal',
   description:
-    'Discover, publish and manage data, software and AI services with enterprise-grade governance and trusted access control.',
+    'Discover, share and monetize smart city data and AI services powering the European CitiVerse.',
   features: [
     { icon: 'marketplace', text: 'Publish and discover service offerings' },
     { icon: 'access', text: 'Control access with verified credentials' },
@@ -45,16 +45,16 @@ export const authBrandDefaults: {
 
 export const authLoginCopy = {
   title: 'Welcome back',
-  subtitle: "Sign in to your organization's data marketplace",
-  ssoLabel: 'Log in to OE Marketplace',
+  subtitle: 'Sign in to the SENSE Portal',
+  ssoLabel: 'Log in to SENSE Portal',
   ssoLoadingLabel: 'Redirecting to login...',
   demoNotice: 'Demo Mode: No real authentication required'
 }
 
 export const authSignupCopy = {
   title: 'Get started',
-  subtitle: "Create your organization's marketplace account",
-  ssoLabel: 'Sign-up to OE Marketplace',
+  subtitle: 'Create your SENSE Portal account',
+  ssoLabel: 'Sign-up to SENSE Portal',
   ssoLoadingLabel: 'Redirecting to signup...',
   termsIntro: 'By creating an account, you agree to our',
   termsLabel: 'Terms of Service',
@@ -62,7 +62,7 @@ export const authSignupCopy = {
 }
 
 export const authSetupCopy = {
-  title: 'One more step to enter the marketplace',
+  title: 'One more step to enter the portal',
   subtitle: 'Connect your wallet and SSI to finish secure access setup.',
   walletOnlySubtitle: 'Connect your wallet to finish secure access setup.',
   greeting: 'Welcome back',

@@ -47,9 +47,9 @@ function encodeSvg(svgString: string): string {
 
 const nftMetadataTemplate = {
   name: 'Data NFT',
-  symbol: 'OEC-NFT',
-  description: `This NFT represents an asset in Ocean Enterprise ecosystems.`,
-  external_url: 'https://enterprise.oceanprotocol.com'
+  symbol: 'SENSE-NFT',
+  description: `This NFT represents an asset in the SENSE ecosystem.`,
+  external_url: 'https://sense.pontus-x.eu'
 }
 
 export function generateNftMetadata(): NftMetadata {
@@ -185,7 +185,7 @@ export async function setNFTMetadataAndTokenURI(
         : {
             name: (asset as Asset).indexedMetadata.nft.name,
             symbol: (asset as Asset).indexedMetadata.nft.symbol,
-            description: `${nftMetadataTemplate.description}\n\nView on Ocean Enterprise: ${externalUrl}`,
+            description: `${nftMetadataTemplate.description}\n\nView on SENSE Portal: ${externalUrl}`,
             external_url: externalUrl
           }
     )
