@@ -4,7 +4,8 @@
 }
 
 .container {
-  max-width: 1200px;
+  width: 1160px;
+  /* max-width: 85rem; */
   margin: 0 auto;
 }
 
@@ -79,9 +80,25 @@
 /* Large screens */
 @media (min-width: 1550px) {
   .container {
-    max-width: 1500px;
+    width: 1500px;
   }
+}
 
+@media screen and (min-width: 2550px) {
+  .container {
+    width: 1900px;
+  }
+  .featureDescription {
+    line-height: 2rem;
+    font-size: 22px;
+  }
+  .featureTitle {
+    font-size: 22px;
+  }
+  .grid {
+    grid-template-columns: repeat(4, 1fr);
+    margin-left: 1.1rem;
+  }
   .featuresSection {
     padding-top: calc(var(--spacer) * 4);
     padding-bottom: calc(var(--spacer) * 4);
