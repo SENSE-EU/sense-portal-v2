@@ -14,13 +14,7 @@ import { useAuth } from '@hooks/useAuth'
 import { useModal } from 'connectkit'
 import { useRouter } from 'next/router'
 import { useUserPreferences } from '@context/UserPreferences'
-import {
-  getLogoutRedirect,
-  getVM3LogoutUrl,
-  getAuthMeta,
-  saveVM3SessionData
-} from '@utils/logoutRouter'
-import { useAuthStore } from '@hooks/stores/authStore'
+import { clearFederatedStorage } from '@utils/logoutRouter'
 import { JSON_WALLET_CONNECTOR_ID } from '@utils/wallet/jsonWalletConnector'
 import { toast } from 'react-toastify'
 import NetworkName from '@shared/NetworkName'
@@ -123,8 +117,8 @@ export default function Details({
     chainId: connectedChainId
   } = useAccount()
   const { disconnect } = useDisconnect()
-  const { logout, isAuthenticated, user, authEnabled } = useAuth()
-  const storeLogout = useAuthStore((s) => s.logout)
+  const { logout, markLogoutPending, isAuthenticated, user, authEnabled } =
+    useAuth()
   const { setOpen } = useModal()
   const router = useRouter()
   const { showOnboardingModule, setEncryptedWalletJson } = useUserPreferences()
@@ -182,6 +176,7 @@ export default function Details({
   const handleLogout = async () => {
     if (isLoggingOut) return
     setIsLoggingOut(true)
+    markLogoutPending()
 
     try {
       if (isWalletConnected) {
@@ -193,34 +188,7 @@ export default function Details({
       console.error('wallet logout error', error)
     }
 
-    const callbackUrl = getLogoutRedirect()
-    const meta = getAuthMeta()
-
-    const isVm3 =
-      meta?.issuer?.includes('vm3') ||
-      meta?.upstream_idp?.toLowerCase?.().includes('vm3')
-
-    if (isVm3) {
-      const vm3Url = getVM3LogoutUrl()
-      sessionStorage.setItem('logout_flow', 'vm3')
-      saveVM3SessionData()
-
-      const timeoutId = setTimeout(() => {
-        if (sessionStorage.getItem('logout_flow') === 'vm3') {
-          console.warn('VM3 logout timeout, forcing cleanup')
-          sessionStorage.setItem('vm3_logout_timeout', 'true')
-          window.location.href = callbackUrl
-        }
-      }, 5000)
-
-      sessionStorage.setItem('vm3_timeout_id', String(timeoutId))
-      window.location.href = `${vm3Url}?post_logout_redirect_uri=${encodeURIComponent(
-        callbackUrl
-      )}`
-      return
-    }
-
-    sessionStorage.setItem('logout_flow', 'vm2')
+    clearFederatedStorage()
     await logout()
     onRequestClose?.()
     setIsLoggingOut(false)
