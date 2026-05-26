@@ -38,7 +38,7 @@ function newExchangeStateData(): ExchangeStateData {
     selectedCredentials: [],
     dids: [],
     selectedDid: '',
-    poliyServerData: undefined
+    policyServerData: undefined
   }
 }
 
@@ -144,7 +144,7 @@ export function AssetActionCheckCredentialsAlgo({
               onVerified?.()
               break
             }
-            if (typeof openid4vcMessage !== 'string') {
+            if (typeof openid4vcMessage.redirectUri !== 'string') {
               toast.error(
                 openid4vcMessage.errorMessage ||
                   'Invalid presentation request response from policy server'
@@ -153,15 +153,16 @@ export function AssetActionCheckCredentialsAlgo({
               break
             }
 
-            exchangeStateData.openid4vp = openid4vcMessage
-            exchangeStateData.poliyServerData =
+            exchangeStateData.openid4vp = openid4vcMessage.redirectUri
+            exchangeStateData.policyServerData =
               presentationResult.policyServerData
 
             const searchParams = extractURLSearchParams(
               exchangeStateData.openid4vp
             )
             const { state } = searchParams
-            exchangeStateData.sessionId = state
+            exchangeStateData.sessionId =
+              presentationResult.policyServerData?.sessionId || state
             const presentationDefinition = await getPd(state)
             const resultRequiredCredentials =
               presentationDefinition.input_descriptors.map(

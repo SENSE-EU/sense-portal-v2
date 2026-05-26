@@ -92,6 +92,10 @@ export default function TabsFile({
       : activeFileType
 
   useEffect(() => {
+    if (showExistingFileNotice && currentFormType === 'hidden') {
+      return
+    }
+
     const newIndex = items.findIndex((tab: TabsItem) => {
       return tab.field.value === resolvedCurrentType
     })
@@ -103,14 +107,15 @@ export default function TabsFile({
         return prevIndex
       })
     }
-  }, [resolvedCurrentType, items])
+  }, [currentFormType, items, resolvedCurrentType, showExistingFileNotice])
 
-  const setIndex = (tabName: string) => {
-    const index = items.findIndex((tab: TabsItem) => {
-      if (tab.title !== tabName) return false
-      return tab
-    })
-    if (index < 0) return
+  const setIndex = (index: number) => {
+    if (index < 0 || index >= items.length) return
+
+    if (showExistingFileNotice && currentFormType === 'hidden') {
+      return
+    }
+
     setTabIndex(index)
     setFieldValue(`${items[index].props.name}[0]`, {
       url: '',
@@ -118,8 +123,8 @@ export default function TabsFile({
     })
   }
 
-  const handleTabChange = (tabName: string) => {
-    setIndex(tabName)
+  const handleTabChange = (index: number) => {
+    setIndex(index)
   }
 
   let textToolTip = false
@@ -148,9 +153,7 @@ export default function TabsFile({
               <Tab
                 className={styles.tab}
                 key={`tab_${activeTabName}_${index}`}
-                onClick={
-                  handleTabChange ? () => handleTabChange(item.title) : null
-                }
+                onClick={handleTabChange ? () => handleTabChange(index) : null}
                 disabled={item.disabled}
               >
                 <div className={styles.tabInner}>

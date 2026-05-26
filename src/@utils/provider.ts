@@ -26,6 +26,7 @@ import {
   PolicyServerInitiateActionData,
   PolicyServerInitiateComputeActionData
 } from 'src/@types/PolicyServer'
+import { resolveVerifierSessionId } from './verifierSession'
 
 export type KnownStorageType =
   | 's3'
@@ -57,6 +58,7 @@ export async function initializeProviderForComputeMulti(
   svcIndexAlgo: number,
   paymentTokenAddress: string,
   computeOutput?: ComputeOutput,
+  queueMaxWaitTime?: number,
   algoParams?: Record<string, any>,
   datasetParams?: Record<string, any>
 ) {
@@ -81,7 +83,7 @@ export async function initializeProviderForComputeMulti(
     ...safeDatasets.map(({ asset, service, sessionId }) => ({
       documentId: asset.id,
       serviceId: service.id,
-      sessionId,
+      sessionId: resolveVerifierSessionId(asset.id, service.id, sessionId),
       successRedirectUri: '',
       errorRedirectUri: '',
       responseRedirectUri: '',
@@ -90,7 +92,11 @@ export async function initializeProviderForComputeMulti(
     {
       documentId: algorithm.id,
       serviceId: algorithm.credentialSubject.services[svcIndexAlgo].id,
-      sessionId: algoSessionId,
+      sessionId: resolveVerifierSessionId(
+        algorithm.id,
+        algorithm.credentialSubject.services[svcIndexAlgo].id,
+        algoSessionId
+      ),
       successRedirectUri: '',
       errorRedirectUri: '',
       responseRedirectUri: '',
@@ -129,10 +135,12 @@ export async function initializeProviderForComputeMulti(
     paymentTokenAddress,
     validUntil,
     providerUrl,
-    accountId,
+    await accountId.getAddress(),
     resources,
     chainId,
     policiesServer,
+    null,
+    queueMaxWaitTime,
     null,
     computeOutput
   )

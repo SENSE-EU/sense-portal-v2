@@ -7,17 +7,34 @@ const getEnv = (key) => {
   return process.env[key]
 }
 
+const parseEnvArray = (value, fallback) => {
+  if (!value) return fallback
+
+  try {
+    const parsed = JSON.parse(value)
+    const values = Array.isArray(parsed) ? parsed : [parsed]
+
+    return values
+      .filter((item) => typeof item === 'string')
+      .map((item) => item.trim())
+      .filter(Boolean)
+  } catch {
+    return [value].map((item) => item.trim()).filter(Boolean)
+  }
+}
+
 module.exports = {
-  // URI of single metadata cache instance for all networks.
+  // URIs of metadata cache instances queried by the marketplace.
   // While ocean.js includes this value for each network as part of its ConfigHelper,
-  // it is assumed to be the same for all networks.
+  // the marketplace queries the configured list for multi-node search.
   // In components can be accessed with the useMarketMetadata hook:
   // const { appConfig } = useMarketMetadata()
   // return appConfig.metadataCacheUri
-  metadataCacheUri:
+  metadataCacheUri: parseEnvArray(
     getEnv('NEXT_PUBLIC_METADATACACHE_URI') ||
-    process.env.NEXT_PUBLIC_METADATACACHE_URI ||
-    'https://ocean-node-vm3.oceanenterprise.io',
+      process.env.NEXT_PUBLIC_METADATACACHE_URI,
+    ['https://ocean-node-vm3.oceanenterprise.io']
+  ),
 
   nodeUri:
     getEnv('NEXT_PUBLIC_NODE_URI') ||
@@ -165,18 +182,15 @@ module.exports = {
   showOnboardingModuleByDefault:
     (getEnv('NEXT_PUBLIC_HIDE_ONBOARDING_MODULE_BY_DEFAULT') ||
       process.env.NEXT_PUBLIC_HIDE_ONBOARDING_MODULE_BY_DEFAULT) === 'false',
-  nodeUriIndex:
+  nodeUriIndex: parseEnvArray(
     getEnv('NEXT_PUBLIC_NODE_URI_INDEXED') ||
-    process.env.NEXT_PUBLIC_NODE_URI_INDEXED
-      ? JSON.parse(
-          getEnv('NEXT_PUBLIC_NODE_URI_INDEXED') ||
-            process.env.NEXT_PUBLIC_NODE_URI_INDEXED
-        )
-      : [
-          getEnv('NEXT_PUBLIC_PROVIDER_URL') ||
-            process.env.NEXT_PUBLIC_PROVIDER_URL ||
-            'https://ocean-node-vm3.oceanenterprise.io'
-        ],
+      process.env.NEXT_PUBLIC_NODE_URI_INDEXED,
+    [
+      getEnv('NEXT_PUBLIC_PROVIDER_URL') ||
+        process.env.NEXT_PUBLIC_PROVIDER_URL ||
+        'https://ocean-node-vm3.oceanenterprise.io'
+    ]
+  ),
 
   dataspace:
     getEnv('NEXT_PUBLIC_DATASPACE') ||
@@ -190,5 +204,60 @@ module.exports = {
       ? (getEnv('NEXT_PUBLIC_ASSET_DESCRIPTION_EXPANDED_BY_DEFAULT') ||
           process.env.NEXT_PUBLIC_ASSET_DESCRIPTION_EXPANDED_BY_DEFAULT) ===
         'true'
-      : true
+      : true,
+
+  // Controls whether the decrypted private key from a JSON wallet import
+  // is stored in sessionStorage for the duration of the browser tab session.
+  // Set to 'false' to require the user to re-enter the password on every page reload.
+  persistJsonWalletSession:
+    getEnv('NEXT_PUBLIC_PERSIST_JSON_WALLET_SESSION') ||
+    process.env.NEXT_PUBLIC_PERSIST_JSON_WALLET_SESSION
+      ? (getEnv('NEXT_PUBLIC_PERSIST_JSON_WALLET_SESSION') ||
+          process.env.NEXT_PUBLIC_PERSIST_JSON_WALLET_SESSION) === 'true'
+      : true,
+  imprintUrl:
+    getEnv('NEXT_PUBLIC_IMPRINT_URL') ||
+    process.env.NEXT_PUBLIC_IMPRINT_URL ||
+    '',
+  termsUrl:
+    getEnv('NEXT_PUBLIC_TC_URL') || process.env.NEXT_PUBLIC_TC_URL || '',
+  privacyPolicyUrl:
+    getEnv('NEXT_PUBLIC_PP_URL') || process.env.NEXT_PUBLIC_PP_URL || '',
+  cookiePolicyUrl:
+    getEnv('NEXT_PUBLIC_CP_URL') || process.env.NEXT_PUBLIC_CP_URL || '',
+  dpuaUrl:
+    getEnv('NEXT_PUBLIC_DPUA_URL') || process.env.NEXT_PUBLIC_DPUA_URL || '',
+  authEnabled:
+    getEnv('NEXT_PUBLIC_AUTH_ENABLED') ||
+    process.env.NEXT_PUBLIC_AUTH_ENABLED ||
+    'false',
+  authProvider:
+    getEnv('NEXT_PUBLIC_AUTH_PROVIDER') ||
+    process.env.NEXT_PUBLIC_AUTH_PROVIDER ||
+    null,
+  oidcIssuer:
+    getEnv('NEXT_PUBLIC_OIDC_ISSUER') ||
+    process.env.NEXT_PUBLIC_OIDC_ISSUER ||
+    null,
+  oidcClientId:
+    getEnv('NEXT_PUBLIC_OIDC_CLIENT_ID') ||
+    process.env.NEXT_PUBLIC_OIDC_CLIENT_ID ||
+    null,
+  oidcRedirectUri:
+    getEnv('NEXT_PUBLIC_OIDC_REDIRECT_URI') ||
+    process.env.NEXT_PUBLIC_OIDC_REDIRECT_URI ||
+    null,
+  oidcSignupFlow:
+    getEnv('NEXT_PUBLIC_OIDC_SIGNUP_FLOW') ||
+    process.env.NEXT_PUBLIC_OIDC_SIGNUP_FLOW ||
+    null,
+  oidcTokenUrl:
+    getEnv('NEXT_PUBLIC_OIDC_TOKEN_URL') ||
+    process.env.NEXT_PUBLIC_OIDC_TOKEN_URL ||
+    null,
+  federatedOidcIssuers: parseEnvArray(
+    getEnv('NEXT_PUBLIC_FEDERATED_OIDC_ISSUERS') ||
+      process.env.NEXT_PUBLIC_FEDERATED_OIDC_ISSUERS,
+    []
+  )
 }

@@ -24,7 +24,7 @@ import { Asset } from 'src/@types/Asset'
 import { AssetExtended } from 'src/@types/AssetExtended'
 import { Service } from 'src/@types/ddo/Service'
 import { ResourceType } from 'src/@types/ResourceType'
-import { ComputeFlow, FormComputeData } from './_types'
+import { ComputeFlow, FormComputeData, QueueWaitTimeUnit } from './_types'
 import { AssetSelectionAsset } from '@shared/FormInput/InputElement/AssetSelection'
 import Title from './Title'
 import Navigation from './Navigation'
@@ -56,6 +56,7 @@ import { useComputeJobs } from './hooks/useComputeJobs'
 import { useComputeSubmission } from './hooks/useComputeSubmission'
 import { getSelectedComputeEnvAndResources } from './hooks/computeEnvSelection'
 import { resetCredentialCache } from './hooks/resetCredentialCache'
+import { resolveVerifierSessionId } from '@utils/verifierSession'
 import { useMarketMetadata } from '@context/MarketMetadata'
 import appConfig from 'app.config.cjs'
 import { ComputeRerunConfig } from '@utils/computeRerun'
@@ -215,6 +216,24 @@ function resolveRerunEnvironment(
   return computeEnvs.find((env) => env.id === prefix)
 }
 
+function convertQueueWaitTimeToSeconds(
+  value?: number | null,
+  unit: QueueWaitTimeUnit = 'minutes'
+): number | undefined {
+  if (!Number.isFinite(Number(value)) || Number(value) < 1) return undefined
+
+  const numericValue = Number(value)
+  switch (unit) {
+    case 'hours':
+      return numericValue * 60 * 60
+    case 'minutes':
+      return numericValue * 60
+    case 'seconds':
+    default:
+      return numericValue
+  }
+}
+
 function ReviewExitResetWatcher({
   currentStep,
   reviewStep,
@@ -253,6 +272,21 @@ function ReviewExitResetWatcher({
 
     onReset()
   }, [currentStep, reviewStep, credentialsVerified, onReset, setFieldValue])
+
+  return null
+}
+
+function ComputeEnvironmentLoadWatcher({
+  shouldLoad,
+  onLoad
+}: {
+  shouldLoad: boolean
+  onLoad: () => void
+}): null {
+  useEffect(() => {
+    if (!shouldLoad) return
+    onLoad()
+  }, [shouldLoad, onLoad])
 
   return null
 }
@@ -358,9 +392,13 @@ export default function ComputeWizardController({
 
   const [isConsumablePrice, setIsConsumablePrice] = useState(true)
   const [providerFeesSymbol, setProviderFeesSymbol] = useState('')
+  const [shouldLoadComputeEnvs, setShouldLoadComputeEnvs] = useState(
+    Boolean(rerunConfig)
+  )
   const { computeEnvs, computeEnvsError } = useComputeEnvironments({
     serviceEndpoint: service?.serviceEndpoint,
-    chainId: asset.credentialSubject?.chainId
+    chainId: asset.credentialSubject?.chainId,
+    enabled: shouldLoadComputeEnvs || Boolean(rerunConfig)
   })
   const {
     initializePricingAndProvider,
@@ -385,6 +423,7 @@ export default function ComputeWizardController({
     asset,
     service,
     ownerAddress: address,
+    signer,
     chainIds,
     cancelTokenFactory: newCancelToken
   })
@@ -557,6 +596,10 @@ export default function ComputeWizardController({
   }, [selectedAlgorithmAsset])
 
   useEffect(() => {
+    setShouldLoadComputeEnvs(Boolean(rerunConfig))
+  }, [rerunConfig, asset?.id, service?.id])
+
+  useEffect(() => {
     if (!showSuccess) return
     resetComputedFeeState()
   }, [showSuccess, resetComputedFeeState])
@@ -643,14 +686,19 @@ export default function ComputeWizardController({
             asset,
             service,
             accessDetails: asset.accessDetails[datasetIndex],
-            sessionId: lookupVerifierSessionId(asset.id, service.id)
+            sessionId: resolveVerifierSessionId(
+              asset.id,
+              service.id,
+              lookupVerifierSessionId(asset.id, service.id)
+            )
           }
         }
       )
 
-      const algoSessionId = lookupVerifierSessionId(
+      const algoSessionId = resolveVerifierSessionId(
         actualAlgorithmAsset.id,
-        actualAlgoService.id
+        actualAlgoService.id,
+        lookupVerifierSessionId(actualAlgorithmAsset.id, actualAlgoService.id)
       )
       const groupedParams = formValues?.updatedGroupedUserParameters
       const algoParams: Record<string, ParamValue> = {}
@@ -698,6 +746,12 @@ export default function ComputeWizardController({
         algoIndex: actualSvcIndex,
         paymentTokenAddress,
         computeOutput: output,
+        queueMaxWaitTime: formValues?.queueWaitingEnabled
+          ? convertQueueWaitTimeToSeconds(
+              formValues.queueMaxWaitTime,
+              formValues.queueMaxWaitTimeUnit
+            )
+          : undefined,
         algoParams,
         datasetParams,
         accountId,
@@ -912,7 +966,13 @@ export default function ComputeWizardController({
         computeServiceEndpoint: service.serviceEndpoint,
         computeOutput: output,
         computeOutputEncryptionKey: encryptionKey,
-        computeOutputStorage: formikValues?.outputStorage
+        computeOutputStorage: formikValues?.outputStorage,
+        queueMaxWaitTime: formikValues?.queueWaitingEnabled
+          ? convertQueueWaitTimeToSeconds(
+              formikValues.queueMaxWaitTime,
+              formikValues.queueMaxWaitTimeUnit
+            )
+          : undefined
         // oceanTokenAddress --- IGNORE ---
       })
 
@@ -978,6 +1038,17 @@ export default function ComputeWizardController({
       )
       if (outputStorageError) {
         toast.error(outputStorageError)
+        return
+      }
+
+      if (
+        values.queueWaitingEnabled &&
+        !convertQueueWaitTimeToSeconds(
+          values.queueMaxWaitTime,
+          values.queueMaxWaitTimeUnit
+        )
+      ) {
+        toast.error('Please enter a valid maximum waiting time.')
         return
       }
 
@@ -1231,6 +1302,12 @@ export default function ComputeWizardController({
                 credentialsVerified={Boolean(values.credentialsVerified)}
                 onReset={resetComputedFeeState}
                 setFieldValue={setFieldValue}
+              />
+              <ComputeEnvironmentLoadWatcher
+                shouldLoad={
+                  values.user.stepCurrent >= stepNumbers.selectEnvironment
+                }
+                onLoad={() => setShouldLoadComputeEnvs(true)}
               />
               <Navigation flow={flow} />
               <SectionContainer className={styles.container}>

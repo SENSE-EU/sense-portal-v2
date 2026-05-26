@@ -4,6 +4,7 @@ import Seo from './Seo'
 import Container from '@shared/atoms/Container'
 import { useUserPreferences } from '@context/UserPreferences'
 import ExternalContentWarning from '../ExternalContentWarning'
+import styles from './index.module.css'
 
 interface PageProps {
   children: ReactNode
@@ -12,6 +13,7 @@ interface PageProps {
   description?: string
   noPageHeader?: boolean
   headerCenter?: boolean
+  fullWidth?: boolean
 }
 
 export default function Page({
@@ -20,13 +22,17 @@ export default function Page({
   uri,
   description,
   noPageHeader,
-  headerCenter
+  headerCenter,
+  fullWidth
 }: PageProps): ReactElement {
   const { allowExternalContent } = useUserPreferences()
 
   const isHome = uri === '/'
   // const isSearchPage = uri.startsWith('/search')
   const isAssetPage = uri.startsWith('/asset')
+  const mainStyle = fullWidth
+    ? { display: 'flex', flex: 1, minHeight: 0 }
+    : undefined
 
   return (
     <>
@@ -47,8 +53,15 @@ export default function Page({
       )}
 
       {/* Main content - full width for home, contained for others */}
-      <main className={isHome ? 'full-width' : ''}>
-        {isHome ? children : <Container>{children}</Container>}
+      <main
+        className={isHome || fullWidth ? 'full-width' : ''}
+        style={mainStyle}
+      >
+        {isHome || fullWidth ? (
+          children
+        ) : (
+          <Container className={styles.contentContainer}>{children}</Container>
+        )}
       </main>
     </>
   )

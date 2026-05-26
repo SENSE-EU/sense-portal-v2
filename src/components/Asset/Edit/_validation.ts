@@ -344,7 +344,8 @@ export const serviceValidationSchema = Yup.object().shape({
       const fileList = (files || []) as any[]
       const hasEncryptedFile = fileList.some(
         (file) =>
-          file?.type === 'hidden' && (!file?.url || file.url?.trim() === '')
+          (file?.type === 'hidden' || file?.isEncrypted) &&
+          (!file?.url || file.url?.trim() === '')
       )
 
       if (hasEncryptedFile) {

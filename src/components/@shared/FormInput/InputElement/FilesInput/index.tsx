@@ -358,8 +358,12 @@ export default function FilesInput(props: FilesInputProps): ReactElement {
 
   function handleClose() {
     helpers.setTouched(false)
+    const fallbackType =
+      storageType === 'hidden'
+        ? (props.activeFileType as StorageType | undefined) || 'url'
+        : storageType
 
-    if (storageType === 's3') {
+    if (fallbackType === 's3') {
       helpers.setValue([
         {
           type: 's3',
@@ -377,9 +381,7 @@ export default function FilesInput(props: FilesInputProps): ReactElement {
         }
       ])
     } else {
-      helpers.setValue([
-        { url: '', type: storageType === 'hidden' ? 'ipfs' : storageType }
-      ])
+      helpers.setValue([{ url: '', type: fallbackType }])
     }
     setTimeout(() => {
       setDisabledButton(true)

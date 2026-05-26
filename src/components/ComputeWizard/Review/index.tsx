@@ -255,9 +255,11 @@ export default function Review({
   >([])
   const [algorithmProviderFeeEntries, setAlgorithmProviderFeeEntries] =
     useState<TotalPriceEntry[]>([])
+
   const [providerFeeTokenBalances, setProviderFeeTokenBalances] = useState<
     Record<string, string>
   >({})
+
   const [algoLoadError, setAlgoLoadError] = useState<string>()
 
   const handleTermsChange = useCallback(
@@ -2103,16 +2105,19 @@ export default function Review({
   const currentVerificationItem = verificationQueue[currentVerificationIndex]
   const assetRows = verificationQueue
 
-  function getAlgorithmAsset(algo: string): {
+  function getAlgorithmAsset(
+    algo: string,
+    selectedServiceId?: string
+  ): {
     algorithmAsset: AssetExtended | null
     serviceIndexAlgo: number | null
   } {
     let algorithmId = algo
-    let serviceId = ''
+    let serviceId = selectedServiceId || ''
     try {
       const parsed = JSON.parse(algo)
       algorithmId = parsed?.algoDid || algo
-      serviceId = parsed?.serviceId || ''
+      serviceId = selectedServiceId || parsed?.serviceId || ''
     } catch {
       algorithmId = algo
     }
@@ -2142,6 +2147,9 @@ export default function Review({
 
     const algoId = values.algorithm as string | undefined
     const fallbackAlgo = values.algorithms as AssetExtended | undefined
+    const selectedServiceId = values.algorithms?.services?.find(
+      (service) => service.checked
+    )?.id
 
     if (!algoId && fallbackAlgo) {
       if (fallbackAlgo.serviceIndex !== undefined) {
@@ -2157,7 +2165,10 @@ export default function Review({
       return
     }
 
-    const { algorithmAsset, serviceIndexAlgo } = getAlgorithmAsset(algoId)
+    const { algorithmAsset, serviceIndexAlgo } = getAlgorithmAsset(
+      algoId,
+      selectedServiceId
+    )
     if (!algorithmAsset) {
       setAlgoLoadError('Algorithm asset not found for review.')
       return

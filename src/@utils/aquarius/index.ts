@@ -138,12 +138,24 @@ function getDataspaceFilterTerm(): FilterTerm | undefined {
   return getFilterTerm('credentialSubject.dataspace.keyword', dataspace)
 }
 
+function hasServiceEndpointFilter(filters?: FilterTerm[]): boolean {
+  return (
+    filters?.some((filter) =>
+      JSON.stringify(filter).includes(
+        'credentialSubject.services.serviceEndpoint.keyword'
+      )
+    ) || false
+  )
+}
+
 export function generateBaseQuery(
   baseQueryParams: BaseQueryParams,
   index?: string,
   allNode?: boolean
 ): SearchQuery {
   const dataspaceFilterTerm = getDataspaceFilterTerm()
+  const shouldApplyDefaultNodeFilter =
+    !allNode && !hasServiceEndpointFilter(baseQueryParams.filters)
   const generatedQuery = {
     index: index ?? 'op_ddo_v5.0.0',
     from: baseQueryParams.esPaginationOptions?.from || 0,
@@ -176,7 +188,7 @@ export function generateBaseQuery(
               ]
             }
           },
-          ...(!allNode
+          ...(shouldApplyDefaultNodeFilter
             ? [
                 {
                   terms: {
@@ -247,26 +259,292 @@ function transformQueryResult(queryResult, from = 0, size = 21): PagedAssets {
   return result
 }
 
-export async function queryMetadata(
+function getMetadataCacheUris(): string[] {
+  return (
+    Array.isArray(metadataCacheUri) ? metadataCacheUri : [metadataCacheUri]
+  )
+    .filter((uri) => typeof uri === 'string')
+    .map((uri: string) => uri.trim().replace(/\/+$/, ''))
+    .filter(Boolean)
+}
+
+interface AquariusQueryResult {
+  results?: Asset[]
+  totalResults?: number
+  aggregations?: unknown
+}
+
+interface MetadataCacheQuery {
+  cacheUri: string
+  query: SearchQuery
+}
+
+const serviceEndpointFilterPath =
+  'credentialSubject.services.serviceEndpoint.keyword'
+
+function getSearchFilters(query: SearchQuery): unknown[] {
+  return Array.isArray(query?.query?.bool?.filter)
+    ? query.query.bool.filter
+    : []
+}
+
+function getServiceEndpointFilterValue(filter: unknown): unknown {
+  const typedFilter = filter as {
+    terms?: Record<string, unknown>
+    term?: Record<string, unknown>
+  }
+
+  return (
+    typedFilter?.terms?.[serviceEndpointFilterPath] ||
+    typedFilter?.term?.[serviceEndpointFilterPath]
+  )
+}
+
+function getServiceEndpointFilterValues(query: SearchQuery): string[] {
+  const filters = getSearchFilters(query)
+  const values = filters
+    .map((filter) => {
+      const filterValue = getServiceEndpointFilterValue(filter)
+
+      return Array.isArray(filterValue) ? filterValue : [filterValue]
+    })
+    .reduce((previous, current) => previous.concat(current), [])
+    .filter((value): value is string => typeof value === 'string')
+
+  return [...new Set(values)]
+}
+
+function replaceServiceEndpointFilter(
+  query: SearchQuery,
+  serviceEndpoint: string
+): SearchQuery {
+  return {
+    ...query,
+    query: {
+      ...query.query,
+      bool: {
+        ...query.query.bool,
+        filter: getSearchFilters(query).map((filter) => {
+          if (getServiceEndpointFilterValue(filter)) {
+            return getFilterTerm(serviceEndpointFilterPath, [serviceEndpoint])
+          }
+
+          return filter
+        })
+      }
+    }
+  }
+}
+
+function getMergedQueryFetchSize(query: SearchQuery): number {
+  const parsedFrom = Number(query.from)
+  const parsedSize = Number(query.size)
+  const page = Number.isFinite(parsedFrom) && parsedFrom > 0 ? parsedFrom : 1
+  const size = Number.isFinite(parsedSize) && parsedSize > 0 ? parsedSize : 21
+
+  return page * size
+}
+
+function prepareMergedCacheQuery(query: SearchQuery): SearchQuery {
+  return {
+    ...query,
+    from: 1,
+    size: getMergedQueryFetchSize(query)
+  }
+}
+
+function buildMetadataCacheQueries(
+  cacheUris: string[],
+  query: SearchQuery
+): MetadataCacheQuery[] {
+  const serviceEndpoints = getServiceEndpointFilterValues(query).map(
+    (serviceEndpoint) => serviceEndpoint.replace(/\/+$/, '')
+  )
+
+  if (serviceEndpoints.length === 0) {
+    return cacheUris.map((cacheUri) => ({ cacheUri, query }))
+  }
+
+  const matchingCacheUris = cacheUris.filter((cacheUri) =>
+    serviceEndpoints.includes(cacheUri)
+  )
+
+  if (matchingCacheUris.length === 1) {
+    const [cacheUri] = matchingCacheUris
+
+    return [
+      {
+        cacheUri,
+        query: replaceServiceEndpointFilter(query, cacheUri)
+      }
+    ]
+  }
+
+  const cacheQueries = matchingCacheUris.map((cacheUri) => ({
+    cacheUri,
+    query: replaceServiceEndpointFilter(
+      prepareMergedCacheQuery(query),
+      cacheUri
+    )
+  }))
+
+  return cacheQueries.length > 0
+    ? cacheQueries
+    : cacheUris.map((cacheUri) => ({
+        cacheUri,
+        query: prepareMergedCacheQuery(query)
+      }))
+}
+
+function getQueryResult(
+  responseData: unknown
+): AquariusQueryResult | undefined {
+  const queryResult = Array.isArray(responseData)
+    ? responseData[0]
+    : responseData
+
+  return queryResult && typeof queryResult === 'object'
+    ? (queryResult as AquariusQueryResult)
+    : undefined
+}
+
+function getSortValue(asset: Asset, path: string): string | number | undefined {
+  const value = path
+    .replace(/\.keyword$/, '')
+    .split('.')
+    .reduce<unknown>((result, key) => {
+      if (!result || typeof result !== 'object') return undefined
+      return (result as Record<string, unknown>)[key]
+    }, asset)
+  const sortableValue = Array.isArray(value) ? value[0] : value
+
+  return typeof sortableValue === 'string' || typeof sortableValue === 'number'
+    ? sortableValue
+    : undefined
+}
+
+function sortMergedResults(
+  results: Asset[],
+  sort?: SearchQuery['sort']
+): Asset[] {
+  if (!sort) return results
+
+  const [sortPath, sortDirection] = Object.entries(sort)[0] || []
+  if (!sortPath) return results
+
+  return [...results].sort((a, b) => {
+    const aValue = getSortValue(a, sortPath)
+    const bValue = getSortValue(b, sortPath)
+
+    if (aValue === bValue) return 0
+    if (typeof aValue === 'undefined') return 1
+    if (typeof bValue === 'undefined') return -1
+
+    const comparison =
+      typeof aValue === 'number' && typeof bValue === 'number'
+        ? aValue - bValue
+        : String(aValue).localeCompare(String(bValue))
+
+    return sortDirection === SortDirectionOptions.Ascending
+      ? comparison
+      : -comparison
+  })
+}
+
+function transformMergedQueryResults(
+  queryResults: AquariusQueryResult[],
+  query: SearchQuery
+): PagedAssets {
+  const parsedFrom = Number(query.from)
+  const parsedSize = Number(query.size)
+  const from = Number.isFinite(parsedFrom) && parsedFrom > 0 ? parsedFrom : 0
+  const size = Number.isFinite(parsedSize) && parsedSize > 0 ? parsedSize : 21
+  const requestedPage = from > 0 ? from : 1
+  const pageStart = (requestedPage - 1) * size
+  const pageEnd = pageStart + size
+  const uniqueResults = new Map<string, Asset>()
+
+  queryResults.forEach((queryResult) => {
+    queryResult?.results?.forEach((asset: Asset, index: number) => {
+      uniqueResults.set(asset?.id || `${uniqueResults.size}-${index}`, asset)
+    })
+  })
+
+  const results = sortMergedResults(
+    Array.from(uniqueResults.values()),
+    query.sort
+  )
+  const rawResultsCount = queryResults.reduce(
+    (sum, queryResult) => sum + (queryResult?.results?.length || 0),
+    0
+  )
+  const reportedTotalResults = queryResults.reduce(
+    (sum, queryResult) =>
+      sum + (queryResult?.totalResults || queryResult?.results?.length || 0),
+    0
+  )
+  const totalResults =
+    rawResultsCount > results.length && results.length < size
+      ? (requestedPage - 1) * size + results.length
+      : reportedTotalResults
+
+  return {
+    results: results.slice(pageStart, pageEnd),
+    page: from + 1,
+    totalPages: Math.ceil(totalResults / size),
+    totalResults,
+    aggregations: queryResults[0]?.aggregations || {}
+  }
+}
+
+async function postMetadataQuery(
+  cacheUri: string,
   query: SearchQuery,
   cancelToken: CancelToken
-): Promise<PagedAssets> {
+): Promise<AquariusQueryResult | undefined> {
   try {
-    const response: AxiosResponse<SearchResponse> = await axios.post(
-      `${metadataCacheUri}/api/aquarius/assets/metadata/query`,
+    const response: AxiosResponse<unknown> = await axios.post(
+      `${cacheUri}/api/aquarius/assets/metadata/query`,
       { ...query },
       { cancelToken }
     )
     if (!response || response.status !== 200 || !response.data) return
-    const data = response.data[0] || []
-    return transformQueryResult(data, query.from, query.size)
+
+    return getQueryResult(response.data)
   } catch (error) {
     if (axios.isCancel(error)) {
       LoggerInstance.log(error.message)
     } else {
-      LoggerInstance.error(error.message)
+      LoggerInstance.error(
+        `Metadata cache query failed for ${cacheUri}: ${error.message}`
+      )
     }
   }
+}
+
+export async function queryMetadata(
+  query: SearchQuery,
+  cancelToken: CancelToken
+): Promise<PagedAssets> {
+  const cacheUris = getMetadataCacheUris()
+  if (cacheUris.length === 0) return
+  const cacheQueries = buildMetadataCacheQueries(cacheUris, query)
+
+  const queryResults = (
+    await Promise.all(
+      cacheQueries.map(({ cacheUri, query }) =>
+        postMetadataQuery(cacheUri, query, cancelToken)
+      )
+    )
+  ).filter((queryResult): queryResult is AquariusQueryResult =>
+    Boolean(queryResult)
+  )
+
+  if (queryResults.length === 0) return
+
+  return cacheQueries.length === 1
+    ? transformQueryResult(queryResults[0], query.from, query.size)
+    : transformMergedQueryResults(queryResults, query)
 }
 
 export async function getAsset(
@@ -275,13 +553,32 @@ export async function getAsset(
 ): Promise<any> {
   try {
     if (!isValidDid(did)) return
-    const response: AxiosResponse<any> = await axios.get(
-      `${metadataCacheUri}/api/aquarius/assets/ddo/${did}`,
-      { cancelToken }
+    const cacheUris = getMetadataCacheUris()
+    const responses = await Promise.all(
+      cacheUris.map(async (cacheUri) => {
+        try {
+          const response: AxiosResponse<any> = await axios.get(
+            `${cacheUri}/api/aquarius/assets/ddo/${did}`,
+            { cancelToken }
+          )
+          return response?.status === 200 && response?.data
+            ? response.data
+            : undefined
+        } catch (error) {
+          if (axios.isCancel(error)) {
+            LoggerInstance.log(error.message)
+          } else {
+            LoggerInstance.error(
+              `Metadata cache asset lookup failed for ${cacheUri}: ${error.message}`
+            )
+          }
+        }
+      })
     )
-    if (!response || response.status !== 200 || !response.data) return
+    const responseData = responses.find(Boolean)
+    if (!responseData) return
 
-    const data = { ...response.data }
+    const data = { ...responseData }
     return data
   } catch (error) {
     if (axios.isCancel(error)) {
@@ -891,16 +1188,21 @@ export async function getTagsList(
   }
 
   try {
-    const response: AxiosResponse<any[]> = await axios.post(
-      `${metadataCacheUri}/api/aquarius/assets/metadata/query`,
-      { ...query },
-      { cancelToken }
+    const queryResults = (
+      await Promise.all(
+        getMetadataCacheUris().map((cacheUri) =>
+          postMetadataQuery(cacheUri, query, cancelToken)
+        )
+      )
+    ).filter((queryResult): queryResult is AquariusQueryResult =>
+      Boolean(queryResult)
     )
-    if (response?.status !== 200 || !response?.data) {
+
+    if (queryResults.length === 0) {
       return []
     }
     const tagsSet: Set<string> = new Set()
-    response.data.forEach((items) => {
+    queryResults.forEach((items) => {
       items.results?.forEach((item) => {
         item.credentialSubject.metadata.tags
           .filter((tag: string) => tag !== '')

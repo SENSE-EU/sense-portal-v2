@@ -1,5 +1,5 @@
 /* eslint-disable camelcase */
-import { ProviderInstance } from '@oceanprotocol/lib'
+import { LoggerInstance, ProviderInstance } from '@oceanprotocol/lib'
 import { customProviderUrl } from 'app.config.cjs'
 import axios from 'axios'
 import { Asset } from 'src/@types/Asset'
@@ -28,12 +28,8 @@ export async function requestCredentialPresentation(
   policyServerData: PolicyServerInitiateActionData
 }> {
   try {
-    const sessionId =
-      typeof globalThis.crypto?.randomUUID === 'function'
-        ? globalThis.crypto.randomUUID()
-        : `${Date.now()}-${Math.random().toString(16).slice(2)}`
     const policyServer: PolicyServerInitiateActionData = {
-      sessionId,
+      sessionId: '',
       successRedirectUri: ``,
       errorRedirectUri: ``,
       responseRedirectUri: ``,
@@ -49,10 +45,28 @@ export async function requestCredentialPresentation(
       customProviderUrl,
       command
     )
+
+    // The provider may return `message` as either a string (the openid4vp URL)
+    // or an object with `redirectUri`. Normalize to the expected object shape.
+    const rawMessage = initializePs?.message
+    const openid4vcMessage: PolicyServerRedirectMessage =
+      typeof rawMessage === 'string' ? { redirectUri: rawMessage } : rawMessage
+
+    const providerSessionId =
+      typeof openid4vcMessage === 'object' &&
+      openid4vcMessage !== null &&
+      'sessionId' in openid4vcMessage &&
+      typeof openid4vcMessage.sessionId === 'string'
+        ? openid4vcMessage.sessionId
+        : ''
+
     return {
       success: initializePs?.success,
-      openid4vc: initializePs?.message,
-      policyServerData: policyServer
+      openid4vc: openid4vcMessage,
+      policyServerData: {
+        ...policyServer,
+        sessionId: providerSessionId
+      }
     }
   } catch (error) {
     if (error.request?.response) {

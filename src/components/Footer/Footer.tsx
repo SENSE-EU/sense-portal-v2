@@ -7,7 +7,10 @@ import Logo from '@images/logo.svg'
 export default function Footer(): ReactElement {
   const { siteContent } = useMarketMetadata()
   const { footer } = siteContent
-  const { copyright } = footer
+  const copyright = footer.copyright.replace(
+    /\b\d{4}\b/g,
+    String(new Date().getFullYear())
+  )
 
   return (
     <footer className={styles.footer}>

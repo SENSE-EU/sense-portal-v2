@@ -3,6 +3,8 @@
 import { LoggerInstance } from '@oceanprotocol/lib'
 import { cookieStorage, createConfig, createStorage } from 'wagmi'
 import { erc20Abi, http } from 'viem'
+import { jsonWalletConnector } from './jsonWalletConnector'
+import appConfig from '../../../app.config.cjs'
 import { localhost, type Chain } from 'wagmi/chains'
 import {
   ethers,
@@ -55,7 +57,11 @@ export function createWagmiConfig() {
     chains,
     ssr: true,
     storage: createStorage({ storage: cookieStorage }),
-    connectors: [],
+    connectors: [
+      jsonWalletConnector({
+        persistSession: appConfig.persistJsonWalletSession ?? true
+      })
+    ],
     transports: chains.reduce(
       (acc, chain) => ({
         ...acc,
@@ -78,7 +84,10 @@ export const connectKitTheme = {
   '--ck-primary-button-border-radius': 'var(--border-radius)',
   '--ck-primary-button-color': 'var(--font-color-heading)',
   '--ck-primary-button-background': 'var(--background-content)',
+  '--ck-primary-button-hover-color': 'var(--font-color-heading)',
+  '--ck-primary-button-hover-background': '#e8ecf1',
   '--ck-secondary-button-border-radius': 'var(--border-radius)',
+  '--ck-secondary-button-hover-background': '#e8ecf1',
   '--ck-body-color-muted': '#333333',
   '--ck-body-color-danger': '#ff3333'
 }
