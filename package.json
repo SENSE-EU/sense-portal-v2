@@ -34,6 +34,7 @@
     "@oceanprotocol/ddo-js": "^0.1.4",
     "@oceanprotocol/lib": "^8.2.0",
     "@oceanprotocol/typographies": "^0.1.0",
+    "@plausible-analytics/tracker": "^0.4.5",
     "@tanstack/react-query": "^5.90.11",
     "@tippyjs/react": "^4.2.6",
     "@uiw/codemirror-themes": "^4.21.12",

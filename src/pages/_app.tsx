@@ -1,6 +1,7 @@
 'use client'
 import type { AppProps } from 'next/app'
 import Script from 'next/script'
+import { init as initPlausible } from '@plausible-analytics/tracker'
 import { ReactElement, useEffect, useState } from 'react'
 import { UserPreferencesProvider } from '@context/UserPreferences'
 import UrqlProvider from '@context/UrqlProvider'
@@ -21,11 +22,19 @@ import { AuthProvider } from '@utils/authProvider'
 import AuthGuard from '@components/Auth/AuthGuard/AuthGuard'
 
 const queryClient = new QueryClient()
+const PLAUSIBLE_DOMAIN = 'sense.demo.pontus-x.eu'
+let plausibleInitialized = false
+
 function MyApp({ Component, pageProps }: AppProps): ReactElement {
   const [mounted, setMounted] = useState(false)
   const [wagmiConfig] = useState(() => createWagmiConfig())
 
   useEffect(() => {
+    if (!plausibleInitialized) {
+      initPlausible({ domain: PLAUSIBLE_DOMAIN })
+      plausibleInitialized = true
+    }
+
     setMounted(true)
   }, [])
 
