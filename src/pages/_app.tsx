@@ -22,7 +22,8 @@ import { AuthProvider } from '@utils/authProvider'
 import AuthGuard from '@components/Auth/AuthGuard/AuthGuard'
 
 const queryClient = new QueryClient()
-const PLAUSIBLE_DOMAIN = 'sense.demo.pontus-x.eu'
+const PLAUSIBLE_DOMAIN =
+  process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN?.trim() || 'sense.pontus-x.eu'
 let plausibleInitialized = false
 
 function MyApp({ Component, pageProps }: AppProps): ReactElement {
