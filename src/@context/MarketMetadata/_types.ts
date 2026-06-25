@@ -75,7 +75,6 @@ export interface SiteContent {
   footer: {
     subtitle: string
     copyright: string
-    privacyTitle: string
     content: {
       title: string
       links: {
