@@ -69,7 +69,7 @@
         ]
       },
       {
-        "title": "Privacy",
+        "title": "Legal",
         "links": [
           {
             "name": "Imprint",
@@ -78,6 +78,10 @@
           {
             "name": "Privacy Policy",
             "link": "https://portal.pontus-x.eu/privacy/en"
+          },
+          {
+            "name": "Cookie Policy",
+            "link": "/privacy/cookie-policy"
           },
           {
             "name": "Terms and Conditions",

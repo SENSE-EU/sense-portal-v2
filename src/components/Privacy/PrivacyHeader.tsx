@@ -25,7 +25,7 @@ export default function PrivacyPolicyHeader({
     {
       label: 'Imprint',
       anchor: 'imprint',
-      href: '/privacy/imprint'
+      href: 'https://www.delta-dao.com/imprint'
     },
     {
       label: 'Terms and Conditions',
