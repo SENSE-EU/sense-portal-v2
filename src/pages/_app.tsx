@@ -1,7 +1,6 @@
 'use client'
 import type { AppProps } from 'next/app'
 import Script from 'next/script'
-import { init as initPlausible } from '@plausible-analytics/tracker'
 import { ReactElement, useEffect, useState } from 'react'
 import { UserPreferencesProvider } from '@context/UserPreferences'
 import UrqlProvider from '@context/UrqlProvider'
@@ -31,10 +30,15 @@ function MyApp({ Component, pageProps }: AppProps): ReactElement {
   const [wagmiConfig] = useState(() => createWagmiConfig())
 
   useEffect(() => {
-    if (!plausibleInitialized) {
-      initPlausible({ domain: PLAUSIBLE_DOMAIN })
+    async function initializePlausible() {
+      if (plausibleInitialized) return
+
+      const { init } = await import('@plausible-analytics/tracker')
+      init({ domain: PLAUSIBLE_DOMAIN })
       plausibleInitialized = true
     }
+
+    initializePlausible()
 
     setMounted(true)
   }, [])
