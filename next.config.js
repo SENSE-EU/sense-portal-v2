@@ -65,6 +65,11 @@ const nextConfig = {
         source: '/publish',
         destination: '/publish/1',
         permanent: true
+      },
+      {
+        source: '/imprint',
+        destination: 'https://www.delta-dao.com/imprint',
+        permanent: true
       }
     ]
   },
