@@ -76,7 +76,7 @@
           },
           {
             "name": "Privacy Policy",
-            "link": "https://portal.pontus-x.eu/privacy/en"
+            "link": "/privacy/privacy-policy"
           },
           {
             "name": "Cookie Policy",
@@ -84,7 +84,7 @@
           },
           {
             "name": "Terms and Conditions",
-            "link": "https://portal.pontus-x.eu/terms"
+            "link": "/privacy/terms"
           }
         ]
       }
