@@ -3,6 +3,9 @@ const require = createRequire(import.meta.url)
 
 const nextConfig = {
   output: 'standalone',
+  outputFileTracingIncludes: {
+    '/*': ['./content/pages/**/*']
+  },
   serverExternalPackages: ['wagmi', 'viem', 'connectkit'],
   experimental: {
     esmExternals: 'loose'

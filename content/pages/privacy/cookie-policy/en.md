@@ -42,7 +42,7 @@ On our portal demonstrator we use essential first party cookies because they are
 | `wagmi.store`                    | wagmi.sh               | Keeps your MetaMask wallet actively connected while using the portal demonstrator.                                  | **First party local storage**. Persistent storage.                                                |
 
 &nbsp;
-For reach analysis we use an **aggregated statistics** tool which does not use cookies, does not track individual visitors and does not create persistent identifiers. Further information about the **aggregated statistics** can be found in our [**privacy policy**](/privacy/en).
+For reach analysis we use an **aggregated statistics** tool which does not use cookies, does not track individual visitors and does not create persistent identifiers. Further information about the **aggregated statistics** can be found in our [**privacy policy**](/privacy/privacy-policy).
 
 ## 3. How to block or delete cookies
 
