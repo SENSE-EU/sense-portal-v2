@@ -12,8 +12,8 @@ export default function PrivacyPolicyHeader({
   const { policies } = usePrivacyMetadata()
   const policyMetadata = policies && policies.length > 0 ? policies[0] : null
   const resolvedDate =
-    lastUpdatedDate ||
     policyMetadata?.date ||
+    lastUpdatedDate ||
     new Date().toISOString().split('T')[0]
   const params = policyMetadata?.params || {
     languageLabel: 'Language',
