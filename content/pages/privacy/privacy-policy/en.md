@@ -109,7 +109,7 @@ The legal basis for this processing is our legitimate interest, according to Art
 Our legitimate interest is to provide our portal demonstrator functionalities to you and to make sure the portal demonstrator works properly and is secure.
 
 **Retention period:**  
-Usage Data (except your IP address) received by the backend components are retained for up to seven days. 
+Usage Data (except your IP address) received by the backend components are retained for up to seven days.
 The stored data does not allow anyone to identify you and is automatically and permanently erased after this period. We do not store your IP address.
 
 **Right to object:**  
@@ -161,7 +161,8 @@ As described above, your personal data is anonymized after 24 hours.
 **Right to object:** You have the right to object to the processing of your personal data (see also chapter 9.6).
 
 ## 5. Interaction with third-party wallet tools
-To use the features of the portal demonstrator, you have the option to connect your self-managed organizational wallet using MetaMask. MetaMask is a third-party tool operated by the independent controller Consensys Software Inc., 5049 Edwards Ranch Rd, Fort Worth, TX 76109, United States (in the following Consensys). The operations of Consensys are separate from our portal demonstrator. 
+
+To use the features of the portal demonstrator, you have the option to connect your self-managed organizational wallet using MetaMask. MetaMask is a third-party tool operated by the independent controller Consensys Software Inc., 5049 Edwards Ranch Rd, Fort Worth, TX 76109, United States (in the following Consensys). The operations of Consensys are separate from our portal demonstrator.
 When you connect your organizational wallet via MetaMask and use our portal demonstrator functionalities, we process your personal data as described in chapter 4.2. Any data processed directly inside the MetaMask extension or app remains the sole responsibility of Consensys. You can find more details about the processing of personal data in their [**Privacy Policy** &#8599;](https://consensys.io/privacy-notice).
 
 ## 6. Automated decision making including profiling according to Article 13(2)(f) GDPR
@@ -174,12 +175,11 @@ Automated decision making including profiling does not take place.
 
 A cookie is a small file that stores information on your device. Your web browser downloads it on the first visit to a website. The next time you open this website with the same device, the cookie and the information stored in it are either sent back to the website that created it (first-party cookie) or sent to another website it belongs to (third-party cookie). This enables the website to detect that you have opened it previously with this browser and, in some cases, to vary the displayed content. Web storage (local storage and session storage) has similar functionality to cookies.
 
-On our portal demonstrator we are using cookies and web storage. You can find more information about our use of cookie and web storage in our [**Cookie Policy**](/cookies/en).
+On our portal demonstrator we are using cookies and web storage. You can find more information about our use of cookie and web storage in our [**Cookie Policy**](/privacy/cookie-policy).
 
 **7.2 Analytics**
 
 deltaDAO uses [**Plausible Analytics** &#8599;](https://plausible.io/), a privacy-friendly web analytics tool for tracking overall trends in our website traffic. Plausible Analytics **does not use cookies or similar technologies** that require information to be stored on your device. Plausible Analytics **does not track individual visitors** and **does not create persistent identifiers**. It does not use cross-platform or cross-device tracking and does not pass on data to third parties. You can find further information in chapter 3 and 4.
-
 
 ## 8. External links
 
