@@ -14,7 +14,7 @@
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: calc(var(--spacer) * 1.5);
   align-items: center;
   justify-items: center;
@@ -24,11 +24,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  min-width: 0;
   padding: calc(var(--spacer) / 2);
 }
 
 .logo {
-  max-width: 160px;
+  max-width: 100%;
   max-height: 80px;
   object-fit: contain;
 }
@@ -52,7 +53,7 @@
 
 @media (max-width: 768px) {
   .grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: var(--spacer);
   }
 
@@ -61,13 +62,12 @@
   }
 
   .logo {
-    max-width: 130px;
     max-height: 65px;
   }
 }
 
 @media (max-width: 480px) {
   .grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
