@@ -4,8 +4,8 @@
 }
 
 .container {
-  width: 1160px;
-  /* max-width: 85rem; */
+  width: 100%;
+  max-width: 1160px;
   margin: 0 auto;
 }
 
@@ -80,13 +80,13 @@
 /* Large screens */
 @media (min-width: 1550px) {
   .container {
-    width: 1500px;
+    max-width: 1500px;
   }
 }
 
 @media screen and (min-width: 2550px) {
   .container {
-    width: 1900px;
+    max-width: 1900px;
   }
   .featureDescription {
     line-height: 2rem;
