@@ -631,12 +631,14 @@ export default function Download({
       validateOnMount
       validationSchema={getDownloadValidationSchema(service.consumerParameters)}
       onSubmit={(values) => {
+        // owned SaaS assets redirect to the service, so no credential session is required
         if (
           !(
             lookupVerifierSessionId(asset.id, service.id) ||
             lookupVerifierSessionIdSkip(asset.id, service.id)
           ) &&
-          appConfig.ssiEnabled
+          appConfig.ssiEnabled &&
+          !(saas && isOwned)
         ) {
           return
         }
