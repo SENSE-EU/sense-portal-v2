@@ -97,7 +97,8 @@ export const initialValues: FormPublishData = {
     licenseTypeSelection: '',
     licenseUrl: [createEmptyUrlFileInfo()],
     uploadedLicense: undefined,
-    additionalLicenseFiles: []
+    additionalLicenseFiles: [],
+    saas: { paymentMode: 'Subscription' }
   },
   services: [
     {

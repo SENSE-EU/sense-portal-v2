@@ -105,6 +105,9 @@ export default function AssetActions({
     useState<boolean>()
 
   const isCompute = service.type === 'compute'
+  const isSaas = Boolean(
+    asset?.credentialSubject?.metadata?.additionalInformation?.saas
+  )
   const rerunJobId = useMemo(() => {
     if (!router.isReady) return null
     const value = router.query.rerunJob ?? router.query.rerun
@@ -128,6 +131,12 @@ export default function AssetActions({
         ? (formikState?.values?.services[serviceIndex].files[0]
             .type as StorageType)
         : null
+
+      // saas is no real storage type, the provider cannot check it
+      if (storageType === 'saas' || isSaas) {
+        setFileIsLoading(false)
+        return
+      }
 
       // TODO: replace 'any' with correct typing
       const file = formikState?.values?.services[serviceIndex].files[0] as any
@@ -410,18 +419,32 @@ export default function AssetActions({
           <div className={styles.fileInfoSection}>
             <FileSVG width={48} height={60} />
             <div className={styles.fileDetails}>
-              <div className={styles.fileDetailItem}>
-                <span className={styles.fileDetailLabel}>Type:</span>{' '}
-                {fileMetadata?.type || 'Plain Text'}
-              </div>
-              <div className={styles.fileDetailItem}>
-                <span className={styles.fileDetailLabel}>Size:</span>{' '}
-                {fileMetadata?.contentLength || '5.31 kB'}
-              </div>
-              <div className={styles.fileDetailItem}>
-                <span className={styles.fileDetailLabel}>Access via:</span>{' '}
-                {accessDetails.type === 'free' ? 'URL' : accessDetails.type}
-              </div>
+              {isSaas ? (
+                <>
+                  <div className={styles.fileDetailItem}>
+                    <span className={styles.fileDetailLabel}>Type:</span> SaaS
+                  </div>
+                  <div className={styles.fileDetailItem}>
+                    <span className={styles.fileDetailLabel}>Access via:</span>{' '}
+                    Redirect URL
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className={styles.fileDetailItem}>
+                    <span className={styles.fileDetailLabel}>Type:</span>{' '}
+                    {fileMetadata?.type || 'Plain Text'}
+                  </div>
+                  <div className={styles.fileDetailItem}>
+                    <span className={styles.fileDetailLabel}>Size:</span>{' '}
+                    {fileMetadata?.contentLength || '5.31 kB'}
+                  </div>
+                  <div className={styles.fileDetailItem}>
+                    <span className={styles.fileDetailLabel}>Access via:</span>{' '}
+                    {accessDetails.type === 'free' ? 'URL' : accessDetails.type}
+                  </div>
+                </>
+              )}
             </div>
           </div>
 
@@ -448,7 +471,7 @@ export default function AssetActions({
               >
                 Start Compute
               </Button>
-            ) : hasVerifiedCredentials ? (
+            ) : hasVerifiedCredentials || (isSaas && accessDetails.isOwned) ? (
               <Download
                 accountId={accountId}
                 signer={signer as any}

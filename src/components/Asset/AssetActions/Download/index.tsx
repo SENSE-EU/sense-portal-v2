@@ -90,6 +90,7 @@ export default function Download({
   const isMounted = useIsMounted()
   const { balance } = useBalance()
   const chainId = useChainId()
+  const saas = asset?.credentialSubject?.metadata?.additionalInformation?.saas
   const [licenseLink, setLicenseLink] = useState('')
   const [, setIsDisabled] = useState(true)
   const [hasDatatoken, setHasDatatoken] = useState(false)
@@ -286,6 +287,15 @@ export default function Download({
     setRetry(false)
     try {
       if (isOwned) {
+        // SaaS assets are consumed via redirect only, never a file download
+        if (saas) {
+          if (saas.redirectUrl) {
+            window.open(saas.redirectUrl, '_blank')
+          }
+          setIsLoading(false)
+          return
+        }
+
         setStatusText(
           getOrderFeedback(
             accessDetails.baseToken?.symbol,
@@ -351,7 +361,8 @@ export default function Download({
   async function handleFormSubmit(values: any) {
     try {
       const skip = lookupVerifierSessionIdSkip(asset.id, service.id)
-      if (appConfig.ssiEnabled && !skip) {
+      // owned SaaS assets redirect to the service, so no credential session is required
+      if (appConfig.ssiEnabled && !skip && !(saas && isOwned)) {
         const result = await checkVerifierSessionId(
           lookupVerifierSessionId(asset.id, service.id)
         )
@@ -398,7 +409,7 @@ export default function Download({
         dtBalance={dtBalance}
         type="submit"
         assetTimeout={secondsToString(service.timeout)}
-        assetType={asset.credentialSubject?.metadata?.type}
+        assetType={saas ? 'saas' : asset.credentialSubject?.metadata?.type}
         stepText={statusText}
         isLoading={isLoading}
         priceType={accessDetails.type}
@@ -658,7 +669,8 @@ export default function Download({
           const hasSession = Boolean(
             sessionId || localSession || credentialCheckComplete
           )
-          const canRenderConsume = !appConfig.ssiEnabled || hasSession
+          const canRenderConsume =
+            !appConfig.ssiEnabled || hasSession || (Boolean(saas) && isOwned)
 
           if (!canRenderConsume) {
             return (
@@ -719,22 +731,42 @@ export default function Download({
                                 tokenInfo?.decimals
                               )
                             ) > 0
-                              ? `This dataset is free to use. Please note that a provider fee of ${formatUnits(
+                              ? `This ${
+                                  saas ? 'service' : 'dataset'
+                                } is free to use. Please note that a provider fee of ${formatUnits(
                                   orderPriceAndFees?.providerFee
                                     ?.providerFeeAmount || '0',
                                   tokenInfoProviderFee?.decimals
                                 )} ${
                                   tokenInfoProviderFee?.symbol
                                 } applies, as well as possible network gas fees.`
-                              : `This dataset is free to use. Please note that network gas fees still apply, even when using free assets.`
+                              : `This ${
+                                  saas ? 'service' : 'dataset'
+                                } is free to use. Please note that network gas fees still apply, even when using free ${
+                                  saas ? 'services' : 'assets'
+                                }.`
                           }
+                        />
+                      </div>
+                    )}
+                    {saas && isOwned && !justBought && (
+                      <div className={styles.noMarginAlert}>
+                        <Alert
+                          state="success"
+                          text="You already have access to this service. Click 'Go to service' to open it."
                         />
                       </div>
                     )}
                     {justBought && (
                       <div>
                         <SuccessConfetti
-                          success={`You successfully bought this ${asset.credentialSubject?.metadata?.type} and are now able to download it.`}
+                          success={`You successfully bought this ${
+                            saas
+                              ? 'service'
+                              : asset.credentialSubject?.metadata?.type
+                          } and are now able to ${
+                            saas ? 'access' : 'download'
+                          } it.`}
                         />
                       </div>
                     )}

@@ -24,6 +24,23 @@ import { Asset } from 'src/@types/Asset'
 
 export const MAXIMUM_NUMBER_OF_PAGES_WITH_RESULTS = 476
 
+const SAAS_TYPE_FIELD = 'credentialSubject.metadata.type'
+const saasFieldExists = {
+  exists: {
+    field: 'credentialSubject.metadata.additionalInformation.saas.redirectUrl'
+  }
+}
+
+function hasMetadataTypeFilter(filters?: FilterTerm[]): boolean {
+  return !!filters?.find((e) =>
+    Object.hasOwn(e, 'term')
+      ? Object.keys(e?.term)?.includes(SAAS_TYPE_FIELD)
+      : Object.hasOwn(e, 'terms')
+      ? Object.keys(e?.terms)?.includes(SAAS_TYPE_FIELD)
+      : false
+  )
+}
+
 export function escapeEsReservedCharacters(value: string): string {
   // eslint-disable-next-line no-useless-escape
   const pattern = /([\!\*\+\-\=\<\>\&\|\(\)\[\]\{\}\^\~\?\:\\/"])/g
@@ -153,9 +170,15 @@ export function generateBaseQuery(
   index?: string,
   allNode?: boolean
 ): SearchQuery {
-  const dataspaceFilterTerm = getDataspaceFilterTerm()
+  // order documents have a different shape than DDOs, so DDO-metadata-scoped
+  // global filters (dataspace, tag/query filters, whitelist) must not apply
+  const isOrderIndex = index === 'order'
+  const dataspaceFilterTerm = isOrderIndex
+    ? undefined
+    : getDataspaceFilterTerm()
   const shouldApplyDefaultNodeFilter =
     !allNode && !hasServiceEndpointFilter(baseQueryParams.filters)
+  const isMetadataTypeSelected = hasMetadataTypeFilter(baseQueryParams.filters)
   const generatedQuery = {
     index: index ?? 'op_ddo_v5.0.0',
     from: baseQueryParams.esPaginationOptions?.from || 0,
@@ -179,12 +202,18 @@ export function generateBaseQuery(
           ...(baseQueryParams.ignorePurgatory
             ? []
             : [getFilterTerm('indexedMetadata.purgatory.state', false)]),
+          ...(!isMetadataTypeSelected && baseQueryParams.showSaas
+            ? [saasFieldExists]
+            : []),
           {
             bool: {
               must_not: [
                 !baseQueryParams.ignoreState &&
                   getFilterTerm('indexedMetadata.nft.state', 5),
-                getDynamicPricingMustNot()
+                getDynamicPricingMustNot(),
+                ...(baseQueryParams.showSaas === false && isMetadataTypeSelected
+                  ? [saasFieldExists]
+                  : [])
               ]
             }
           },
@@ -199,7 +228,7 @@ export function generateBaseQuery(
               ]
             : []),
           ...(dataspaceFilterTerm ? [dataspaceFilterTerm] : []),
-          ...getQueryFilterTerms()
+          ...(isOrderIndex ? [] : getQueryFilterTerms())
         ]
       }
     }
@@ -218,7 +247,7 @@ export function generateBaseQuery(
   }
 
   // add whitelist filtering
-  if (getWhitelistShould()?.length > 0) {
+  if (!isOrderIndex && getWhitelistShould()?.length > 0) {
     const whitelistQuery = {
       bool: {
         should: [...getWhitelistShould()],
@@ -228,6 +257,35 @@ export function generateBaseQuery(
     Object.hasOwn(generatedQuery.query.bool, 'must')
       ? generatedQuery.query.bool.must.push(whitelistQuery)
       : (generatedQuery.query.bool.must = [whitelistQuery])
+  }
+
+  // saas assets are access datasets underneath but appear as their own
+  // category, so when saas is selected alongside other types the type filter
+  // must become "type in selection OR saas field exists". The original filter
+  // element is replaced (not mutated) and both term/terms shapes are handled.
+  if (baseQueryParams.showSaas && isMetadataTypeSelected) {
+    const typeFilterIndex = generatedQuery.query.bool.filter.findIndex(
+      (filter) =>
+        Object.keys(filter?.term || {}).includes(SAAS_TYPE_FIELD) ||
+        Object.keys(filter?.terms || {}).includes(SAAS_TYPE_FIELD)
+    )
+
+    if (typeFilterIndex >= 0) {
+      const typeFilter = generatedQuery.query.bool.filter[typeFilterIndex]
+      const selectedTypes = Object.hasOwn(typeFilter, 'term')
+        ? ([typeFilter.term[SAAS_TYPE_FIELD]] as string[])
+        : (typeFilter.terms[SAAS_TYPE_FIELD] as string[])
+
+      generatedQuery.query.bool.filter[typeFilterIndex] = {
+        bool: {
+          should: [
+            getFilterTerm(SAAS_TYPE_FIELD, selectedTypes),
+            saasFieldExists
+          ],
+          minimum_should_match: 1
+        }
+      }
+    }
   }
 
   return generatedQuery
@@ -1086,12 +1144,14 @@ export async function getUserOrders(
   const filters: FilterTerm[] = []
   const filterTermKeyword = filterTerm || 'consumer.keyword'
   filters.push(getFilterTerm(filterTermKeyword, accountId))
+  const size = 1000
   const baseQueryparams = {
     filters,
     ignorePurgatory: true,
     esPaginationOptions: {
-      from: page || 0,
-      size: 1000
+      // callers pass a 1-indexed page; `from` is a record offset, so page 1 must map to 0
+      from: page && page > 0 ? (page - 1) * size : 0,
+      size
     }
   } as BaseQueryParams
   const query = generateBaseQuery(baseQueryparams, 'order', true)

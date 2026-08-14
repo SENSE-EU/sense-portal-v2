@@ -33,11 +33,12 @@ const columns: TableOceanColumn<AssetExtended>[] = [
     selector: (row) => {
       const { metadata } = row
       const isCompute = Boolean(getServiceByName(row, 'compute'))
-      const accessType = isCompute ? 'compute' : 'access'
+      const isSaas = Boolean(metadata?.additionalInformation?.saas)
+      const accessType = isSaas ? 'saas' : isCompute ? 'compute' : 'access'
       return (
         <AssetType
           className={styles.typeLabel}
-          type={metadata.type}
+          type={isSaas ? 'saas' : metadata.type}
           accessType={accessType}
         />
       )

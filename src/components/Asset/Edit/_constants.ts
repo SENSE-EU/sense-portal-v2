@@ -339,7 +339,13 @@ export function getInitialValues(
     uploadedLicense: useRemoteLicense ? metadata.license : undefined,
     useRemoteLicense,
     additionalLicenseFiles,
-    additionalDdos
+    additionalDdos,
+    saas: metadata?.additionalInformation?.saas
+      ? {
+          redirectUrl: metadata.additionalInformation.saas.redirectUrl,
+          paymentMode: 'Subscription'
+        }
+      : undefined
   }
 }
 

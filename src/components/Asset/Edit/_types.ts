@@ -36,6 +36,7 @@ export interface MetadataEditForm {
   uploadedLicense: License
   additionalLicenseFiles?: FormAdditionalLicenseFile[]
   additionalDdos: FormAdditionalDdo[]
+  saas?: { redirectUrl: string; paymentMode: 'Subscription' }
 }
 
 export interface ServiceEditForm {

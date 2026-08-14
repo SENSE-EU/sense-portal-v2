@@ -13,7 +13,7 @@
         "name": "type",
         "label": "Asset Type",
         "type": "boxSelection",
-        "options": ["Dataset", "Algorithm"],
+        "options": ["Dataset", "Algorithm", "SaaS"],
         "required": true
       },
       {
@@ -206,6 +206,14 @@
         "type": "providerUrl",
         "help": "Enter the URL for your custom [provider](https://github.com/oceanprotocol/provider/) or leave as is to use the default one. If you change your provider URL after adding your file, please add & validate your file again.",
         "placeholder": "e.g. https://provider.oceanprotocol.com/",
+        "required": true
+      },
+      {
+        "name": "redirectUrl",
+        "label": "Redirect URL",
+        "placeholder": "e.g. https://my-saas.example.com",
+        "help": "The url the user will be redirected to after buying access to the Software as a Service offering.",
+        "type": "url",
         "required": true
       },
       {

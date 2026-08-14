@@ -22,7 +22,10 @@ export default function AssetTeaser({
 }: AssetTeaserProps): ReactElement {
   const { name, type, description } = asset.credentialSubject.metadata
   const isCompute = Boolean(getServiceByName(asset, 'compute'))
-  const accessType = isCompute ? 'compute' : 'access'
+  const isSaas = Boolean(
+    asset.credentialSubject.metadata?.additionalInformation?.saas
+  )
+  const accessType = isSaas ? 'saas' : isCompute ? 'compute' : 'access'
   const owner = asset.indexedMetadata.nft?.owner
   const { orders } = asset.indexedMetadata.stats[0] || {}
 
@@ -32,7 +35,7 @@ export default function AssetTeaser({
         <aside className={styles.detailLine}>
           <AssetType
             className={styles.typeLabel}
-            type={type}
+            type={isSaas ? 'saas' : type}
             accessType={accessType}
           />
         </aside>

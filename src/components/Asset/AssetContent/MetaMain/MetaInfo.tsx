@@ -14,13 +14,16 @@ export default function MetaInfo({
   nftPublisher: string
 }): ReactElement {
   const isCompute = Boolean(getServiceByName(asset, 'compute'))
-  const accessType = isCompute ? 'compute' : 'access'
+  const isSaas = Boolean(
+    asset?.credentialSubject?.metadata?.additionalInformation?.saas
+  )
+  const accessType = isSaas ? 'saas' : isCompute ? 'compute' : 'access'
   const nftOwner = asset?.indexedMetadata?.nft?.owner
 
   return (
     <div className={styles.wrapper}>
       <AssetType
-        type={asset?.credentialSubject?.metadata.type}
+        type={isSaas ? 'saas' : asset?.credentialSubject?.metadata.type}
         accessType={accessType}
         className={styles.assetType}
       />
