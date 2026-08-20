@@ -19,7 +19,7 @@ import styles from './index.module.css'
 import { FormikContext, FormikContextType } from 'formik'
 import { FormPublishData } from '@components/Publish/_types'
 import { getTokenBalanceFromSymbol } from '@utils/wallet'
-import { isAddressWhitelisted } from '@utils/ddo'
+import { isAddressWhitelisted, isSaasAsset } from '@utils/ddo'
 import { useAccount, useChainId, usePublicClient } from 'wagmi'
 import useBalance from '@hooks/useBalance'
 import Button from '@components/@shared/atoms/Button'
@@ -105,9 +105,7 @@ export default function AssetActions({
     useState<boolean>()
 
   const isCompute = service.type === 'compute'
-  const isSaas = Boolean(
-    asset?.credentialSubject?.metadata?.additionalInformation?.saas
-  )
+  const isSaas = isSaasAsset(asset)
   const rerunJobId = useMemo(() => {
     if (!router.isReady) return null
     const value = router.query.rerunJob ?? router.query.rerun

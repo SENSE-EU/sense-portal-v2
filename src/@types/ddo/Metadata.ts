@@ -25,7 +25,7 @@ export interface SaasMetadata {
 export interface AdditionalInformation {
   termsAndConditions?: boolean
   saas?: SaasMetadata
-  [key: string]: string | number | boolean | SaasMetadata | undefined
+  [key: string]: unknown
 }
 
 export interface Metadata {

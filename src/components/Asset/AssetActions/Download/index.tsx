@@ -25,7 +25,7 @@ import {
   getAvailablePrice,
   getOrderPriceAndFees
 } from '@utils/accessDetailsAndPricing'
-import { secondsToString } from '@utils/ddo'
+import { getSaasMetadata, secondsToString } from '@utils/ddo'
 import { MAX_DECIMALS } from '@utils/constants'
 import { checkVerifierSessionId } from '@utils/wallet/policyServer'
 
@@ -90,7 +90,7 @@ export default function Download({
   const isMounted = useIsMounted()
   const { balance } = useBalance()
   const chainId = useChainId()
-  const saas = asset?.credentialSubject?.metadata?.additionalInformation?.saas
+  const saas = getSaasMetadata(asset)
   const [licenseLink, setLicenseLink] = useState('')
   const [, setIsDisabled] = useState(true)
   const [hasDatatoken, setHasDatatoken] = useState(false)

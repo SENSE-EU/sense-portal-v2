@@ -259,10 +259,9 @@ export function generateBaseQuery(
       : (generatedQuery.query.bool.must = [whitelistQuery])
   }
 
-  // saas assets are access datasets underneath but appear as their own
-  // category, so when saas is selected alongside other types the type filter
-  // must become "type in selection OR saas field exists". The original filter
-  // element is replaced (not mutated) and both term/terms shapes are handled.
+  // SaaS assets are access datasets, so filtering strictly by the selected
+  // asset types would hide them. When "saas" is among the selection, widen the
+  // type filter to match the selected types OR any asset exposing the saas field.
   if (baseQueryParams.showSaas && isMetadataTypeSelected) {
     const typeFilterIndex = generatedQuery.query.bool.filter.findIndex(
       (filter) =>
