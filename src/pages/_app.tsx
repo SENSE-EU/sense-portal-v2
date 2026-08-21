@@ -23,7 +23,6 @@ import AuthGuard from '@components/Auth/AuthGuard/AuthGuard'
 import { initAnalytics } from '@utils/analytics'
 
 const queryClient = new QueryClient()
-
 function MyApp({ Component, pageProps }: AppProps): ReactElement {
   const [mounted, setMounted] = useState(false)
   const [wagmiConfig] = useState(() => createWagmiConfig())
