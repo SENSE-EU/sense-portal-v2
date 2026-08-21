@@ -40,6 +40,7 @@ export interface AppConfig {
   dataspace: string | null
   persistJsonWalletSession: boolean
   assetDescriptionExpandedByDefault: boolean
+  pontusXRegistryUrl: string | null
 }
 export interface SiteContent {
   siteTitle: string
