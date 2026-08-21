@@ -21,6 +21,7 @@ import { Filters } from '@context/Filter'
 import { filterSets } from '@components/Search/Filter'
 import { Asset } from 'src/@types/Asset'
 import { resolveServiceTokenSymbol } from '@utils/priceToken'
+import { getQueryFilterTerms } from '@hooks/useQueryFilter'
 
 export const MAXIMUM_NUMBER_OF_PAGES_WITH_RESULTS = 476
 
@@ -154,6 +155,8 @@ export function generateBaseQuery(
   allNode?: boolean
 ): SearchQuery {
   const dataspaceFilterTerm = getDataspaceFilterTerm()
+  // The order index holds no asset metadata, so the global filters cannot apply.
+  const isOrderIndex = index === 'order'
   const shouldApplyDefaultNodeFilter =
     !allNode && !hasServiceEndpointFilter(baseQueryParams.filters)
   const generatedQuery = {
@@ -198,7 +201,8 @@ export function generateBaseQuery(
                 }
               ]
             : []),
-          ...(dataspaceFilterTerm ? [dataspaceFilterTerm] : [])
+          ...(dataspaceFilterTerm ? [dataspaceFilterTerm] : []),
+          ...(isOrderIndex ? [] : getQueryFilterTerms())
         ]
       }
     }
