@@ -34,7 +34,6 @@ import ComputeJobs from '@components/@shared/ComputeJobs'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { toast } from 'react-toastify'
-import { useMarketMetadata } from '@context/MarketMetadata'
 
 export default function AssetContent({
   asset

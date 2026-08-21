@@ -38,7 +38,6 @@ export interface AppConfig {
   ssiEnabled: boolean
   showOnboardingModuleByDefault: boolean
   dataspace: string | null
-  assetDescriptionExpandedByDefault: boolean
   persistJsonWalletSession: boolean
   assetDescriptionExpandedByDefault: boolean
   pontusXRegistryUrl: string | null
