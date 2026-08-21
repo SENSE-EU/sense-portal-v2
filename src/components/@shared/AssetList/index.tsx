@@ -9,6 +9,7 @@ import removeMarkdown from 'remove-markdown'
 import styles from './index.module.css'
 import Table, { TableOceanColumn } from '../atoms/Table'
 import { AssetViewOptions } from 'src/@types/AssetView'
+import { isSaasAsset } from '@utils/ddo'
 import Time from '../atoms/Time'
 import { AssetExtended } from 'src/@types/AssetExtended'
 import Alert from '../atoms/Alert'
@@ -49,7 +50,7 @@ const columns: TableOceanColumn<AssetExtended>[] = [
     name: 'Type',
     cell: (row) => (
       <AssetType
-        type={row.credentialSubject?.metadata?.type}
+        type={isSaasAsset(row) ? 'saas' : row.credentialSubject?.metadata?.type}
         variant="metadata"
         className={styles.listTypeCell}
       />

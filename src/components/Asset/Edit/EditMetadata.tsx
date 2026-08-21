@@ -124,7 +124,14 @@ export default function Edit({
         tags: values.tags,
         license,
         additionalInformation: {
-          ...asset.credentialSubject?.metadata?.additionalInformation
+          ...asset.credentialSubject?.metadata?.additionalInformation,
+          ...(asset.credentialSubject?.metadata?.additionalInformation?.saas &&
+            values.saas?.redirectUrl && {
+              saas: {
+                redirectUrl: values.saas.redirectUrl,
+                paymentMode: 'Subscription' as const
+              }
+            })
         }
       }
 

@@ -82,6 +82,10 @@ const urlFileSchema = Yup.object().shape({
   url: testLinks(),
   valid: Yup.boolean().required().oneOf([true], 'File must be valid.')
 })
+const saasFileSchema = Yup.object().shape({
+  type: Yup.string().oneOf(['saas']).required(),
+  url: testLinks()
+})
 const ftpFileSchema = Yup.object().shape({
   type: Yup.string().oneOf(['ftp']).required(),
   url: Yup.string()
@@ -104,6 +108,21 @@ const fileSchema = Yup.mixed().test(
     }
     if (value.type === 'ftp') {
       return ftpFileSchema.isValidSync(value)
+    }
+    if (value.type === 'saas') {
+      try {
+        saasFileSchema.validateSync(value)
+        return true
+      } catch (error) {
+        // re-throw at the url path so the message renders under the input
+        return this.createError({
+          path: `${this.path}.url`,
+          message:
+            error instanceof Yup.ValidationError
+              ? error.message
+              : 'Must be a valid url.'
+        })
+      }
     }
     return urlFileSchema.isValidSync(value)
   }

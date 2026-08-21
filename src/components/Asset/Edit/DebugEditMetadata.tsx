@@ -40,7 +40,14 @@ export default function DebugEditMetadata({
         tags: values.tags,
         license: values.license,
         additionalInformation: {
-          ...asset?.credentialSubject?.metadata?.additionalInformation
+          ...asset?.credentialSubject?.metadata?.additionalInformation,
+          ...(asset?.credentialSubject?.metadata?.additionalInformation?.saas &&
+            values.saas?.redirectUrl && {
+              saas: {
+                redirectUrl: values.saas.redirectUrl,
+                paymentMode: 'Subscription' as const
+              }
+            })
         }
       }
 
