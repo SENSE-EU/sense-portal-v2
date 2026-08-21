@@ -159,7 +159,8 @@ export default function Filter({
       type: 'filterList',
       options: [
         { label: 'datasets', value: FilterByTypeOptions.Data },
-        { label: 'algorithms', value: FilterByTypeOptions.Algorithm }
+        { label: 'algorithms', value: FilterByTypeOptions.Algorithm },
+        { label: 'saas', value: FilterByTypeOptions.Saas }
       ]
     },
     {

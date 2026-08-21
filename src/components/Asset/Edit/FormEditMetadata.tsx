@@ -228,6 +228,15 @@ export default function FormEditMetadata(): ReactElement {
           component={Input}
           name="author"
         />
+        {Boolean(
+          asset?.credentialSubject?.metadata?.additionalInformation?.saas
+        ) && (
+          <Field
+            {...getFieldContent('redirectUrl', data)}
+            component={Input}
+            name="saas.redirectUrl"
+          />
+        )}
         {asset.credentialSubject?.metadata?.type === 'algorithm' && (
           <>
             <Field

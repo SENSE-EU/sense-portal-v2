@@ -5,7 +5,7 @@ import Publisher from '@shared/Publisher'
 import AssetType from '@shared/AssetType'
 import NetworkName from '@shared/NetworkName'
 import styles from './index.module.css'
-import { getServiceByName } from '@utils/ddo'
+import { getAssetAccessType, isSaasAsset } from '@utils/ddo'
 import { AssetExtended } from 'src/@types/AssetExtended'
 
 declare type AssetTeaserProps = {
@@ -21,8 +21,8 @@ export default function AssetTeaser({
   noDescription
 }: AssetTeaserProps): ReactElement {
   const { name, type, description } = asset.credentialSubject.metadata
-  const isCompute = Boolean(getServiceByName(asset, 'compute'))
-  const accessType = isCompute ? 'compute' : 'access'
+  const isSaas = isSaasAsset(asset)
+  const accessType = getAssetAccessType(asset)
   const owner = asset.indexedMetadata.nft?.owner
   const { orders } = asset.indexedMetadata.stats[0] || {}
 
@@ -32,7 +32,7 @@ export default function AssetTeaser({
         <aside className={styles.detailLine}>
           <AssetType
             className={styles.typeLabel}
-            type={type}
+            type={isSaas ? 'saas' : type}
             accessType={accessType}
           />
         </aside>

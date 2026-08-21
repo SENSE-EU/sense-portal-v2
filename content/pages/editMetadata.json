@@ -77,6 +77,14 @@
         "placeholder": "e.g. John SRL"
       },
       {
+        "name": "redirectUrl",
+        "label": "Redirect URL",
+        "placeholder": "e.g. https://my-saas.example.com",
+        "help": "The url the user will be redirected to after buying access to the Software as a Service offering.",
+        "type": "url",
+        "required": true
+      },
+      {
         "name": "usesConsumerParameters",
         "label": "Algorithm custom parameters",
         "help": "Algorithm custom parameters are used to define required consumer input before running the algorithm in a Compute-to-Data environment.",

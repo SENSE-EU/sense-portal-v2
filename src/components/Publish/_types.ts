@@ -91,6 +91,7 @@ export interface FormPublishData {
     licenseUrl: FormUrlFileInfo[]
     uploadedLicense?: License
     additionalLicenseFiles: FormAdditionalLicenseFile[]
+    saas?: { paymentMode: 'Subscription' }
   }
   services: FormPublishService[]
   pricing: PricePublishOptions
