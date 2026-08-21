@@ -47,6 +47,7 @@ export type RuntimeConfig = {
   NEXT_PUBLIC_DPUA_URL?: string
   NEXT_PUBLIC_POSTHOG_KEY?: string
   NEXT_PUBLIC_POSTHOG_HOST?: string
+  NEXT_PUBLIC_PLAUSIBLE_DOMAIN?: string
 }
 
 declare global {
@@ -117,7 +118,8 @@ const runtimeConfig: RuntimeConfig = (() => {
     NEXT_PUBLIC_CP_URL: process.env.NEXT_PUBLIC_CP_URL,
     NEXT_PUBLIC_DPUA_URL: process.env.NEXT_PUBLIC_DPUA_URL,
     NEXT_PUBLIC_POSTHOG_KEY: process.env.NEXT_PUBLIC_POSTHOG_KEY,
-    NEXT_PUBLIC_POSTHOG_HOST: process.env.NEXT_PUBLIC_POSTHOG_HOST
+    NEXT_PUBLIC_POSTHOG_HOST: process.env.NEXT_PUBLIC_POSTHOG_HOST,
+    NEXT_PUBLIC_PLAUSIBLE_DOMAIN: process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN
   }
 
   if (typeof window !== 'undefined' && window.__RUNTIME_CONFIG__) {
