@@ -174,7 +174,9 @@ export function generateBaseQuery(
   // order documents have a different shape than DDOs, so DDO-metadata-scoped
   // global filters (dataspace, tag/query filters, whitelist) must not apply
   const isOrderIndex = index === 'order'
-  const dataspaceFilterTerm = isOrderIndex ? undefined : getDataspaceFilterTerm()
+  const dataspaceFilterTerm = isOrderIndex
+    ? undefined
+    : getDataspaceFilterTerm()
   const shouldApplyDefaultNodeFilter =
     !allNode && !hasServiceEndpointFilter(baseQueryParams.filters)
   const isMetadataTypeSelected = hasMetadataTypeFilter(baseQueryParams.filters)
