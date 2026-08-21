@@ -172,6 +172,30 @@ function Component() {
 }
 ```
 
+#### Global query filter
+
+`queryFilter.config.cjs` defines filters that are appended to the `bool.filter` clause of
+every Aquarius metadata query, so a deployment can restrict the marketplace to a subset of
+the index. It ships empty, which disables the feature. Forks override it, for example to
+show only assets carrying a given tag:
+
+```js
+module.exports = {
+  credentialSubject: {
+    metadata: {
+      tags: {
+        keyword: ['MyTag']
+      }
+    }
+  }
+}
+```
+
+The nested object mirrors the Elasticsearch document structure. Leaf values become a
+`term` filter (single value), a `terms` filter (array), or a `match` filter when wrapped as
+`{ match: 'value' }`. The `order` index is never filtered, since it holds no asset
+metadata. Filters can also be changed at runtime through `useQueryFilter()`.
+
 ### Ocean Protocol Subgraph
 
 Most financial data in the market is retrieved with GraphQL from [our own subgraph](https://github.com/oceanprotocol/ocean-subgraph), rendered on top of the initial data coming from Aquarius.
