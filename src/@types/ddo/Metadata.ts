@@ -17,7 +17,16 @@ export interface Algorithm {
   consumerParameters?: Record<string, string | number | boolean | Option[]>[]
 }
 
-export interface SaasMetadata {
+// JSON-compatible values, since additionalInformation is deserialized JSON
+export type AdditionalInformationValue =
+  | string
+  | number
+  | boolean
+  | AdditionalInformationValue[]
+  | { [key: string]: AdditionalInformationValue }
+
+// type alias (not interface) so it satisfies the index signature below
+export type SaasMetadata = {
   redirectUrl: string
   paymentMode: 'Subscription'
 }
@@ -25,7 +34,7 @@ export interface SaasMetadata {
 export interface AdditionalInformation {
   termsAndConditions?: boolean
   saas?: SaasMetadata
-  [key: string]: unknown
+  [key: string]: AdditionalInformationValue | undefined
 }
 
 export interface Metadata {
