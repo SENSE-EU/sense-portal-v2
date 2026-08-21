@@ -583,6 +583,8 @@ export async function transformPublishFormToDdo(
   const { access, files, links, providerUrl, timeout, credentials } =
     services[0]
 
+  const isSaas = files?.[0]?.type === 'saas'
+
   const currentTime = dateToStringNoMS(new Date())
   const isPreview = !datatokenAddress && !nftAddress
 
@@ -689,7 +691,13 @@ export async function transformPublishFormToDdo(
     links: keyValuePairsToRecord(metadata.links),
     license,
     additionalInformation: {
-      termsAndConditions
+      termsAndConditions,
+      ...(isSaas && {
+        saas: {
+          redirectUrl: sanitizeUrl(files[0].url || ''),
+          paymentMode: 'Subscription' as const
+        }
+      })
     },
     ...(type === 'algorithm' &&
       dockerImage !== '' && {
@@ -745,7 +753,7 @@ export async function transformPublishFormToDdo(
   }
 
   let filesEncrypted = ''
-  if (!isPreview && files?.length && files[0].valid) {
+  if (!isPreview && files?.length && (files[0].valid || isSaas)) {
     try {
       const encryptedResult = await getEncryptedFiles(
         file,

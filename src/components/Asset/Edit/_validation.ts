@@ -177,6 +177,11 @@ export const metadataValidationSchema = Yup.object().shape({
     .nullable(),
   tags: Yup.array<string[]>().nullable(),
   usesConsumerParameters: Yup.boolean(),
+  saas: Yup.object({
+    redirectUrl: Yup.string()
+      .url('Must be a valid URL.')
+      .required('Redirect URL is required')
+  }).default(undefined),
   consumerParameters: Yup.array().when('usesConsumerParameters', {
     is: true,
     then: Yup.array()

@@ -5,6 +5,7 @@ import Publisher from '@shared/Publisher'
 import AssetType from '@shared/AssetType'
 import NetworkName from '@shared/NetworkName'
 import styles from './index.module.css'
+import { isSaasAsset } from '@utils/ddo'
 import { AssetExtended } from 'src/@types/AssetExtended'
 import Bookmark from '@components/Asset/AssetContent/Bookmark'
 import { ServiceTypeIcons } from '@shared/AssetList/ServiceTypeIcons'
@@ -22,6 +23,7 @@ export default function AssetTeaser({
   noDescription
 }: AssetTeaserProps): ReactElement {
   const { name, type, description } = asset.credentialSubject.metadata
+  const isSaas = isSaasAsset(asset)
   const services = asset.credentialSubject?.services
   const hasServiceTypes = services?.some((service) =>
     ['access', 'compute'].includes(service.type)
@@ -35,7 +37,7 @@ export default function AssetTeaser({
         <aside className={styles.detailLine}>
           <AssetType
             className={styles.assetTypeLabel}
-            type={type}
+            type={isSaas ? 'saas' : type}
             variant="metadata"
           />
           {hasServiceTypes && (

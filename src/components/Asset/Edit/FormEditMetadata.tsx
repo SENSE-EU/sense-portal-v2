@@ -200,6 +200,15 @@ export default function FormEditMetadata(): ReactElement {
           component={Input}
           name="providedBy"
         />
+        {Boolean(
+          asset?.credentialSubject?.metadata?.additionalInformation?.saas
+        ) && (
+          <Field
+            {...getFieldContent('redirectUrl', data)}
+            component={Input}
+            name="saas.redirectUrl"
+          />
+        )}
         <SectionContainer
           title={linksFieldContent.label}
           help={linksFieldContent.help}
