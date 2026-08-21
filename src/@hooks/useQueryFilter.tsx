@@ -61,8 +61,8 @@ function isFilterValue(value: unknown): value is FilterValue {
  * { indexedMetadata: { nft: { owner: '0x…' } } }
  *   → [{ term: { 'indexedMetadata.nft.owner': '0x…' } }]
  *
- * { credentialSubject: { metadata: { tags: { match: 'SENSE' } } } }
- *   → [{ match: { 'credentialSubject.metadata.tags': 'SENSE' } }]
+ * { credentialSubject: { metadata: { tags: { match: 'MyTag' } } } }
+ *   → [{ match: { 'credentialSubject.metadata.tags': 'MyTag' } }]
  */
 export function flattenFilterConfig(
   obj: NestedFilterConfig,
