@@ -10,6 +10,7 @@ import { accountTruncate } from '@utils/wallet'
 import { useAddressConfig } from '@hooks/useAddressConfig'
 import { useAuth } from '@hooks/useAuth'
 import { useConnectorSupportedChains } from '@hooks/useDfnsWalletsByChain'
+import { usePontusXLegalName } from '@context/PontusXIdentity'
 import { useAccount } from 'wagmi'
 
 export default function Account({
@@ -20,6 +21,7 @@ export default function Account({
   const { debug } = useUserPreferences()
   const displayedSupportedChainIds = useConnectorSupportedChains()
   const { verifiedWallets } = useAddressConfig()
+  const legalName = usePontusXLegalName(accountId)
   const { user, isAuthenticated, authEnabled } = useAuth()
   const { address: connectedAccountId } = useAccount()
 
@@ -32,7 +34,7 @@ export default function Account({
 
   const displayName = isOwnAuthenticatedProfile
     ? user.name
-    : verifiedWallets?.[accountId] || accountTruncate(accountId)
+    : verifiedWallets?.[accountId] || legalName || accountTruncate(accountId)
   const displayEmail =
     isOwnAuthenticatedProfile && user?.email ? user.email : undefined
   const normalizedDisplayName = displayName?.trim().toLowerCase()

@@ -39,6 +39,7 @@ export interface AppConfig {
   showOnboardingModuleByDefault: boolean
   dataspace: string | null
   persistJsonWalletSession: boolean
+  pontusXRegistryUrl: string | null
 }
 export interface SiteContent {
   siteTitle: string
