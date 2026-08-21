@@ -8,9 +8,10 @@
 // Examples:
 //   indexedMetadata: { nft: { owner: '0x123…' } }                           → term filter
 //   indexedMetadata: { nft: { state: [0, 1] } }                             → terms filter
-//   credentialSubject: { metadata: { tags: { keyword: 'SENSE' } } }         → term filter (.keyword sub-field)
-//   credentialSubject: { metadata: { tags: { match: 'SENSE' } } }           → match filter (full-text, use with caution)
+//   credentialSubject: { metadata: { tags: { keyword: 'MyTag' } } }         → term filter (.keyword sub-field)
+//   credentialSubject: { metadata: { tags: { match: 'MyTag' } } }           → match filter (full-text, use with caution)
 //
+// This portal is restricted to assets tagged for SENSE.
 module.exports = {
   credentialSubject: {
     metadata: {

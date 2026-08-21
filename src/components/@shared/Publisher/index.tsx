@@ -1,22 +1,37 @@
-import { ReactElement } from 'react'
+import { ReactElement, useEffect, useState } from 'react'
 import styles from './index.module.css'
 import Link from 'next/link'
 import { accountTruncate } from '@utils/wallet'
-import { usePontusXIdentity } from '@deltadao/pontusx-registry-hooks'
+import { useIsMounted } from '@hooks/useIsMounted'
+import { usePontusXLegalName } from '@context/PontusXIdentity'
 
 interface PublisherProps {
   account: string
   minimal?: boolean
+  verifiedServiceProviderName?: string
   className?: string
 }
 
 export default function Publisher({
   account,
   minimal,
+  verifiedServiceProviderName,
   className
 }: PublisherProps): ReactElement {
-  const { legalName } = usePontusXIdentity(account)
-  const name = legalName || accountTruncate(account)
+  const isMounted = useIsMounted()
+  const legalName = usePontusXLegalName(account)
+  const resolvedName = verifiedServiceProviderName || legalName
+  const [name, setName] = useState(resolvedName || accountTruncate(account))
+
+  useEffect(() => {
+    if (!account) return
+
+    if (resolvedName && isMounted()) {
+      setName(resolvedName)
+    } else {
+      setName(accountTruncate(account))
+    }
+  }, [account, isMounted, resolvedName])
 
   if (minimal) {
     return <span className={styles.publisher}>{name}</span>

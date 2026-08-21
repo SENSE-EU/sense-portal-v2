@@ -1,6 +1,7 @@
 {
   "title": "🍪 We're not big on cookies",
   "text": "We respect your privacy! We use privacy-friendly analytics to see what content is popular, but we never track you personally. We only use essential cookies to keep the lights on. Read more in our [privacy policy](/privacy/en#6-cookies-and-web-storage).",
+  "analyticsText": "We respect your privacy! We use privacy-friendly product analytics to see what content is popular and to improve the portal, but we never track you personally. We only use essential web storage to keep the lights on. Read more in our [privacy policy](/privacy/en#6-cookies-and-web-storage).",
   "close": "Acknowledge",
   "accept": "Accept all",
   "reject": "Only essential",
