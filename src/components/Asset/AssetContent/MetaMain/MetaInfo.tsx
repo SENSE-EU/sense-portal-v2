@@ -1,36 +1,42 @@
 import AssetType from '@shared/AssetType'
 import Time from '@shared/atoms/Time'
 import Publisher from '@shared/Publisher'
-import { getAssetAccessType, isSaasAsset } from '@utils/ddo'
+import { isSaasAsset } from '@utils/ddo'
 import { ReactElement } from 'react'
 import styles from './MetaInfo.module.css'
 import { AssetExtended } from 'src/@types/AssetExtended'
 
 export default function MetaInfo({
   asset,
-  nftPublisher
+  nftPublisher,
+  verifiedServiceProviderName
 }: {
   asset: AssetExtended
   nftPublisher: string
+  verifiedServiceProviderName?: string
 }): ReactElement {
   const isSaas = isSaasAsset(asset)
-  const accessType = getAssetAccessType(asset)
   const nftOwner = asset?.indexedMetadata?.nft?.owner
 
   return (
     <div className={styles.wrapper}>
       <AssetType
         type={isSaas ? 'saas' : asset?.credentialSubject?.metadata.type}
-        accessType={accessType}
+        variant="metadata"
         className={styles.assetType}
       />
       <div className={styles.byline}>
         <div>
           Published{' '}
           <Time date={asset?.credentialSubject?.metadata.created} relative />
-          {nftPublisher && nftPublisher !== nftOwner && (
+          {(verifiedServiceProviderName ||
+            (nftPublisher && nftPublisher !== nftOwner)) && (
             <span>
-              {' by '} <Publisher account={nftPublisher} />
+              {' by '}{' '}
+              <Publisher
+                account={nftPublisher}
+                verifiedServiceProviderName={verifiedServiceProviderName}
+              />
             </span>
           )}
           {asset?.credentialSubject?.metadata.created !==
