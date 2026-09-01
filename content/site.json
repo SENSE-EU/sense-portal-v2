@@ -85,6 +85,10 @@
           {
             "name": "Terms and Conditions",
             "link": "/privacy/terms"
+          },
+          {
+            "name": "Lifecycle State Policy",
+            "link": "/privacy/lifecycle-state-policy"
           }
         ]
       }
