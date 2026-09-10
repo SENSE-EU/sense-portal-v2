@@ -16,6 +16,7 @@ import {
   JSON_WALLET_CONNECTOR_ID,
   setImportRequestHandler
 } from '@utils/wallet/jsonWalletConnector'
+import { getRuntimeConfig } from '@utils/runtimeConfig'
 
 type TooltipHandle = {
   hide?: () => void
@@ -28,6 +29,7 @@ export default function Wallet(): ReactElement {
   const dfns = useDfnsConnect()
   const signerServer = useSignerServerConnect()
   const { authEnabled } = useAuth()
+  const isDfnsEnabled = getRuntimeConfig().NEXT_PUBLIC_DFNS_ENABLED === 'true'
   const [isSsiModalOpen, setIsSsiModalOpen] = useState(false)
   const [isWalletChoiceOpen, setIsWalletChoiceOpen] = useState(false)
   const [isImportModalOpen, setIsImportModalOpen] = useState(false)
@@ -78,7 +80,7 @@ export default function Wallet(): ReactElement {
         isOpen={isWalletChoiceOpen}
         isDfnsConnecting={dfns.isConnecting}
         isSignerServerConnecting={signerServer.isConnecting}
-        showDfns={authEnabled}
+        showDfns={authEnabled && isDfnsEnabled}
         showSignerServer={signerServer.isConfigured}
         showJsonWallet={hasJsonWalletConnector}
         onClose={() => setIsWalletChoiceOpen(false)}
@@ -100,14 +102,16 @@ export default function Wallet(): ReactElement {
         }}
       />
 
-      <DfnsRegistrationModal
-        isOpen={dfns.isRegistrationModalOpen}
-        registrationCode={dfns.registrationCode}
-        isConnecting={dfns.isConnecting}
-        onChange={dfns.setRegistrationCode}
-        onSubmit={dfns.submitRegistrationCode}
-        onClose={() => dfns.setIsRegistrationModalOpen(false)}
-      />
+      {isDfnsEnabled && (
+        <DfnsRegistrationModal
+          isOpen={dfns.isRegistrationModalOpen}
+          registrationCode={dfns.registrationCode}
+          isConnecting={dfns.isConnecting}
+          onChange={dfns.setRegistrationCode}
+          onSubmit={dfns.submitRegistrationCode}
+          onClose={() => dfns.setIsRegistrationModalOpen(false)}
+        />
+      )}
 
       <ImportModal
         isOpen={isImportModalOpen}

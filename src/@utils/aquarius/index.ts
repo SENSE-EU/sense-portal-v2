@@ -22,6 +22,11 @@ import { filterSets } from '@components/Search/Filter'
 import { Asset } from 'src/@types/Asset'
 import { resolveServiceTokenSymbol } from '@utils/priceToken'
 import { getQueryFilterTerms } from '@hooks/useQueryFilter'
+import {
+  CONTAINER_UPDATE_REQUIRED_MESSAGE,
+  getExplicitTrustedAlgorithm,
+  hasTrustedContainerChanged
+} from '@utils/computeContainerUpdates'
 
 export const MAXIMUM_NUMBER_OF_PAGES_WITH_RESULTS = 476
 
@@ -86,6 +91,7 @@ export function parseFilters(
   const filterQueryPath = {
     accessType: 'credentialSubject.services.type',
     serviceType: 'credentialSubject.metadata.type',
+    priceType: 'indexedMetadata.stats.prices.type',
     filterSet: 'credentialSubject.metadata.tags.keyword',
     filterTime: 'credentialSubject.metadata.created',
     assetState: 'indexedMetadata.nft.state',
@@ -872,7 +878,8 @@ export async function getAlgorithmDatasetsForComputeSelection(
   accountId: string,
   datasetChainId?: number,
   cancelToken?: CancelToken,
-  tokenSymbolMap?: Record<string, string>
+  tokenSymbolMap?: Record<string, string>,
+  algorithmAsset?: Asset
 ): Promise<AssetSelectionAsset[]> {
   const baseQueryParams = {
     chainIds: [datasetChainId],
@@ -963,7 +970,7 @@ export async function getAlgorithmDatasetsForComputeSelection(
   })
 
   const uniqueAssets = Array.from(uniqueAssetsMap.values())
-  const datasets = await transformAssetToAssetSelectionDataset(
+  let datasets = await transformAssetToAssetSelectionDataset(
     datasetProviderUri,
     uniqueAssets,
     accountId,
@@ -972,6 +979,48 @@ export async function getAlgorithmDatasetsForComputeSelection(
     { algorithmDid: algorithmId, algorithmServiceId: serviceId },
     tokenSymbolMap
   )
+
+  if (algorithmAsset) {
+    datasets = datasets.map((selection) => {
+      const dataset = uniqueAssets.find(
+        (item: Asset) => item.id === selection.did
+      ) as Asset | undefined
+      const datasetService = dataset?.credentialSubject?.services?.find(
+        (item) => item.id === selection.serviceId
+      )
+      if (!datasetService) return selection
+
+      const trustedAlgorithm = getExplicitTrustedAlgorithm(
+        datasetService,
+        algorithmId,
+        serviceId
+      )
+      if (!trustedAlgorithm) return selection
+
+      const selectionDisabled = hasTrustedContainerChanged(
+        trustedAlgorithm,
+        algorithmAsset
+      )
+
+      if (selectionDisabled) {
+        console.warn('[C2D container check] Dataset option disabled', {
+          datasetDid: selection.did,
+          datasetServiceId: selection.serviceId,
+          algorithmDid: algorithmId,
+          algorithmServiceId: serviceId
+        })
+      }
+
+      return {
+        ...selection,
+        selectionDisabled,
+        selectionDisabledReason: selectionDisabled
+          ? CONTAINER_UPDATE_REQUIRED_MESSAGE
+          : undefined
+      }
+    })
+  }
+
   return datasets
 }
 

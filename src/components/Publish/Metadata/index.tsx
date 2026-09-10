@@ -10,11 +10,13 @@ import useMetadata from './useMetadata'
 
 import SectionContainer from '../../@shared/SectionContainer/SectionContainer'
 import styles from './index.module.css'
+import DockerRegistryChecksum from '@shared/DockerRegistryChecksum'
+import { FormPublishData } from '../_types'
 
 export default function MetadataFields(): ReactElement {
+  const { setFieldTouched, setFieldValue } = useFormikContext<FormPublishData>()
   const {
     values,
-    meta,
     assetTypeOptions,
     dockerImageOptions,
     additionalFiles,
@@ -37,7 +39,6 @@ export default function MetadataFields(): ReactElement {
   const primaryUploadedLicenseDocument =
     values.metadata.uploadedLicense?.licenseDocuments?.[0]
   const linksFieldContent = getFieldContent('links', content.metadata.fields)
-  const { setFieldValue } = useFormikContext()
 
   return (
     <>
@@ -159,10 +160,27 @@ export default function MetadataFields(): ReactElement {
                   )}
                   component={Input}
                   name="metadata.dockerImageCustomChecksum"
-                  disabled={
-                    values.metadata.dockerImageCustomChecksum && !meta.touched
-                  }
                 />
+                {values.metadata.dockerImageCustom &&
+                  values.metadata.dockerImageCustomTag &&
+                  !values.metadata.dockerImageCustomChecksum && (
+                    <DockerRegistryChecksum
+                      image={values.metadata.dockerImageCustom}
+                      tag={values.metadata.dockerImageCustomTag}
+                      onChecksumResolved={async (checksum) => {
+                        await setFieldValue(
+                          'metadata.dockerImageCustomChecksum',
+                          checksum,
+                          true
+                        )
+                        await setFieldTouched(
+                          'metadata.dockerImageCustomChecksum',
+                          false,
+                          false
+                        )
+                      }}
+                    />
+                  )}
                 <Field
                   {...getFieldContent(
                     'dockerImageCustomEntrypoint',

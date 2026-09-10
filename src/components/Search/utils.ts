@@ -68,6 +68,7 @@ function getSearchQuery(
   sortDirection?: string,
   serviceType?: string | string[],
   accessType?: string | string[],
+  priceType?: string | string[],
   supportedBlockchain?: string | string[],
   filterSet?: string | string[],
   assetState?: string | string[],
@@ -211,8 +212,14 @@ function getSearchQuery(
       : serviceType
 
   const filtersList = getInitialFilters(
-    { accessType, serviceType: sanitizedServiceType, filterSet, nodeUriIndex },
-    ['accessType', 'serviceType', 'filterSet', 'nodeUriIndex']
+    {
+      accessType,
+      serviceType: sanitizedServiceType,
+      priceType,
+      filterSet,
+      nodeUriIndex
+    },
+    ['accessType', 'serviceType', 'priceType', 'filterSet', 'nodeUriIndex']
   )
   parseFilters(filtersList, filterSets).forEach((term) => filters.push(term))
   const normalizedPage = normalizeSearchPage(page)
@@ -245,6 +252,7 @@ export async function getResults(
     sortOrder?: string
     serviceType?: string | string[]
     accessType?: string | string[]
+    priceType?: string | string[]
     supportedBlockchain?: string | string[]
     filterSet?: string[]
     assetState?: string | string[]
@@ -263,6 +271,7 @@ export async function getResults(
     sortOrder,
     serviceType,
     accessType,
+    priceType,
     supportedBlockchain,
     filterSet,
     assetState,
@@ -281,6 +290,7 @@ export async function getResults(
     sortOrder,
     serviceType,
     accessType,
+    priceType,
     supportedBlockchain,
     filterSet,
     assetState,
