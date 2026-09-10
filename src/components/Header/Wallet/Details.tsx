@@ -15,6 +15,7 @@ import { useRouter } from 'next/router'
 import { useUserPreferences } from '@context/UserPreferences'
 import { clearFederatedStorage } from '@utils/logoutRouter'
 import { JSON_WALLET_CONNECTOR_ID } from '@utils/wallet/jsonWalletConnector'
+import { clearEncryptedWalletJson } from '@utils/wallet/jsonWalletStorage'
 import { toast } from 'react-toastify'
 import NetworkName from '@shared/NetworkName'
 
@@ -121,7 +122,7 @@ export default function Details({
   const { logout, markLogoutPending, isAuthenticated, user, authEnabled } =
     useAuth()
   const router = useRouter()
-  const { showOnboardingModule, setEncryptedWalletJson } = useUserPreferences()
+  const { showOnboardingModule } = useUserPreferences()
   const [isLoggingOut, setIsLoggingOut] = useState(false)
   const { chains, switchChain } = useSwitchChain()
 
@@ -297,7 +298,7 @@ export default function Details({
             }
             onClick={() => {
               disconnect()
-              setEncryptedWalletJson('')
+              clearEncryptedWalletJson()
               toast.info('Wallet removed.')
             }}
             tone="danger"

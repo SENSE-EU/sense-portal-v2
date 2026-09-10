@@ -67,6 +67,8 @@ deltaDAO uses [**Plausible Analytics** &#8599;](https://plausible.io/) (by Plaus
 
 Further information about the **purpose, legal basis, and retention period** can be found in chapter 4.
 
+Our website uses cookies. You can manage cookies via your browser settings, including disabling or deleting cookies. If you want to change your cookie consent, use the Cookie Settings link in the footer when available. A description of every cookie and web storage item we use, including its purpose and storage duration, can be found in our [Cookie Policy](/privacy/cookie-policy).
+
 ## 4. Processing operations according to Article 13 GDPR
 
 We process your personal data for the following purposes.
