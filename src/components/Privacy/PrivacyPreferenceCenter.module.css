@@ -156,8 +156,8 @@
 }
 
 .switchOn {
-  background: var(--yellow-500);
-  border-color: var(--yellow-500);
+  background: var(--clr-amber);
+  border-color: var(--clr-amber);
 }
 
 .switchKnob {
@@ -168,7 +168,7 @@
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  background: var(--yellow-500);
+  background: var(--clr-amber);
   box-shadow: 0 1px 2px var(--box-shadow-color);
   transition: left 180ms ease, background 180ms ease;
 }
