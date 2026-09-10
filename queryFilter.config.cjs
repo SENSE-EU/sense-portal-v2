@@ -11,5 +11,12 @@
 //   credentialSubject: { metadata: { tags: { keyword: 'MyTag' } } }         → term filter (.keyword sub-field)
 //   credentialSubject: { metadata: { tags: { match: 'MyTag' } } }           → match filter (full-text, use with caution)
 //
+// Scope: these filters are injected into every query built by
+// generateBaseQuery, which since upstream v1.5.0 also covers the
+// Compute-to-Data algorithm allowlist (getAlgorithmAllowlistQuery) and the
+// dataset-for-algorithm selection lists. A non-empty config therefore also
+// hides trusted algorithms and datasets that lack the configured tag, not just
+// search results. Orders are exempt via the isOrderIndex guard.
+//
 // Empty by default — downstream portals override this file with their own tags.
 module.exports = {}
