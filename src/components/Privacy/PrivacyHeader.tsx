@@ -38,9 +38,19 @@ export default function PrivacyPolicyHeader({
       href: '/privacy/privacy-policy'
     },
     {
+      label: 'Data Portal Usage Agreement',
+      anchor: 'data-portal-usage-agreement',
+      href: '/privacy/data-portal-usage-agreement'
+    },
+    {
       label: 'Cookie Policy',
       anchor: 'cookie-policy',
       href: '/privacy/cookie-policy'
+    },
+    {
+      label: 'Lifecycle State Policy',
+      anchor: 'lifecycle-state-policy',
+      href: '/privacy/lifecycle-state-policy'
     }
   ]
 
