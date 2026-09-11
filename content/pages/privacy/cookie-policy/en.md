@@ -1,88 +1,59 @@
 ---
 title: Cookie Policy
-description: This cookie policy explains how the SENSE Portal uses cookies and similar technologies.
-showLastUpdated: true
 ---
 
-This Cookie Policy explains how the Ocean Enterprise Demonstration Market uses cookies and similar technologies. This policy should be read alongside our Privacy Policy.
+### Table of contents
 
 ## 1. What are cookies?
 
-A cookie is a small file that stores information on your device. Your web browser downloads it on your first visit to a website. When you return using the same device, the cookie is either sent back to the site that created it (first-party) or to another website it belongs to (third-party).
+A cookie is a small file that stores information on your device. Your web browser downloads it on the first visit to a website. The next time you open this website with the same device, the cookie and the information stored in it are either:
 
-In this policy, the term "cookies" refers to standard browser cookies as well as web storage (`localStorage` and `sessionStorage`), which serves similar functions. Web storage stays on your device and is not sent along with your requests; `sessionStorage` is deleted automatically when you close the browser tab.
+- sent back to the website that created it (**first-party cookie**), or
+- sent to another website it belongs to (**third-party cookie**).
 
-### Cookie Categories
+This enables the website to detect that you have opened it previously with this browser and, in some cases, to vary the displayed content.
 
-- **Essential cookies:** Strictly necessary for you to browse the website and use its features, such as logging in, connecting a wallet, or remembering a setting you deliberately changed. No consent is required for these.
-- **Preference cookies:** Remember settings that are not strictly necessary but make the website more user-friendly.
-- **Statistics cookies:** Collect anonymized information about how the website is used, to improve it. We only set these with your consent.
-- **Marketing cookies:** Track online activity to deliver advertising. **We do not use marketing cookies.**
+**Web storage** (local storage and session storage) has similar functionality to cookies. In the following, the term “cookies” refers to **both**, web storage and regular cookies.
+
+**Cookie categories**
+
+There are several categories of cookies including the following cookie categories.
+
+- **Essential cookies**: These cookies are strictly necessary for you to browse a website and use its features.
+- **Preference cookies**: Preference cookies are not absolutely necessary for the technical operation of a website but increase user-friendliness.
+- **Statistics cookies**: Statistics cookies or performance cookies collect information about how you use a website, e.g., which pages you visited, to improve website functions. The information is aggregated and not used to identify you.
+- **Marketing cookies**: Marketing cookies track your activity to deliver relevant advertising or to limit the number of times you see an ad. That information can be shared with other organizations or advertisers.
 
 ## 2. How do we use cookies?
 
-All cookies and web storage entries below are first-party: they are created by this website, for this website, and are never shared with advertisers. Settings cookies are only created when you actually change a default setting or use the related feature — simply visiting the site does not store them — and they are erased again when you return to the default.
+On our portal demonstrator we use essential first party cookies because they are strictly necessary for you to use our portal demonstrator features. You can find further information about each cookie in the table below.
 
-### Settings (essential, stored as cookies)
+| Name                             | Service                | Purpose                                                                                                             | Type and duration                                                                                 |
+| -------------------------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| `cachedCredentials`              | sense.demo.pontus-x.eu | Caches your verifiable credentials.                                                                                 | **First party local storage**. Saved during selection and deleted after buying an asset.          |
+| `compute-rerun:<jobId>`          | sense.demo.pontus-x.eu | Stores information about your compute-job, so you can rerun the exact same compute-job.                             | **First party local storage**. Saved for a vew seconds after selecting rerun compute job.         |
+| `credential_<assetId>`           | sense.demo.pontus-x.eu | Stores for how long you have the permission to consume an asset.                                                    | **First party local storage**. Saved during selection and deleted after buying an asset.          |
+| `ocean-user-preferences-v4`      | sense.demo.pontus-x.eu | Saves UI and user settings such as selected chains, bookmarks, and whether you allowed displaying external content. | **First party local storage**. Persistent storage.                                                |
+| `sessionToken`                   | sense.demo.pontus-x.eu | Stores the wallet/session token used to keep you authenticated.                                                     | **First party local storage**. Stored until the respective token expires.                         |
+| `ssiWalletApiOverride`           | sense.demo.pontus-x.eu | Stored to tell the portal which SSI Wallet backend to use.                                                          | **First party session storage** stored until the end of your session.                             |
+| `verifierSessionId`              | sense.demo.pontus-x.eu | Stores a session token, so you can download or run a job without verifying again.                                   | **First party local storage**. Persistent storage. Created after you passed the credential check. |
+| `wagmi.io.metamask.disconnected` | wagmi.sh               | Remembers that you disconnected your MetaMask wallet and prevents auto-reconnecting.                                | **First party session cookie** stored until the end of your session.                              |
+| `wagmi.recentConnectorId`        | wagmi.sh               | Contains information about the last connected wallet (MetaMask or jsonWallet).                                      | **First party cookie**. Persistent storage.                                                       |
+| `wagmi.store`                    | wagmi.sh               | Keeps your MetaMask wallet actively connected while using the portal demonstrator.                                  | **First party local storage**. Persistent storage.                                                |
 
-| Name                        | Purpose                                                                                             | Duration                                                                                                                      |
-| --------------------------- | --------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| `cookieConsentAcknowledged` | Remembers that you have seen and acknowledged the cookie notice, so it is not shown on every visit. | Created when you close the cookie notice. Stored for one year.                                                                |
-| `AnalyticsCookieConsent`    | Remembers your choice about statistics cookies (accepted or declined).                              | Created when you make a choice in the cookie notice. Stored for one year.                                                     |
-| `chainIds`                  | Stores the network(s) you have selected, allowing you to switch the data source of the interface.   | Created if you change the default network selection. Stored for one year, or erased immediately if you return to the default. |
-| `bookmarks`                 | Stores your bookmarked assets.                                                                      | Created if you bookmark assets. Stored for one year, or erased immediately if you remove all your bookmarks.                  |
-| `allowExternalContent`      | Stores whether the portal is allowed to load and display external content.                          | Created if you allow external content. Stored for 60 days, or erased immediately if you return to the default (do not allow). |
-| `debug`                     | Stores whether debug mode is enabled, allowing you to use the debug feature.                        | Created if you activate debug mode. Stored for 60 days, or erased immediately if you deactivate it.                           |
-| `onboardingModule`          | Stores whether the onboarding module is shown, so you can hide or re-enable the onboarding feature. | Created if you change the default setting. Stored for 60 days, or erased immediately if you return to the default.            |
-| `onboardingStep`            | Stores your current step in the onboarding process, so you can continue where you left off.         | Created once you progress past the first step. Stored for 60 days, or erased immediately when you are back at step 0.         |
-| `assetView`                 | Stores whether you prefer the grid or list view for asset lists.                                    | Created if you switch away from the default grid view. Stored for 60 days, or erased immediately if you switch back.          |
+&nbsp;
+For reach analysis we use an **aggregated statistics** tool which does not use cookies, does not track individual visitors and does not create persistent identifiers. Further information about the **aggregated statistics** can be found in our [**privacy policy**](/privacy/privacy-policy).
 
-### Signing in and wallet connections (essential, web storage)
+## 3. How to block or delete cookies
 
-| Name                                                                                   | Purpose                                                                                                                        | Duration                                                                                                         |
-| -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------- |
-| `oidc_session`, `auth_meta`, `token_expires_at`                                        | Keep you logged in to your account and remember when your login needs to be renewed.                                           | `localStorage`; removed when you log out or your login session ends.                                             |
-| `sessionToken`                                                                         | Keeps you signed in to your SSI wallet so you do not have to unlock it again on every action.                                  | `localStorage`; stored until the token expires or you disconnect the wallet or log out.                          |
-| `cachedCredentials`                                                                    | Caches your verifiable credentials so you do not have to present them again each time.                                         | `localStorage`; deleted when you disconnect the SSI wallet, log out, or your session expires.                    |
-| `credentialSelectionStorage`                                                           | Remembers which of your credentials you selected during a credential check.                                                    | `localStorage`; deleted together with `cachedCredentials` on disconnect or logout.                               |
-| `verifierSessionId`                                                                    | Stores verification session IDs after you pass a credential check, so you can download or start a job without verifying again. | `localStorage`; each entry is stored for at most one day, and everything is deleted on disconnect or logout.     |
-| `credential_<assetId>_<serviceId>`                                                     | Stores the time of a successful credential check for an asset, to show you a "valid for X more minutes" countdown.             | `localStorage`; saved while you interact with an asset and removed when the check is reset or no longer valid.   |
-| `wagmi.store`, `wagmi.recentConnectorId`                                               | Remember your wallet connection state (connected account, network) and the last wallet type you used, enabling auto-reconnect. | `localStorage`; kept while the wallet is connected so it can reconnect; cleared when you disconnect.             |
-| `dfns_username`                                                                        | Remembers the username of your DFNS wallet so it can be reconnected.                                                           | `localStorage`; stored until you clear your browser storage.                                                     |
-| `auth_callback_url`, `auth_mode`, `oidc_logout_pending`                                | Temporarily remember where to return to and which sign-in method you used while a login or logout is in progress.              | `sessionStorage`; removed after the sign-in or sign-out completes, at the latest when you close the browser tab. |
-| `signer_server_connected`, `signer_server_selected_chain_id`, `dfns_selected_chain_id` | Temporarily remember which wallet service and network you connected through.                                                   | `sessionStorage`; deleted when you close the browser tab.                                                        |
-| `ssiWalletApiOverride`                                                                 | Stores an SSI wallet API address you entered manually.                                                                         | `sessionStorage`; deleted when you close the browser tab.                                                        |
+**Removing cookies from your device**
 
-### Using compute features (essential, web storage)
+You can delete all cookies or site-specific cookies from your computer's hard disk at any time in your browser settings. For more details, please check the privacy or cookie settings in your preferred browser.
 
-| Name                              | Purpose                                                                                                    | Duration                                                                                                                 |
-| --------------------------------- | ---------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| `compute-rerun:<jobId>`           | Passes a finished job's setup (algorithm and dataset IDs) along, to prefill the form when you rerun a job. | `localStorage`; stored only for a few seconds after selecting "rerun" for a compute job, then removed automatically.     |
-| `computeOutputEncryption:<jobId>` | Stores the key needed to decrypt the results of your own compute job, so you can open them later.          | `localStorage`; stored until you clear your browser storage — without it, encrypted job results can no longer be opened. |
+**Blocking cookies**
 
-### Statistics (only with your consent)
+Most browsers have settings you can use to prevent cookies from being placed on your device. For more details, please check the privacy or cookie settings in your preferred browser. These settings may result in some websites not displaying content or functioning correctly.
 
-If you consent to statistics in the cookie notice, we use Plausible Analytics, a privacy-friendly and cookieless web analytics service, to understand how the portal is used (for example, which pages are visited). This information is aggregated and anonymized and is used exclusively by us to improve the portal. See our [Privacy Policy](/privacy/privacy-policy) for the processor details and the data processing agreement.
+## 4. Changes to this cookie policy
 
-Plausible sets **no cookies** and stores nothing on your device. Your choice itself is remembered in the `AnalyticsCookieConsent` cookie listed above.
-
-If you do not consent, the analytics script is never loaded and nothing is sent to Plausible.
-
-## 3. External Data Transfers
-
-While not all are "cookies," the following services receive data during your use of the portal:
-
-- SSI Wallet API: Processes wallet addresses and credential IDs during verification.
-- Ocean Node: Receives DIDs and consumer addresses for asset downloads or compute jobs, processes search and filter queries.
-- IPFS (Pinata/Gateways): Used for pinning and retrieving decentralized content.
-- Plausible Analytics (only with your consent): Receives anonymized usage statistics.
-
-## 4. How to block or delete cookies
-
-- Changing your consent: You can reopen the cookie settings at any time via the "Cookie Settings" link in the footer and change your choice about statistics cookies.
-- Removing cookies: You can delete all cookies or site-specific cookies via your browser settings at any time.
-- Blocking cookies: Most browsers allow you to prevent cookies from being placed. Please note that blocking essential cookies and web storage will prevent logging in, wallet connections, and asset access from functioning.
-
-## 5. Changes to this cookie policy
-
-This policy may be amended from time to time. The "Last updated" date at the top indicates the most recent changes. Material changes will be notified via a prominent notice on the portal.
+This cookie policy will be amended from time to time. You can see the date of the last alteration at the top of this cookie policy. If we make any material changes to our use of cookies, we will notify you by prominently posting a notice on the portal demonstrator.
