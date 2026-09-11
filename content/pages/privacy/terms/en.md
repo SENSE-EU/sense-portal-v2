@@ -59,7 +59,7 @@ Capitalised terms shall have the meaning given to them in this Agreement; and:
 
 **"Third-Party Content"** means Service Offerings published by other parties but the Customer.
 
-**"Website"** means the website at [https://portal.senseverse.eu](https://portal.senseverse.eu), [https://sense.demo.pontus-x.eu/](https://sense.demo.pontus-x.eu/) (and any successor or related site designated by deltaDAO), as may be updated by deltaDAO from time to time.
+**"Website"** means the website at [https://portal.senseverse.eu](https://portal.senseverse.eu), [https://sense.pontus-x.eu](https://sense.pontus-x.eu), [https://sense.demo.pontus-x.eu/](https://sense.demo.pontus-x.eu/) (and any successor or related site designated by deltaDAO), as may be updated by deltaDAO from time to time.
 
 **1.2 Interpretation**  
 **1.2.1** Unless specified otherwise, these Terms shall be construed as follows:
@@ -206,13 +206,13 @@ Service Offerings are subject to Service Lifecycle Management. Service Offerings
 
 **11.8** deltaDAO has no liability to the Customer or to any third party for any claims or damages that may arise as a result of any transactions that the Customer engages in via a Web3 wallet, or using Smart Contracts, or any other transactions that the Customer conducts via EVM Compatible Blockchains.
 
-## 12. Modifications <a name="modifications"></a>
+## 12. Modifications
 
 **12.1** Insofar as the functionality of the Data Portal is preserved, deltaDAO may modify, change or discontinue any Service including any policies at any time with no prior notification. Modifications, changes or discontinuation of Services concerning the essential functionality of the Data Portal will be notified to the Customer one month prior to becoming effective.
 
 **12.2** deltaDAO shall be entitled to amend or modify this Agreement with a reasonable period of notice. deltaDAO shall notify the Customer in writing (e-mail sufficient) of the changes at the latest one month before they take effect. The Customer shall be deemed to have agreed to the notified amendments or modifications if the Customer has not notified deltaDAO in writing (e-mail sufficient) of its rejection by the time the amendments take effect. deltaDAO shall specifically draw the attention of the Customer to this effect of approval in its notification of the amendment or modification of this Agreement.
 
-## 13. Miscellaneous <a name="miscellaneous"></a>
+## 13. Miscellaneous
 
 **13.1** All notices and announcements by deltaDAO concerning the Services will be published via the Data Portal.
 

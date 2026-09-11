@@ -37,10 +37,19 @@ export default function PrivacyPolicyHeader({
       anchor: 'privacy-policy',
       href: '/privacy/privacy-policy'
     },
+    // Deliberately not listed: /privacy/data-portal-usage-agreement. That page
+    // is upstream boilerplate naming Ocean Enterprise Collective e.V. as the
+    // Portal Operator rather than deltaDAO, and it is not linked from the
+    // footer either. Leave it unreachable until the entity is corrected.
     {
       label: 'Cookie Policy',
       anchor: 'cookie-policy',
       href: '/privacy/cookie-policy'
+    },
+    {
+      label: 'Lifecycle State Policy',
+      anchor: 'lifecycle-state-policy',
+      href: '/privacy/lifecycle-state-policy'
     }
   ]
 

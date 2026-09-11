@@ -8,9 +8,19 @@
 // Examples:
 //   indexedMetadata: { nft: { owner: '0x123…' } }                           → term filter
 //   indexedMetadata: { nft: { state: [0, 1] } }                             → terms filter
-//   credentialSubject: { metadata: { tags: { keyword: 'SENSE' } } }         → term filter (.keyword sub-field)
-//   credentialSubject: { metadata: { tags: { match: 'SENSE' } } }           → match filter (full-text, use with caution)
+//   credentialSubject: { metadata: { tags: { keyword: 'MyTag' } } }         → term filter (.keyword sub-field)
+//   credentialSubject: { metadata: { tags: { match: 'MyTag' } } }           → match filter (full-text, use with caution)
 //
+// Scope: these filters are injected into every query built by
+// generateBaseQuery, which since upstream v1.5.0 also covers the
+// Compute-to-Data algorithm allowlist (getAlgorithmAllowlistQuery) and the
+// dataset-for-algorithm selection lists. A non-empty config therefore also
+// hides trusted algorithms and datasets that lack the configured tag, not just
+// search results. Orders are exempt via the isOrderIndex guard.
+//
+// This portal is restricted to assets tagged for SENSE, so the above applies:
+// a trusted algorithm or dataset published without a SENSE tag will not appear
+// in the compute selection lists here.
 module.exports = {
   credentialSubject: {
     metadata: {
