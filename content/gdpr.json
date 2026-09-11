@@ -1,7 +1,7 @@
 {
   "title": "🍪 We're not big on cookies",
-  "text": "We respect your privacy! We only use essential cookies to keep the lights on, and we never track you personally. See our [cookie policy](/privacy/cookie-policy).",
-  "analyticsText": "We respect your privacy! We use essential cookies to keep the lights on, and with your consent privacy-friendly analytics to see what content is popular and improve the portal. We never track you personally. See our [cookie policy](/privacy/cookie-policy).",
+  "text": "We respect your privacy! We only use strictly necessary cookies to keep the portal working, and our reach analysis works without cookies and without tracking you. See our [cookie policy](/privacy/cookie-policy).",
+  "analyticsText": "We respect your privacy! We only use strictly necessary cookies to keep the portal working, and our reach analysis works without cookies and without tracking you. See our [cookie policy](/privacy/cookie-policy).",
   "manageIntro": "Choose which cookies this portal may use. Essential cookies are always active.",
   "close": "Acknowledge",
   "save": "Save preferences",
@@ -12,11 +12,5 @@
     "title": "Strictly necessary",
     "desc": "Sign-in, wallet connections, saved settings"
   },
-  "optionalCookies": [
-    {
-      "title": "Statistics",
-      "desc": "Anonymized usage statistics, used only to improve the portal.",
-      "cookieName": "AnalyticsCookieConsent"
-    }
-  ]
+  "optionalCookies": []
 }
