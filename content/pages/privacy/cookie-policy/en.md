@@ -1,5 +1,6 @@
 ---
 title: Cookie Policy
+lastUpdated: '2026-09-21'
 ---
 
 ### Table of contents
