@@ -3,6 +3,7 @@ const require = createRequire(import.meta.url)
 
 const nextConfig = {
   output: 'standalone',
+  // the markdown pages are read at request time, so they must survive tracing
   outputFileTracingIncludes: {
     '/*': ['./content/pages/**/*']
   },

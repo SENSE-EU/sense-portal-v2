@@ -11,6 +11,7 @@ import MetaFull from './MetaFull'
 import MetaSecondary from './MetaSecondary'
 import AssetActions from '../AssetActions'
 import { useUserPreferences } from '@context/UserPreferences'
+import { useMarketMetadata } from '@context/MarketMetadata'
 import Bookmark from './Bookmark'
 import { useAsset } from '@context/Asset'
 import Alert from '@shared/atoms/Alert'
@@ -33,7 +34,6 @@ import ComputeJobs from '@components/@shared/ComputeJobs'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { toast } from 'react-toastify'
-import { useMarketMetadata } from '@context/MarketMetadata'
 
 export default function AssetContent({
   asset

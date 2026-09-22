@@ -1,23 +1,27 @@
+import { ReactElement } from 'react'
 import { useUserPreferences } from '@context/UserPreferences'
-import { usePontusXIdentity } from '@deltadao/pontusx-registry-hooks'
-import { useAuth } from '@hooks/useAuth'
-import Jellyfish from '@oceanprotocol/art/creatures/jellyfish/jellyfish-grid.svg'
-import Avatar from '@shared/atoms/Avatar'
-import Copy from '@shared/atoms/Copy'
 import ExplorerLink from '@shared/ExplorerLink'
 import NetworkName from '@shared/NetworkName'
-import { accountTruncate } from '@utils/wallet'
-import { ReactElement } from 'react'
-import { useAccount } from 'wagmi'
+import Jellyfish from '@oceanprotocol/art/creatures/jellyfish/jellyfish-grid.svg'
+import Copy from '@shared/atoms/Copy'
+import Avatar from '@shared/atoms/Avatar'
 import styles from './Account.module.css'
+import { accountTruncate } from '@utils/wallet'
+import { useAddressConfig } from '@hooks/useAddressConfig'
+import { useAuth } from '@hooks/useAuth'
+import { useConnectorSupportedChains } from '@hooks/useDfnsWalletsByChain'
+import { usePontusXLegalName } from '@context/PontusXIdentity'
+import { useAccount } from 'wagmi'
 
 export default function Account({
   accountId
 }: {
   accountId: string
 }): ReactElement {
-  const { legalName } = usePontusXIdentity(accountId)
-  const { chainIds, debug } = useUserPreferences()
+  const { debug } = useUserPreferences()
+  const displayedSupportedChainIds = useConnectorSupportedChains()
+  const { verifiedWallets } = useAddressConfig()
+  const legalName = usePontusXLegalName(accountId)
   const { user, isAuthenticated, authEnabled } = useAuth()
   const { address: connectedAccountId } = useAccount()
 
@@ -30,7 +34,7 @@ export default function Account({
 
   const displayName = isOwnAuthenticatedProfile
     ? user.name
-    : legalName || accountTruncate(accountId)
+    : verifiedWallets?.[accountId] || legalName || accountTruncate(accountId)
   const displayEmail =
     isOwnAuthenticatedProfile && user?.email ? user.email : undefined
   const normalizedDisplayName = displayName?.trim().toLowerCase()
@@ -68,7 +72,7 @@ export default function Account({
         )}
         <p>
           {accountId &&
-            chainIds.map((value) => (
+            displayedSupportedChainIds.map((value) => (
               <ExplorerLink
                 className={styles.explorer}
                 networkId={value}

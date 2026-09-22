@@ -17,8 +17,8 @@ interface PrivacyPageData extends PageData {
 
 export default function PageMarkdown(page: PrivacyPageData): ReactElement {
   const router = useRouter()
-  const { title, description } = page.frontmatter
-  const { slug, content, headings, fileLastUpdated } = page
+  const { title, description, lastUpdated } = page.frontmatter
+  const { content, headings, fileLastUpdated } = page
 
   if (!page || page.content === '') return null
 
@@ -31,7 +31,10 @@ export default function PageMarkdown(page: PrivacyPageData): ReactElement {
     >
       <Container>
         <HashScrollHandler />
-        <PrivacyPolicyHeader lastUpdatedDate={fileLastUpdated} />
+        <PrivacyPolicyHeader
+          documentDate={lastUpdated}
+          fileLastUpdated={fileLastUpdated}
+        />
         {headings.length > 0 ? (
           <StickySidebarLayout
             sidebar={<TableOfContents headings={headings} />}
@@ -62,8 +65,15 @@ export async function getServerSideProps({
   params: { slug: string }
 }) {
   const page = await getPageBySlug(params.slug, 'privacy')
-  const content = markdownToHtmlWithToc(page?.content || '')
-  const headings = extractHeadingsFromMarkdown(page?.content || '')
+
+  // A slug with no document behind it must 404 rather than render an empty
+  // page. Withdrawn legal documents would otherwise keep answering 200.
+  if (!page?.content || page.notFound) {
+    return { notFound: true }
+  }
+
+  const content = markdownToHtmlWithToc(page.content)
+  const headings = extractHeadingsFromMarkdown(page.content)
 
   return {
     props: { ...page, content, headings }

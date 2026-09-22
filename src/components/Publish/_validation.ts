@@ -2,11 +2,12 @@ import { FileInfo } from '@oceanprotocol/lib'
 import { MAX_DECIMALS } from '@utils/constants'
 import { getMaxDecimalsValidation } from '@utils/numbers'
 import * as Yup from 'yup'
-import { getOriginalValue, testLinks } from '@utils/yup'
+import { getOriginalValue, testLinks, testOptionalUrl } from '@utils/yup'
 import { validationConsumerParameters } from '@components/@shared/FormInput/InputElement/ConsumerParameters/_validation'
 import { FormUrlFileInfo } from './_types'
 import { additionalLicenseSourceOptions } from './_license'
 import { isS3File } from 'src/@types/S3File'
+import { normalizeDockerImageReference } from '@utils/docker'
 
 // TODO: conditional validation
 // e.g. when algo is selected, Docker image is required
@@ -178,10 +179,41 @@ const validationMetadata = {
     .required('Required'),
   descriptionLanguage: Yup.string(),
   descriptionDirection: Yup.string(),
+  copyrightHolder: Yup.string().nullable(),
+  providedBy: testOptionalUrl('Provided By must be a valid URL.'),
+  links: Yup.array()
+    .of(
+      Yup.object().shape({
+        key: Yup.string(),
+        value: testOptionalUrl('Each link must be a valid URL.')
+      })
+    )
+    .nullable(),
   tags: Yup.array<string[]>().nullable(),
   dockerImage: Yup.string().when('type', {
     is: 'algorithm',
     then: Yup.string().required('Required')
+  }),
+  dockerImageCustom: Yup.string().when(['type', 'dockerImage'], {
+    is: (type: string, dockerImage: string) =>
+      type === 'algorithm' && dockerImage === 'custom',
+    then: Yup.string()
+      .required('Required')
+      .test('docker-image-reference', function (value) {
+        try {
+          normalizeDockerImageReference(value, this.parent.dockerImageCustomTag)
+          return true
+        } catch (error) {
+          return this.createError({ message: error.message })
+        }
+      })
+  }),
+  dockerImageCustomTag: Yup.string().when(['type', 'dockerImage'], {
+    is: (type: string, dockerImage: string) =>
+      type === 'algorithm' && dockerImage === 'custom',
+    then: Yup.string().required(
+      'Validate the custom Docker image to extract its tag'
+    )
   }),
   dockerImageCustomChecksum: Yup.string().when('type', {
     is: 'algorithm',
@@ -220,6 +252,9 @@ const validationMetadata = {
     })
   }),
   useRemoteLicense: Yup.boolean(),
+  licenseTypeSelection: Yup.string()
+    .oneOf(['URL', 'Upload license file'])
+    .required('Required'),
   licenseUrl: Yup.array().when('useRemoteLicense', {
     is: false,
     then: Yup.array().test('urlTest', (array, context) => {

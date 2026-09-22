@@ -16,6 +16,8 @@ export interface PageData {
   frontmatter: { [key: string]: any }
   content: string
   fileLastUpdated: string
+  /** Set when no document backs this slug, so pages can return a real 404. */
+  notFound?: boolean
 }
 
 let hasGitBinary: boolean | undefined
@@ -43,6 +45,24 @@ function getGitLastUpdated(fullPath: string): string | null {
   } catch {
     return null
   }
+}
+
+/**
+ * YAML turns an unquoted `lastUpdated: 2026-09-21` into a Date, which
+ * getServerSideProps cannot serialise -- the legal page would fail to render
+ * rather than show a wrong date. Normalise any date-valued front matter back
+ * to a plain ISO day so either spelling works.
+ */
+function normalizeFrontmatter(data: { [key: string]: any }): {
+  [key: string]: any
+} {
+  const normalized = { ...data }
+  for (const [key, value] of Object.entries(normalized)) {
+    if (value instanceof Date) {
+      normalized[key] = value.toISOString().split('T')[0]
+    }
+  }
+  return normalized
 }
 
 function escapeRegex(str: string): string {
@@ -175,7 +195,7 @@ export async function getPageBySlug(
 
       return {
         slug: realSlug,
-        frontmatter: data || { title },
+        frontmatter: data ? normalizeFrontmatter(data) : { title },
         content: contentWithTitle,
         fileLastUpdated: new Date().toISOString().split('T')[0]
       }
@@ -195,7 +215,8 @@ export async function getPageBySlug(
         description: ''
       },
       content: `# Content Not Found\n\nThe requested content could not be found.`,
-      fileLastUpdated: new Date().toISOString().split('T')[0]
+      fileLastUpdated: new Date().toISOString().split('T')[0],
+      notFound: true
     }
   }
 
@@ -215,7 +236,7 @@ export async function getPageBySlug(
 
   return {
     slug: realSlug,
-    frontmatter: { ...data, title },
+    frontmatter: { ...normalizeFrontmatter(data), title },
     content: contentWithTitle,
     fileLastUpdated:
       gitLastUpdated || fileStats.mtime.toISOString().split('T')[0]
@@ -251,7 +272,7 @@ export function getAllPages(subDir?: string): PageData[] {
 
         pages.push({
           slug: item,
-          frontmatter: { ...data, title },
+          frontmatter: { ...normalizeFrontmatter(data), title },
           content,
           fileLastUpdated:
             gitLastUpdated || fileStats.mtime.toISOString().split('T')[0]

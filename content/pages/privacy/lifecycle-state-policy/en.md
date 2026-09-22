@@ -1,6 +1,7 @@
 ---
 title: Lifecycle State Policy
 description: This Lifecycle State Policy describes the assignment and transition of Lifecycle States and sanctions for a violation of this policy. It supplements the Terms and Conditions.
+lastUpdated: '2026-09-01'
 ---
 
 # Lifecycle State Policy
