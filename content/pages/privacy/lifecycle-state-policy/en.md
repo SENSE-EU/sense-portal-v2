@@ -49,8 +49,8 @@ The Lifecycle States set by the Publisher have the following properties:
 | Lifecycle State | Description                    | Discoverable on Data Portal | Consumption allowed | Listed under account | Reversible |
 | :-------------- | :----------------------------- | :-------------------------- | :------------------ | :------------------- | :--------- |
 | 0               | Active                         | Yes                         | Yes                 | Yes                  | Yes        |
-| 1               | End-of-life                    | Yes                         | No                  | No                   | No         |
-| 2               | Deprecated                     | No                          | No                  | No                   | Yes        |
+| 1               | End-of-life                    | Yes                         | No                  | No                   | Yes        |
+| 2               | Deprecated                     | No                          | No                  | No                   | No         |
 | 3               | Revoked                        | No                          | No                  | No                   | No         |
 | 4               | Consumption temporary disabled | Yes                         | No                  | Yes                  | Yes        |
 | 5               | Unlisted                       | No                          | Yes                 | Yes                  | Yes        |
