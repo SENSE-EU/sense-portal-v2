@@ -1,7 +1,7 @@
 ---
 title: Lifecycle State Policy
 description: This Lifecycle State Policy describes the assignment and transition of Lifecycle States and sanctions for a violation of this policy. It supplements the Terms and Conditions.
-lastUpdated: '2026-09-01'
+lastUpdated: '2026-09-23'
 ---
 
 # Lifecycle State Policy
@@ -50,8 +50,8 @@ The Lifecycle States set by the Publisher have the following properties:
 | :-------------- | :----------------------------- | :-------------------------- | :------------------ | :------------------- | :--------- |
 | 0               | Active                         | Yes                         | Yes                 | Yes                  | Yes        |
 | 1               | End-of-life                    | Yes                         | No                  | No                   | Yes        |
-| 2               | Deprecated                     | No                          | No                  | No                   | Yes        |
-| 3               | Revoked                        | No                          | No                  | No                   | Yes        |
+| 2               | Deprecated                     | No                          | No                  | No                   | No         |
+| 3               | Revoked                        | No                          | No                  | No                   | No         |
 | 4               | Consumption temporary disabled | Yes                         | No                  | Yes                  | Yes        |
 | 5               | Unlisted                       | No                          | Yes                 | Yes                  | Yes        |
 
