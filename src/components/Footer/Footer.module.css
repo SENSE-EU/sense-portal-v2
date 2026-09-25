@@ -70,11 +70,12 @@ body .websiteLink:hover {
   margin-top: 5rem;
 }
 
-/* "Made by deltaDAO" credit inside the copyright line */
+/* "Portal technology by deltaDAO" credit inside the copyright line */
 .madeByLink {
   color: inherit;
-  text-decoration: underline;
-  text-underline-offset: 3px;
+  /* the copyright line is already underlined; a second decoration on the
+   * link would draw a double underline under "deltaDAO" */
+  text-decoration: none;
 }
 
 .madeByLink:hover,
