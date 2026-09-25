@@ -22,7 +22,7 @@ export default function Footer(): ReactElement {
       </div>
       <p className={styles.copyright}>
         {copyright}
-        {' · '}Portal technology by{' '}
+        {' · '}Portal by{' '}
         <a
           className={styles.madeByLink}
           href="https://www.delta-dao.com"
