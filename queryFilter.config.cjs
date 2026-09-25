@@ -21,6 +21,8 @@
 // This portal is restricted to assets tagged for SENSE, so the above applies:
 // a trusted algorithm or dataset published without a SENSE tag will not appear
 // in the compute selection lists here.
+// The publish wizard prefills the same tag, lower-cased as it is stored on
+// publish (see getQueryFilterTags in useQueryFilter).
 module.exports = {
   credentialSubject: {
     metadata: {
