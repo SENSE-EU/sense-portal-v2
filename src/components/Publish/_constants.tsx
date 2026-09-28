@@ -16,6 +16,7 @@ import { Compute } from 'src/@types/ddo/Service'
 import { AdditionalCredentials } from './AdditionalCredentials'
 import { AccessPolicies } from './AccessPolicies'
 import { createEmptyUrlFileInfo } from './_license'
+import { getQueryFilterTags } from '@hooks/useQueryFilter'
 
 export const wizardSteps: StepContent[] = [
   {
@@ -92,7 +93,8 @@ export const initialValues: FormPublishData = {
     dockerImageCustomTag: '',
     dockerImageCustomEntrypoint: '',
     dockerImageCustomChecksum: '',
-    tags: [],
+    // prefilled with the portal's catalogue tag(s) so the asset is listed here
+    tags: getQueryFilterTags(),
     license: undefined,
     // usesConsumerParameters: false,
     // consumerParameters: [],

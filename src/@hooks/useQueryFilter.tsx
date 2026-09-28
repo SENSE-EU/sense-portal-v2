@@ -126,6 +126,38 @@ export function getQueryFilterTerms(): FilterTerm[] {
   return currentFilterTerms
 }
 
+/**
+ * Tags the global query filter restricts the catalogue to
+ * (`credentialSubject.metadata.tags.keyword` in queryFilter.config.cjs).
+ * Used to prefill the publish wizard so new assets show up in this portal.
+ * Tags are slugified and lower-cased on publish, so case variants of the same
+ * tag (e.g. 'SENSE' and 'sense') collapse into one lower-case entry.
+ *
+ * Only the `tags.keyword` form is read: a `tags: { match: … }` config
+ * prefills nothing.
+ */
+export function getQueryFilterTags(): string[] {
+  const config = queryFilterConfig as NestedFilterConfig
+  const tags = (
+    (config?.credentialSubject as NestedFilterConfig)?.metadata as
+      | NestedFilterConfig
+      | undefined
+  )?.tags as NestedFilterConfig | undefined
+  const keyword = tags?.keyword
+  const keywords = Array.isArray(keyword) ? keyword : [keyword]
+  return Array.from(
+    new Set(
+      keywords
+        .filter((t): t is string => typeof t === 'string')
+        // The keyword filter is a case-sensitive `term(s)` match, so the config
+        // must contain each tag's lower-case slug. Extra case variants are
+        // harmless (`terms` matches any value), but lower-casing here hides a
+        // missing one: ['SENSE'] alone prefills 'sense', which it never matches.
+        .map((t) => t.toLowerCase())
+    )
+  )
+}
+
 // ---------------------------------------------------------------------------
 // React Context + Provider
 // ---------------------------------------------------------------------------
