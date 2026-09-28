@@ -22,7 +22,8 @@
 // a trusted algorithm or dataset published without a SENSE tag will not appear
 // in the compute selection lists here.
 // The publish wizard prefills the same tag, lower-cased as it is stored on
-// publish (see getQueryFilterTags in useQueryFilter).
+// publish (see getQueryFilterTags in useQueryFilter). Always include each tag
+// keyword's lower-case form, or published assets will not match the filter.
 module.exports = {
   credentialSubject: {
     metadata: {
