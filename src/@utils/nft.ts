@@ -48,7 +48,7 @@ function encodeSvg(svgString: string): string {
 const nftMetadataTemplate = {
   name: 'Data NFT',
   symbol: 'SENSE-NFT',
-  description: `This NFT represents an asset in the SENSE ecosystem.`,
+  description: `This NFT represents an asset.`,
   external_url: 'https://sense.pontus-x.eu'
 }
 
