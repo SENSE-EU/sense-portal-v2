@@ -37,6 +37,7 @@ import { requiresSsi } from '@utils/credentials'
 import { getFeeTooltip } from '@utils/feeTooltips'
 import { getAsset } from '@utils/aquarius'
 import { getBaseTokenSymbol } from '@utils/getBaseTokenSymbol'
+import { formatServiceTimeout } from '@utils/ddo'
 import { AssetExtended } from 'src/@types/AssetExtended'
 import { Service } from 'src/@types/ddo/Service'
 import { ComputeEnvironment, ProviderFees } from '@oceanprotocol/lib'
@@ -455,7 +456,8 @@ export default function Review({
   ])
 
   const errorMessages: string[] = []
-  const formatDuration = (seconds: number): string => {
+  // Compute job (C2D resources) duration, not the service access duration
+  const formatJobDuration = (seconds: number): string => {
     const d = Math.floor(seconds / 86400)
     const h = Math.floor((seconds % 86400) / 3600)
     const m = Math.floor((seconds % 3600) / 60)
@@ -877,7 +879,7 @@ export default function Review({
           status: isVerified ? ('verified' as const) : ('unverified' as const),
           index: 0,
           price: rawPrice,
-          duration: formatDuration(service.timeout || 0),
+          duration: formatServiceTimeout(service.timeout),
           name: service.name,
           symbol: resolveSymbol(
             accessDetails?.baseToken?.symbol ||
@@ -917,7 +919,7 @@ export default function Review({
           status: isVerified ? ('verified' as const) : ('unverified' as const),
           index: queue.length,
           price: rawPrice,
-          duration: '1 day',
+          duration: formatServiceTimeout(algoService.timeout),
           name:
             selectedAlgorithmAsset.credentialSubject?.services?.[serviceIndex]
               ?.name || 'Algorithm',
@@ -954,7 +956,7 @@ export default function Review({
               : ('unverified' as const),
             index,
             price: rawPrice,
-            duration: '1 day',
+            duration: formatServiceTimeout(dsService?.timeout),
             name:
               ds.credentialSubject?.services?.[ds.serviceIndex || 0]?.name ||
               `Dataset ${queue.length + 1}`,
@@ -986,7 +988,7 @@ export default function Review({
           status: isVerified ? ('verified' as const) : ('unverified' as const),
           index: queue.length,
           price: rawPrice,
-          duration: formatDuration(service.timeout || 0),
+          duration: formatServiceTimeout(service.timeout),
           name: service.name,
           symbol: resolveSymbol(
             accessDetails?.baseToken?.symbol ||
@@ -1571,7 +1573,7 @@ export default function Review({
     {
       name: 'C2D RESOURCES',
       value: values.jobPrice || '0',
-      duration: formatDuration(
+      duration: formatJobDuration(
         currentMode === 'paid'
           ? (paidResources?.jobDuration || 0) * 60
           : (freeResources?.jobDuration || 0) * 60
