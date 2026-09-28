@@ -70,6 +70,19 @@ body .websiteLink:hover {
   margin-top: 5rem;
 }
 
+/* "Portal by deltaDAO" credit inside the copyright line */
+.madeByLink {
+  color: inherit;
+  /* the copyright line is already underlined; a second decoration on the
+   * link would draw a double underline under "deltaDAO" */
+  text-decoration: none;
+}
+
+.madeByLink:hover,
+.madeByLink:focus-visible {
+  color: #fff;
+}
+
 .socialLinks {
   display: flex;
   justify-content: flex-start;
